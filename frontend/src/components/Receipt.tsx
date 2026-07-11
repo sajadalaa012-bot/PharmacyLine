@@ -8,9 +8,10 @@ import { Printer, ArrowLeft, MessageCircle, Download } from "lucide-react";
 interface ReceiptProps {
   order: Order;
   onBack: () => void;
+  backLabel?: string;
 }
 
-export default function Receipt({ order, onBack }: ReceiptProps) {
+export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -224,7 +225,7 @@ export default function Receipt({ order, onBack }: ReceiptProps) {
                        shadow-[0_10px_24px_-10px_var(--color-brand)] transition hover:bg-brand-deep active:scale-[0.99]"
           >
             <ArrowLeft className="h-4 w-4" />
-            {pending ? "Back to shop" : "New order"}
+            {backLabel ?? (pending ? "Back to shop" : "New order")}
           </button>
         </div>
       </div>

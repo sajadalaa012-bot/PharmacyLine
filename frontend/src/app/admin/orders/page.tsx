@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Order } from "@/types";
 import { fetchOrders, updateOrder, deleteOrder } from "@/lib/api";
 import { money, orderNo, shortDate, shortTime, whatsAppShareUrl } from "@/lib/format";
-import { ChevronRight, Plus, Edit3, Check, MessageCircle, Trash2 } from "lucide-react";
+import { ChevronRight, Plus, Edit3, Check, MessageCircle, Trash2, ReceiptText } from "lucide-react";
+import Receipt from "@/components/Receipt";
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -16,6 +17,7 @@ export default function AdminOrdersPage() {
   const [confirmId, setConfirmId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [receiptOrder, setReceiptOrder] = useState<Order | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -76,6 +78,16 @@ export default function AdminOrdersPage() {
       <div className="flex h-full items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand/25 border-t-brand" />
       </div>
+    );
+  }
+
+  if (receiptOrder) {
+    return (
+      <Receipt
+        order={receiptOrder}
+        onBack={() => setReceiptOrder(null)}
+        backLabel="Back to orders"
+      />
     );
   }
 
@@ -256,15 +268,24 @@ export default function AdminOrdersPage() {
                           </button>
                         </>
                       ) : (
-                        <a
-                          href={whatsAppShareUrl(order)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex h-9 items-center gap-2 rounded-md bg-[#25d366] px-3.5 text-[13px] font-semibold text-[#08301b] transition hover:brightness-95 active:scale-[0.98]"
-                        >
-                          <MessageCircle className="h-3.5 w-3.5" />
-                          Send via WhatsApp
-                        </a>
+                        <>
+                          <button
+                            onClick={() => setReceiptOrder(order)}
+                            className="flex h-9 items-center gap-2 rounded-md bg-brand px-3.5 text-[13px] font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98]"
+                          >
+                            <ReceiptText className="h-3.5 w-3.5" />
+                            Receipt
+                          </button>
+                          <a
+                            href={whatsAppShareUrl(order)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex h-9 items-center gap-2 rounded-md bg-[#25d366] px-3.5 text-[13px] font-semibold text-[#08301b] transition hover:brightness-95 active:scale-[0.98]"
+                          >
+                            <MessageCircle className="h-3.5 w-3.5" />
+                            Send via WhatsApp
+                          </a>
+                        </>
                       )}
 
                       {confirmId === order.id ? (
