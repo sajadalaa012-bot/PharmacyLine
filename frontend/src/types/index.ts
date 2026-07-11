@@ -30,8 +30,31 @@ export interface CartItem {
 
 // ── Order types ─────────────────────────────────────────────────────
 
-export interface OrderItemCreate {
-  product_id: number;
+export type PaymentStatus = "pending" | "paid" | "failed";
+export type OrderStatus =
+  | "pending"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
+export type PaymentMethod = "cash_on_delivery" | "card" | "bank_transfer";
+
+export const ORDER_STATUSES: OrderStatus[] = [
+  "pending",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled",
+];
+export const PAYMENT_STATUSES: PaymentStatus[] = ["pending", "paid", "failed"];
+export const PAYMENT_METHODS: PaymentMethod[] = [
+  "cash_on_delivery",
+  "card",
+  "bank_transfer",
+];
+
+export interface OrderItemInput {
+  product_id: number | null;
   product_code: string;
   product_name: string;
   quantity: number;
@@ -40,33 +63,51 @@ export interface OrderItemCreate {
   is_free: boolean;
 }
 
-export type OrderStatus = "pending" | "approved";
-
-export interface OrderCreate {
-  notes: string;
-  discount?: number;
-  grand_total: number;
-  status?: OrderStatus;
-  items: OrderItemCreate[];
-}
-
-export interface OrderItem {
+export interface OrderItem extends OrderItemInput {
   id: number;
-  product_id: number;
-  product_code: string;
-  product_name: string;
-  quantity: number;
-  unit_price: number;
-  subtotal: number;
-  is_free: boolean;
+}
+
+/** Payload the storefront/POS sends to create an order. */
+export interface CreateOrderInput {
+  idempotency_key: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  shipping_address: string;
+  billing_address?: string | null;
+  payment_method: PaymentMethod | string;
+  notes?: string;
+  shipping_cost?: number;
+  tax?: number;
+  discount?: number;
+  items: OrderItemInput[];
 }
 
 export interface Order {
   id: number;
-  created_at: string;
-  notes: string;
+  order_number: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  shipping_address: string;
+  billing_address: string | null;
+  subtotal: number;
+  shipping_cost: number;
+  tax: number;
   discount: number;
-  grand_total: number;
-  status: OrderStatus;
+  total: number;
+  payment_method: string;
+  payment_status: PaymentStatus;
+  order_status: OrderStatus;
+  notes: string;
+  created_at: string;
   items: OrderItem[];
+}
+
+/** Paginated list response from GET /api/orders. */
+export interface OrdersPage {
+  orders: Order[];
+  total: number;
+  page: number;
+  pageSize: number;
 }

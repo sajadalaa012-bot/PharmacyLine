@@ -1,7 +1,16 @@
-// Browser-only data layer. Keeps the exact same function signatures the app
-// already uses, but reads/writes IndexedDB instead of a backend API.
+// Data layer.
+//   • Products & categories: browser-local (IndexedDB) — unchanged.
+//   • Orders: the real Postgres database via the /api routes.
 
-import { Category, Product, OrderCreate, Order, OrderItem } from "@/types";
+import {
+  Category,
+  Product,
+  Order,
+  OrdersPage,
+  CreateOrderInput,
+  OrderStatus,
+  PaymentStatus,
+} from "@/types";
 import {
   STORE,
   getAll,
@@ -12,7 +21,7 @@ import {
   ensureSeeded,
 } from "./localdb";
 
-// ── Products & Categories ───────────────────────────────────────────
+// ── Products & Categories (local) ───────────────────────────────────
 
 export async function fetchProducts(): Promise<Category[]> {
   await ensureSeeded();
@@ -90,7 +99,11 @@ export async function createCategory(categoryData: {
   if (!display_order) {
     display_order = cats.reduce((m, c) => Math.max(m, c.display_order), 0) + 1;
   }
-  const category = { id: await nextId("Category"), name: categoryData.name, display_order };
+  const category = {
+    id: await nextId("Category"),
+    name: categoryData.name,
+    display_order,
+  };
   await putOne(STORE.categories, category);
   return { ...category, products: [] };
 }
@@ -122,70 +135,6 @@ export async function deleteCategory(categoryId: number): Promise<void> {
   await deleteOne(STORE.categories, categoryId);
 }
 
-// ── Orders ───────────────────────────────────────────────────────────
-
-export async function createOrder(order: OrderCreate): Promise<Order> {
-  await ensureSeeded();
-  if (!order.items.length) {
-    throw new Error("Order must have at least one item.");
-  }
-  const items: OrderItem[] = order.items.map((it, i) => ({ id: i + 1, ...it }));
-  const saved: Order = {
-    id: await nextId("Order"),
-    created_at: new Date().toISOString(),
-    notes: order.notes,
-    discount: order.discount ?? 0,
-    grand_total: order.grand_total,
-    status: order.status ?? "pending",
-    items,
-  };
-  await putOne(STORE.orders, saved);
-  return saved;
-}
-
-export async function fetchOrders(): Promise<Order[]> {
-  await ensureSeeded();
-  const orders = await getAll<Order>(STORE.orders);
-  return orders.sort((a, b) => b.created_at.localeCompare(a.created_at));
-}
-
-export async function fetchOrder(orderId: number): Promise<Order> {
-  await ensureSeeded();
-  const order = await getOne<Order>(STORE.orders, orderId);
-  if (!order) throw new Error("Order not found.");
-  return order;
-}
-
-export async function updateOrder(
-  orderId: number,
-  order: OrderCreate,
-): Promise<Order> {
-  await ensureSeeded();
-  const existing = await getOne<Order>(STORE.orders, orderId);
-  if (!existing) throw new Error("Order not found.");
-  if (!order.items.length) {
-    throw new Error("Order must have at least one item.");
-  }
-  const items: OrderItem[] = order.items.map((it, i) => ({ id: i + 1, ...it }));
-  const updated: Order = {
-    ...existing,
-    notes: order.notes,
-    discount: order.discount ?? 0,
-    grand_total: order.grand_total,
-    status: order.status ?? existing.status,
-    items,
-  };
-  await putOne(STORE.orders, updated);
-  return updated;
-}
-
-export async function deleteOrder(orderId: number): Promise<void> {
-  await ensureSeeded();
-  await deleteOne(STORE.orders, orderId);
-}
-
-// ── Image "upload" — stored inline as a data URL (no server) ─────────
-
 export async function uploadProductImage(
   file: File,
 ): Promise<{ image_url: string }> {
@@ -196,4 +145,105 @@ export async function uploadProductImage(
     reader.readAsDataURL(file);
   });
   return { image_url };
+}
+
+// ── Orders (real database via /api) ─────────────────────────────────
+
+async function readError(res: Response, fallback: string): Promise<string> {
+  const data = await res.json().catch(() => ({}));
+  return (data as { error?: string }).error || fallback;
+}
+
+/** Signals an expired/absent admin session so the UI can show the login. */
+export class UnauthorizedError extends Error {
+  constructor() {
+    super("Your session has expired. Please sign in again.");
+  }
+}
+
+/** Place an order (public). */
+export async function createOrder(input: CreateOrderInput): Promise<Order> {
+  const res = await fetch("/api/orders", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new Error(await readError(res, "Failed to place order."));
+  return res.json();
+}
+
+export interface OrdersQuery {
+  search?: string;
+  order_status?: string;
+  payment_status?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+/** List orders (admin). */
+export async function fetchOrdersPage(
+  query: OrdersQuery = {},
+): Promise<OrdersPage> {
+  const params = new URLSearchParams();
+  for (const [k, v] of Object.entries(query)) {
+    if (v !== undefined && v !== null && v !== "") params.set(k, String(v));
+  }
+  const res = await fetch(`/api/orders?${params.toString()}`);
+  if (res.status === 401) throw new UnauthorizedError();
+  if (!res.ok) throw new Error(await readError(res, "Failed to load orders."));
+  return res.json();
+}
+
+/** Single order (admin). */
+export async function fetchOrder(orderId: number): Promise<Order> {
+  const res = await fetch(`/api/orders/${orderId}`);
+  if (res.status === 401) throw new UnauthorizedError();
+  if (!res.ok) throw new Error(await readError(res, "Failed to load order."));
+  return res.json();
+}
+
+/** Update order status and/or payment status (admin). */
+export async function updateOrderStatus(
+  orderId: number,
+  updates: { order_status?: OrderStatus; payment_status?: PaymentStatus },
+): Promise<Order> {
+  const res = await fetch(`/api/orders/${orderId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updates),
+  });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (!res.ok) throw new Error(await readError(res, "Failed to update order."));
+  return res.json();
+}
+
+/** Delete an order (admin). */
+export async function deleteOrder(orderId: number): Promise<void> {
+  const res = await fetch(`/api/orders/${orderId}`, { method: "DELETE" });
+  if (res.status === 401) throw new UnauthorizedError();
+  if (!res.ok && res.status !== 204) {
+    throw new Error(await readError(res, "Failed to delete order."));
+  }
+}
+
+export interface OrderTracking {
+  order_number: string;
+  created_at: string;
+  order_status: OrderStatus;
+  payment_status: PaymentStatus;
+  total: number;
+}
+
+/** Public live-status lookup for a customer's own order. */
+export async function trackOrder(
+  orderNumber: string,
+  email: string,
+): Promise<OrderTracking | null> {
+  const params = new URLSearchParams({ number: orderNumber, email });
+  const res = await fetch(`/api/orders/track?${params.toString()}`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(await readError(res, "Lookup failed."));
+  return res.json();
 }

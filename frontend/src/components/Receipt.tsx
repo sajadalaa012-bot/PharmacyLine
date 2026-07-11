@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Order } from "@/types";
-import { money, orderNo, shortDate, shortTime, whatsAppShareUrl } from "@/lib/format";
+import { money, shortDate, shortTime, whatsAppShareUrl } from "@/lib/format";
 import { Printer, ArrowLeft, MessageCircle, Download } from "lucide-react";
 
 interface ReceiptProps {
@@ -16,7 +16,7 @@ export default function Receipt({ order, onBack }: ReceiptProps) {
   const itemsSubtotal = order.items.reduce((sum, it) => sum + it.subtotal, 0);
   const discountPercent =
     itemsSubtotal > 0 ? Math.round((order.discount / itemsSubtotal) * 100) : 0;
-  const pending = order.status === "pending";
+  const pending = order.order_status === "pending";
 
   const saveAsImage = async () => {
     if (!cardRef.current || saving) return;
@@ -30,7 +30,7 @@ export default function Receipt({ order, onBack }: ReceiptProps) {
       });
       const a = document.createElement("a");
       a.href = dataUrl;
-      a.download = `pharmacy-line-order-${String(order.id).padStart(5, "0")}.png`;
+      a.download = `pharmacy-line-order-${order.order_number}.png`;
       a.click();
     } catch (err) {
       console.error("Failed to save receipt image:", err);
@@ -53,7 +53,7 @@ export default function Receipt({ order, onBack }: ReceiptProps) {
               Pharmacy Line
             </h1>
             <div className="mx-auto mt-4 flex max-w-xs items-center justify-between text-xs text-ink-2">
-              <span className="font-semibold">{orderNo(order.id)}</span>
+              <span className="font-semibold">{order.order_number}</span>
               <span>
                 {shortDate(order.created_at)} — {shortTime(order.created_at)}
               </span>
@@ -123,7 +123,7 @@ export default function Receipt({ order, onBack }: ReceiptProps) {
               <div className="flex items-baseline justify-between pt-2">
                 <span className="label-caps text-ink-2">Grand total</span>
                 <span className="font-display text-3xl font-semibold tracking-tight text-ink tabular-nums">
-                  {order.grand_total.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                  {order.total.toLocaleString("en-US", { maximumFractionDigits: 0 })}
                   <span className="ml-1.5 font-sans text-sm font-semibold tracking-[0.08em] text-ink-3">
                     IQD
                   </span>
