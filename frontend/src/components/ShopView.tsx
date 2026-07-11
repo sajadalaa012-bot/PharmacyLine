@@ -20,6 +20,7 @@ import {
 import ProductCard from "./ProductCard";
 import CartPanel from "./CartPanel";
 import OrderConfirmation from "./OrderConfirmation";
+import OrderHistory from "./OrderHistory";
 import ThemeToggle from "./ThemeToggle";
 
 const TRUST = [
@@ -35,6 +36,7 @@ export default function ShopView() {
   const [activeCategory, setActiveCategory] = useState<number | "all">("all");
   const [query, setQuery] = useState("");
   const [cartOpen, setCartOpen] = useState(false);
+  const [cartTab, setCartTab] = useState<"cart" | "orders">("cart");
   const [view, setView] = useState<"home" | "store">("home");
   const [isStandalone, setIsStandalone] = useState(false);
 
@@ -161,6 +163,27 @@ export default function ShopView() {
       customerMode
     />
   );
+
+  // Cart drawer tabs: the live cart vs. this device's order history.
+  const cartTabs = (
+    <div className="flex items-center gap-1">
+      {(["cart", "orders"] as const).map((tab) => (
+        <button
+          key={tab}
+          onClick={() => setCartTab(tab)}
+          className={`label-caps rounded-md px-3 py-1.5 transition ${
+            cartTab === tab
+              ? "bg-brand text-on-brand"
+              : "text-ink-2 hover:bg-sunken"
+          }`}
+        >
+          {tab === "cart" ? "Cart" : "My Orders"}
+        </button>
+      ))}
+    </div>
+  );
+
+  const drawerBody = cartTab === "cart" ? cartPanel : <OrderHistory />;
 
   const renderSearch = (className = "") => (
     <div className={`relative ${className}`}>
@@ -497,13 +520,13 @@ export default function ShopView() {
               >
                 <ArrowLeft className="h-5 w-5" />
               </button>
-              <span className="label-caps text-ink-2">Your order</span>
+              {cartTabs}
             </div>
             <div
               className="flex-1 overflow-hidden"
               style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
             >
-              {cartPanel}
+              {drawerBody}
             </div>
           </div>
         ) : (
@@ -511,7 +534,7 @@ export default function ShopView() {
             <div className="flex-1" onClick={() => setCartOpen(false)} />
             <div className="slide-in-right flex h-full w-full max-w-md flex-col border-l border-line bg-surface shadow-2xl">
               <div className="flex items-center justify-between border-b border-line bg-sunken/50 px-5 py-3.5">
-                <span className="label-caps text-ink-2">Your order</span>
+                {cartTabs}
                 <button
                   onClick={() => setCartOpen(false)}
                   aria-label="Close cart"
@@ -520,7 +543,7 @@ export default function ShopView() {
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              <div className="flex-1 overflow-hidden">{cartPanel}</div>
+              <div className="flex-1 overflow-hidden">{drawerBody}</div>
             </div>
           </div>
         ))}
