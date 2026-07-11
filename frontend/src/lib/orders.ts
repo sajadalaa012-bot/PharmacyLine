@@ -282,32 +282,18 @@ export async function deleteOrder(id: number): Promise<boolean> {
 }
 
 // ── Public tracking (customer's own order via id + secret token) ─────
-
-export interface OrderTracking {
-  id: number;
-  created_at: string;
-  status: OrderStatus;
-  grand_total: number;
-}
+// The token authorizes seeing the FULL order (items, notes, totals), so the
+// customer can review what they ordered while it's pending.
 
 export async function trackOrder(
   id: number,
   token: string,
-): Promise<OrderTracking | null> {
+): Promise<Order | null> {
   await ensureSchema();
-  const res = await getPool().query(
-    "SELECT id, created_at, status, grand_total FROM orders WHERE id = $1 AND track_token = $2",
+  const check = await getPool().query(
+    "SELECT id FROM orders WHERE id = $1 AND track_token = $2",
     [id, token],
   );
-  const r = res.rows[0];
-  if (!r) return null;
-  return {
-    id: Number(r.id),
-    created_at:
-      r.created_at instanceof Date
-        ? r.created_at.toISOString()
-        : String(r.created_at),
-    status: String(r.status) as OrderStatus,
-    grand_total: num(r.grand_total),
-  };
+  if (!check.rows[0]) return null;
+  return getOrder(id);
 }

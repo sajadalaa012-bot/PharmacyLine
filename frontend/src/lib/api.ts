@@ -213,18 +213,11 @@ export async function deleteOrder(orderId: number): Promise<void> {
   }
 }
 
-export interface OrderTracking {
-  id: number;
-  created_at: string;
-  status: "pending" | "approved";
-  grand_total: number;
-}
-
-/** Public live-status lookup for a customer's own order (id + token). */
+/** Public lookup of a customer's own full order (id + secret token). */
 export async function trackOrder(
   id: number,
   token: string,
-): Promise<OrderTracking | null> {
+): Promise<Order | null> {
   const params = new URLSearchParams({ id: String(id), token });
   const res = await fetch(`/api/orders/track?${params.toString()}`);
   if (res.status === 404) return null;
