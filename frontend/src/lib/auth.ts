@@ -7,10 +7,10 @@
 
 const TOKEN_KEY = "pos_admin";
 
-const ADMIN_EMAIL = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@example.com")
+const ADMIN_EMAIL = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "pharmacyline@gmail.com")
   .trim()
   .toLowerCase();
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "changeme";
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "Bhfjdirew5";
 
 export function isAuthed(): boolean {
   if (typeof window === "undefined") return false;
