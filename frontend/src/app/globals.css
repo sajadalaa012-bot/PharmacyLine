@@ -1,0 +1,342 @@
+@import "tailwindcss";
+
+/* ── Design tokens — "Apothecary Ledger" ──────────────────────────────
+   Light parchment theme for storefront & POS.
+   The .admin scope overrides the same tokens for the back office. */
+
+@theme inline {
+  --font-sans: var(--font-archivo), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), var(--font-arabic), Georgia, serif;
+}
+
+@theme {
+  --color-paper: #f4f6f2;
+  --color-surface: #ffffff;
+  --color-sunken: #eaeee8;
+  --color-line: #dfe5dd;
+  --color-line-strong: #c2ccc0;
+  --color-ink: #1b2a21;
+  --color-ink-2: #4f6156;
+  --color-ink-3: #87968b;
+  --color-brand: #11734f;
+  --color-brand-deep: #0b5138;
+  --color-on-brand: #ffffff;
+  --color-cart: #000000;
+  --color-copper: #b56d14;
+  --color-rose: #bb4136;
+}
+
+/* ── Dark mode (storefront & POS) — toggled via .dark on <html> ─────── */
+
+.dark {
+  --color-paper: #0f1f18;
+  --color-surface: #16291f;
+  --color-sunken: #0a1710;
+  --color-line: #24402f;
+  --color-line-strong: #3b5c47;
+  --color-ink: #eaf4ec;
+  --color-ink-2: #aecab7;
+  --color-ink-3: #74927f;
+  --color-brand: #4ecb90;
+  --color-brand-deep: #79dcae;
+  --color-on-brand: #06281a;
+  --color-cart: #050505;
+  --color-copper: #e5ab60;
+  --color-rose: #e88379;
+  color-scheme: dark;
+}
+
+/* ── "Atelier" theme ──────────────────────────────────────────────────
+   A warm, editorial furniture-ecommerce palette shared by the customer
+   storefront (<div class="shop">) and the /admin back office
+   (<div class="admin">). Scoped to those roots so it overrides the
+   default tokens above without leaking anywhere else. */
+
+.shop,
+.admin {
+  --color-paper: #f5f2ec;
+  --color-surface: #ffffff;
+  --color-sunken: #efe9df;
+  --color-line: #e8e1d5;
+  --color-line-strong: #d5ccbc;
+  --color-ink: #211d17;
+  --color-ink-2: #5b5449;
+  --color-ink-3: #948b7d;
+  --color-brand: #b25c38;
+  --color-brand-deep: #97482a;
+  --color-on-brand: #ffffff;
+  --color-cart: #ffffff;
+  --color-copper: #a8712a;
+  --color-rose: #b4453a;
+  color-scheme: light;
+}
+
+.dark .shop,
+.dark .admin {
+  --color-paper: #16130e;
+  --color-surface: #201b15;
+  --color-sunken: #100d08;
+  --color-line: #332c22;
+  --color-line-strong: #4c4132;
+  --color-ink: #f2ede3;
+  --color-ink-2: #c5b9a8;
+  --color-ink-3: #8d8171;
+  --color-brand: #c56a3f;
+  --color-brand-deep: #e0946b;
+  --color-on-brand: #ffffff;
+  --color-cart: #ffffff;
+  --color-copper: #d9a35f;
+  --color-rose: #e8837a;
+  color-scheme: dark;
+}
+
+/* Soft pastel per-item tints — skincare-style product cards.
+   Assigned per product so each item sits on its own gentle wash. */
+.shop,
+.admin {
+  --tint-1: #fbe9e6;
+  --tint-2: #fdecdd;
+  --tint-3: #f6efd6;
+  --tint-4: #e5f0e5;
+  --tint-5: #e3edf6;
+  --tint-6: #efe7f6;
+}
+
+.dark .shop,
+.dark .admin {
+  --tint-1: #fbe9e6;
+  --tint-2: #fdecdd;
+  --tint-3: #f6efd6;
+  --tint-4: #e5f0e5;
+  --tint-5: #e3edf6;
+  --tint-6: #efe7f6;
+}
+
+.tint-1 { background-color: var(--tint-1); }
+.tint-2 { background-color: var(--tint-2); }
+.tint-3 { background-color: var(--tint-3); }
+.tint-4 { background-color: var(--tint-4); }
+.tint-5 { background-color: var(--tint-5); }
+.tint-6 { background-color: var(--tint-6); }
+
+/* Soft warm wash behind the storefront hero */
+.shop-hero {
+  background:
+    radial-gradient(115% 120% at 100% -10%,
+      color-mix(in oklab, var(--color-brand) 12%, transparent) 0%,
+      transparent 58%),
+    var(--color-paper);
+}
+
+/* Hide scrollbar on the horizontal category strip */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Base ───────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  /* Prevent mobile/PWA auto text inflation and double-tap zoom */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-feature-settings: "ss01";
+  /* Disable double-tap-to-zoom; taps register instantly */
+  touch-action: manipulation;
+}
+
+/* Native controls (selects, inputs) inherit the theme instead of OS chrome.
+   Kept in @layer base so explicit text-* utilities still win over it. */
+@layer base {
+  select,
+  input,
+  textarea,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+/* Subtle paper grain over every surface */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.018;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background-color: rgba(28, 92, 68, 0.22);
+}
+
+/* ── Small-caps label utility ───────────────────────────────────────── */
+
+.label-caps {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── Dotted ledger leader between item name and value ───────────────── */
+
+.leader {
+  border-bottom: 1.5px dotted var(--color-line-strong);
+  transform: translateY(-3px);
+}
+
+/* ── Scrollbars ─────────────────────────────────────────────────────── */
+
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+.scroll-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background-color: var(--color-line-strong);
+  border-radius: 3px;
+}
+
+/* ── Motion ─────────────────────────────────────────────────────────── */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rise {
+  opacity: 0;
+  animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(28px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.slide-in-right {
+  animation: slide-in-right 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.fade-in {
+  animation: fade-in 0.2s ease-out forwards;
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.pop {
+  animation: pop 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .slide-in-right,
+  .fade-in,
+  .pop {
+    animation-duration: 0.01ms;
+  }
+}
+
+/* ── Print (receipt) ────────────────────────────────────────────────── */
+
+@media print {
+  @page {
+    size: auto;
+    margin: 12mm;
+  }
+
+  /* Always print in clean light ink, whatever theme is on screen */
+  :root,
+  .dark,
+  .admin {
+    --color-paper: #ffffff;
+    --color-surface: #ffffff;
+    --color-sunken: #f5f4f0;
+    --color-line: #dcdcd6;
+    --color-line-strong: #b9b9b0;
+    --color-ink: #141414;
+    --color-ink-2: #444444;
+    --color-ink-3: #767670;
+    --color-brand: #14684a;
+    --color-brand-deep: #0e4a34;
+    --color-on-brand: #ffffff;
+    --color-cart: #000000;
+    --color-copper: #a05e14;
+    --color-rose: #a83a32;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    background: white !important;
+  }
+  body::after {
+    display: none;
+  }
+  .print-hidden {
+    display: none !important;
+  }
+  .print-plain {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}

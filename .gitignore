@@ -1,0 +1,22 @@
+# Node / Next
+frontend/node_modules
+frontend/.next
+frontend/out
+frontend/tsconfig.tsbuildinfo
+
+# Python
+backend/.python
+backend/__pycache__
+backend/**/__pycache__
+
+# Local database (created at runtime / seeded)
+backend/pos.db
+*.db
+
+# Env & archives
+.env
+*.zip
+
+# OS
+.DS_Store
+Thumbs.db

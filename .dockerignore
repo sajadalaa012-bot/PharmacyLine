@@ -1,0 +1,18 @@
+# Node / Next
+frontend/node_modules
+frontend/.next
+frontend/out
+frontend/tsconfig.tsbuildinfo
+
+# Python (local venv + caches + local DB)
+backend/.python
+backend/__pycache__
+backend/**/__pycache__
+backend/pos.db
+backend/*.db
+
+# Misc
+**/.DS_Store
+*.zip
+.git
+.gitignore

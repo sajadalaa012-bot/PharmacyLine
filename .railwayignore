@@ -1,0 +1,12 @@
+# Keep the upload small when using `railway up` (no git repo present).
+frontend/node_modules
+frontend/.next
+frontend/out
+frontend/tsconfig.tsbuildinfo
+backend/.python
+backend/__pycache__
+backend/**/__pycache__
+backend/pos.db
+*.db
+*.zip
+.git
