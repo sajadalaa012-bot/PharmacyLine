@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Category } from "@/types";
-import { fetchProducts } from "@/lib/api";
+import { fetchProducts, fetchOrder } from "@/lib/api";
 import { useCart } from "@/lib/useCart";
 import { Search, X, ShoppingCart } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
@@ -27,7 +27,20 @@ export default function AdminSellPage() {
     load();
   }, [load]);
 
-  const cart = useCart(load);
+  // Admin sales are approved immediately; editing a pending order approves it on save.
+  const cart = useCart(load, "approved");
+  const { loadOrder } = cart;
+
+  // Deep link from the Orders page: /admin/sell?order=<id> preloads that order.
+  useEffect(() => {
+    const id = parseInt(
+      new URLSearchParams(window.location.search).get("order") ?? "",
+      10
+    );
+    if (!isNaN(id)) {
+      fetchOrder(id).then(loadOrder).catch(console.error);
+    }
+  }, [loadOrder]);
 
   if (loading) {
     return (
@@ -55,13 +68,7 @@ export default function AdminSellPage() {
     .filter((cat) => cat.products.length > 0);
 
   const submitOrder = async () => {
-    await cart.submit({
-      customer_name: "Walk-in customer",
-      customer_email: "walkin@pharmacyline.local",
-      customer_phone: "-",
-      shipping_address: "In-store",
-      payment_method: "cash_on_delivery",
-    });
+    await cart.submit();
     setCartOpen(false);
   };
 
@@ -71,10 +78,14 @@ export default function AdminSellPage() {
       <div className="flex shrink-0 items-center gap-4 border-b border-line bg-surface px-6 py-4">
         <div>
           <h1 className="font-display text-xl font-semibold tracking-tight text-ink">
-            New sale
+            {cart.editingOrderId
+              ? `Review order #${String(cart.editingOrderId).padStart(5, "0")}`
+              : "New sale"}
           </h1>
           <p className="mt-0.5 text-[11px] text-ink-3">
-            Bonus items, price overrides, and discounts available
+            {cart.editingOrderId
+              ? "Adjust items, bonuses, and discount — saving approves the order"
+              : "Bonus items, price overrides, and discounts available"}
           </p>
         </div>
 
@@ -176,7 +187,7 @@ export default function AdminSellPage() {
             onClear={cart.clear}
             submitting={cart.submitting}
             submitError={cart.submitError}
-            submitLabel="Generate Receipt"
+            submitLabel={cart.editingOrderId ? "Approve Order" : "Generate Receipt"}
           />
         </aside>
       </div>

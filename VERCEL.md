@@ -1,66 +1,69 @@
-# Deploying to Vercel (with a real Postgres database)
+# Deploying to Vercel (browser-only)
 
-Architecture now:
+This app now runs **entirely in the browser** — no backend, no database server.
+Products, categories, and orders are stored in the visitor's browser
+(IndexedDB), seeded from the bundled catalog. That makes it a perfect fit for
+Vercel's static/serverless hosting.
 
-- **Orders** → a real **Postgres** database, via server API routes
-  (`/api/orders*`). Persistent, shared across devices, admin-protected.
-- **Products & categories** → still browser-local (IndexedDB), seeded from the
-  bundled catalog. (Not part of the order-system request.)
-- **Admin** (`/admin` + order APIs) → protected by a server-side session
-  cookie. Storefront browsing + checkout are public.
+> ⚠️ **Important consequence:** data is **per-browser, per-device**. Orders you
+> ring up on the shop computer are **not** visible on your phone or another PC,
+> and clearing the browser's site data erases them. This is the tradeoff of
+> having "no API". If you later need shared data, tell me and we'll host the
+> backend again.
 
 ---
 
-## Step 1 — Create a Postgres database (Neon, free)
-1. Go to **https://neon.tech** → sign up → **Create project**.
-2. Copy the **connection string**
-   (`postgresql://user:pass@ep-xxx.neon.tech/db?sslmode=require`).
+## Step 1 — Import the repo into Vercel
+1. Go to **https://vercel.com** → sign up / log in **with GitHub**.
+2. **Add New… → Project** → import **`PharmacyLine`**.
 
-> Tables are created automatically on first use — no migration step needed.
+## Step 2 — Set the Root Directory ⚠️ (important)
+The repo has a `frontend/` folder (and an unused `backend/`). Vercel must build
+the frontend:
+- In the import screen, find **Root Directory** → click **Edit** → choose
+  **`frontend`**.
+- Framework preset should auto-detect **Next.js**. Leave build settings default.
 
-## Step 2 — Import the repo into Vercel
-1. **https://vercel.com** → log in with GitHub → **Add New → Project** → import
-   **`PharmacyLine`**.
-2. ⚠️ Set **Root Directory** to **`frontend`**.
-3. Framework auto-detects **Next.js**. Leave build settings default.
+## Step 3 — Set the admin login
+Under **Environment Variables**, add:
 
-## Step 3 — Environment variables (Settings → Environment Variables)
 | Name | Value |
 |------|-------|
-| `DATABASE_URL` | your Neon connection string |
-| `ADMIN_EMAIL` | `pharmacyline@gmail.com` |
-| `ADMIN_PASSWORD` | `pharmacyline` |
-| `AUTH_SECRET` | a long random string |
+| `NEXT_PUBLIC_ADMIN_EMAIL` | the email you'll sign in with |
+| `NEXT_PUBLIC_ADMIN_PASSWORD` | a password |
 
-> These are **server-only** (no `NEXT_PUBLIC_` prefix), so the password/secret
-> never ship to the browser — this is real, server-enforced auth.
+> These are baked into the site at build time. Because this is a browser-only
+> app, the admin lock is a **convenience gate**, not hard security — anyone
+> technical can read the browser data regardless. Don't put sensitive secrets here.
 
 ## Step 4 — Deploy
-Click **Deploy**. First build ~1–2 min. You get a free `…vercel.app` URL.
+- Click **Deploy**. First build takes ~1–2 min.
+- You get a free URL like `https://pharmacy-line.vercel.app`.
 
 ## Step 5 — Use it
-- **Storefront:** open the URL → browse → **Checkout** (enter name, email,
-  phone, address, payment method) → **Place Order** → confirmation with an
-  order number. "My Orders" (in the cart) shows the customer's own orders +
-  live status.
-- **Admin:** `/admin` → sign in with `ADMIN_EMAIL` / `ADMIN_PASSWORD` →
-  **Orders** page: search, filter, paginate, open an order, change **order
-  status** & **payment status**, or delete.
+- **Storefront:** open the URL — products load instantly (public, no login).
+- **Admin:** go to `/admin` → sign in with your `NEXT_PUBLIC_ADMIN_EMAIL` +
+  `NEXT_PUBLIC_ADMIN_PASSWORD`.
 
 Every push to GitHub auto-redeploys.
 
 ---
 
-## Local development
+## Test it locally first (optional, 1 minute)
 ```powershell
 cd frontend
-copy .env.example .env.local   # then edit values (use your Neon URL)
 npm run dev
 ```
-Open http://localhost:3000 (storefront) and http://localhost:3000/admin.
+Open **http://localhost:3000** — add items to the cart and place an order, then
+open **http://localhost:3000/admin** (login `admin@example.com` / `changeme` by
+default) and check the order appears under **Orders**.
 
 ## Notes
-- Product photos uploaded in admin are still stored browser-side (products are
-  not in the database yet). Orders and everything in them are fully persisted.
-- To wipe orders, drop the `orders` / `order_items` tables in Neon; they'll be
-  recreated empty on the next request.
+- **Uploaded product photos** are stored inside the browser as data (they work,
+  but they live only on the device that uploaded them, like all other data).
+- The seeded product images (`/products/*.jpg`) are bundled and served by Vercel.
+- To reset a device back to the original catalog: clear the site's data in the
+  browser (DevTools → Application → Clear storage), then reload.
+- The `backend/`, `Dockerfile`, and `railway.json` files are now unused for this
+  Vercel deployment — kept only in case you switch back to a hosted backend.
+```

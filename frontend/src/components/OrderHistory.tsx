@@ -1,40 +1,42 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { trackOrder, OrderTracking } from "@/lib/api";
-import { getMyOrders, SavedOrder } from "@/lib/myOrders";
-import { money, shortDate, shortTime } from "@/lib/format";
-import { OrderStatusBadge, PaymentStatusBadge } from "./StatusBadge";
+import { Order, OrderStatus } from "@/types";
+import { fetchOrders } from "@/lib/api";
+import { money, orderNo, shortDate, shortTime } from "@/lib/format";
 import { ClipboardList } from "lucide-react";
 
-type Row = SavedOrder & { tracking?: OrderTracking | null };
+/** Status pill — Pending = yellow/orange, Approved = green. */
+function StatusBadge({ status }: { status: OrderStatus }) {
+  const pending = status === "pending";
+  return (
+    <span
+      className={`label-caps shrink-0 rounded-full border px-2 py-0.5 ${
+        pending
+          ? "border-amber-400/50 bg-amber-400/15 text-amber-700 dark:text-amber-300"
+          : "border-green-500/50 bg-green-500/15 text-green-700 dark:text-green-300"
+      }`}
+    >
+      {pending ? "Pending" : "Approved"}
+    </span>
+  );
+}
 
 /**
- * The customer's own orders (placed from this device), with live status
- * pulled from the server for each via the public track endpoint.
+ * The customer's order history, shown in the cart drawer. Lists orders placed
+ * from this device with their ID, date, and status. Re-fetches each time it
+ * mounts (i.e. every time the "My Orders" tab is opened).
  */
 export default function OrderHistory() {
-  const [rows, setRows] = useState<Row[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
-    const saved = getMyOrders();
-    if (saved.length === 0) {
-      setLoading(false);
-      return;
-    }
-    Promise.all(
-      saved.map(async (o) => ({
-        ...o,
-        tracking: await trackOrder(o.order_number, o.email).catch(() => null),
-      })),
-    ).then((resolved) => {
-      if (active) {
-        setRows(resolved);
-        setLoading(false);
-      }
-    });
+    fetchOrders()
+      .then((o) => active && setOrders(o))
+      .catch(() => active && setOrders([]))
+      .finally(() => active && setLoading(false));
     return () => {
       active = false;
     };
@@ -48,7 +50,7 @@ export default function OrderHistory() {
     );
   }
 
-  if (rows.length === 0) {
+  if (orders.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 px-6 py-12 text-center">
         <div className="flex h-14 w-14 items-center justify-center rounded-full border border-dashed border-line-strong text-ink-3">
@@ -63,34 +65,25 @@ export default function OrderHistory() {
   return (
     <div className="scroll-thin h-full overflow-y-auto px-5 py-4">
       <ul className="space-y-3">
-        {rows.map((row) => (
+        {orders.map((order) => (
           <li
-            key={row.order_number}
+            key={order.id}
             className="rounded-lg border border-line bg-sunken/30 px-4 py-3"
           >
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm font-semibold text-ink tabular-nums">
-                {row.order_number}
+                {orderNo(order.id)}
               </span>
-              {row.tracking ? (
-                <OrderStatusBadge status={row.tracking.order_status} />
-              ) : (
-                <span className="label-caps text-ink-3">status unavailable</span>
-              )}
+              <StatusBadge status={order.status} />
             </div>
             <div className="mt-1.5 flex items-center justify-between gap-3">
               <span className="text-[11px] text-ink-3">
-                {shortDate(row.created_at)} · {shortTime(row.created_at)}
+                {shortDate(order.created_at)} · {shortTime(order.created_at)}
               </span>
               <span className="text-[13px] font-bold text-ink tabular-nums">
-                {money(row.total)}
+                {money(order.grand_total)}
               </span>
             </div>
-            {row.tracking && (
-              <div className="mt-2">
-                <PaymentStatusBadge status={row.tracking.payment_status} />
-              </div>
-            )}
           </li>
         ))}
       </ul>

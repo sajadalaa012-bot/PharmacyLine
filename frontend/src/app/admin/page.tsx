@@ -3,30 +3,23 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Category, Order } from "@/types";
-import { fetchProducts, fetchOrdersPage } from "@/lib/api";
-import { money, shortDate, shortTime } from "@/lib/format";
+import { fetchProducts, fetchOrders } from "@/lib/api";
+import { money, orderNo, shortDate, shortTime } from "@/lib/format";
 import { ChevronRight } from "lucide-react";
 
 export default function AdminOverviewPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [totalOrders, setTotalOrders] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
-      const [cats, page] = await Promise.all([
+      const [cats, ords] = await Promise.all([
         fetchProducts(),
-        fetchOrdersPage({ pageSize: 100 }).catch(() => ({
-          orders: [] as Order[],
-          total: 0,
-          page: 1,
-          pageSize: 100,
-        })),
+        fetchOrders().catch(() => [] as Order[]),
       ]);
       setCategories(cats);
-      setOrders(page.orders);
-      setTotalOrders(page.total);
+      setOrders(ords);
     } finally {
       setLoading(false);
     }
@@ -44,14 +37,14 @@ export default function AdminOverviewPage() {
     );
   }
 
-  const paid = orders.filter((o) => o.payment_status === "paid");
-  const pendingCount = orders.filter((o) => o.order_status === "pending").length;
-  const totalRevenue = paid.reduce((sum, o) => sum + o.total, 0);
+  const approved = orders.filter((o) => o.status === "approved");
+  const pendingCount = orders.length - approved.length;
+  const totalRevenue = approved.reduce((sum, o) => sum + o.grand_total, 0);
   const totalProducts = categories.reduce((sum, c) => sum + c.products.length, 0);
 
-  // Top products by revenue, computed from paid order lines (excludes bonus items).
+  // Top products by revenue, computed from order lines (excludes bonus items).
   const revenueByProduct = new Map<string, number>();
-  for (const order of paid) {
+  for (const order of approved) {
     for (const item of order.items) {
       if (item.is_free) continue;
       revenueByProduct.set(
@@ -66,11 +59,11 @@ export default function AdminOverviewPage() {
   const maxRevenue = topProducts[0]?.[1] ?? 1;
 
   const stats = [
-    { label: "Total sales", value: money(totalRevenue), context: "paid orders" },
+    { label: "Total sales", value: money(totalRevenue), context: "approved orders" },
     {
       label: "Orders",
-      value: String(totalOrders),
-      context: pendingCount > 0 ? `${pendingCount} pending` : "all processed",
+      value: String(orders.length),
+      context: pendingCount > 0 ? `${pendingCount} pending approval` : "all approved",
     },
     { label: "Products", value: String(totalProducts), context: "in catalog" },
     { label: "Categories", value: String(categories.length), context: "active" },
@@ -155,7 +148,7 @@ export default function AdminOverviewPage() {
                 >
                   <div>
                     <p className="text-xs font-semibold text-ink">
-                      {order.order_number}
+                      {orderNo(order.id)}
                     </p>
                     <p className="mt-0.5 text-[11px] text-ink-3">
                       {shortDate(order.created_at)} · {shortTime(order.created_at)}
@@ -163,7 +156,7 @@ export default function AdminOverviewPage() {
                   </div>
                   <div className="text-right">
                     <p className="text-xs font-bold text-ink tabular-nums">
-                      {money(order.total)}
+                      {money(order.grand_total)}
                     </p>
                     {order.discount > 0 && (
                       <p className="mt-0.5 text-[10px] font-medium text-copper tabular-nums">

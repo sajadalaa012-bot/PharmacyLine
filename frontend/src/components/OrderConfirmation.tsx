@@ -1,7 +1,7 @@
 "use client";
 
 import { Order } from "@/types";
-import { money } from "@/lib/format";
+import { money, orderNo } from "@/lib/format";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
 
 interface OrderConfirmationProps {
@@ -29,7 +29,7 @@ export default function OrderConfirmation({ order, onBack }: OrderConfirmationPr
         <div className="mt-6 space-y-2 rounded-md border border-line bg-sunken/50 p-4 text-sm">
           <div className="flex items-center justify-between">
             <span className="label-caps text-ink-3">Order</span>
-            <span className="font-semibold text-ink">{order.order_number}</span>
+            <span className="font-semibold text-ink">{orderNo(order.id)}</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="label-caps text-ink-3">Items</span>
@@ -40,7 +40,7 @@ export default function OrderConfirmation({ order, onBack }: OrderConfirmationPr
           <div className="flex items-center justify-between">
             <span className="label-caps text-ink-3">Total</span>
             <span className="font-display text-lg font-semibold text-ink tabular-nums">
-              {money(order.total)}
+              {money(order.grand_total)}
             </span>
           </div>
         </div>

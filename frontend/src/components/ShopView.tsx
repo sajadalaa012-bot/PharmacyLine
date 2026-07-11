@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import ProductCard from "./ProductCard";
 import CartPanel from "./CartPanel";
-import CheckoutForm from "./CheckoutForm";
 import OrderConfirmation from "./OrderConfirmation";
 import OrderHistory from "./OrderHistory";
 import ThemeToggle from "./ThemeToggle";
@@ -38,7 +37,6 @@ export default function ShopView() {
   const [query, setQuery] = useState("");
   const [cartOpen, setCartOpen] = useState(false);
   const [cartTab, setCartTab] = useState<"cart" | "orders">("cart");
-  const [checkingOut, setCheckingOut] = useState(false);
   const [view, setView] = useState<"home" | "store">("home");
   const [isStandalone, setIsStandalone] = useState(false);
 
@@ -140,19 +138,15 @@ export default function ShopView() {
   if (cart.order) {
     return (
       <div className="shop">
-        <OrderConfirmation
-          order={cart.order}
-          onBack={() => {
-            cart.reset();
-            setCheckingOut(false);
-            setCartOpen(false);
-          }}
-        />
+        <OrderConfirmation order={cart.order} onBack={cart.reset} />
       </div>
     );
   }
 
-  const itemsTotal = cart.items.reduce((sum, ci) => sum + ci.subtotal, 0);
+  const submitOrder = async () => {
+    await cart.submit();
+    setCartOpen(false);
+  };
 
   const cartPanel = (
     <CartPanel
@@ -162,11 +156,10 @@ export default function ShopView() {
       discount={cart.discount}
       onDiscountChange={cart.setDiscount}
       onQtyChange={cart.setQty}
-      onSubmit={() => setCheckingOut(true)}
+      onSubmit={submitOrder}
       onClear={cart.clear}
       submitting={cart.submitting}
       submitError={cart.submitError}
-      submitLabel="Checkout"
       customerMode
     />
   );
@@ -190,20 +183,7 @@ export default function ShopView() {
     </div>
   );
 
-  const drawerBody =
-    cartTab === "orders" ? (
-      <OrderHistory />
-    ) : checkingOut ? (
-      <CheckoutForm
-        total={itemsTotal}
-        submitting={cart.submitting}
-        error={cart.submitError}
-        onBack={() => setCheckingOut(false)}
-        onPlace={(info) => cart.submit(info)}
-      />
-    ) : (
-      cartPanel
-    );
+  const drawerBody = cartTab === "cart" ? cartPanel : <OrderHistory />;
 
   const renderSearch = (className = "") => (
     <div className={`relative ${className}`}>

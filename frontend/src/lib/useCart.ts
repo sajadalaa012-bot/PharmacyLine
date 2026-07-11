@@ -1,38 +1,28 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
-import { Product, CartItem, Order, CreateOrderInput } from "@/types";
-import { createOrder } from "./api";
-import { saveMyOrder } from "./myOrders";
+import { useState, useCallback } from "react";
+import { Product, CartItem, Order, OrderCreate, OrderStatus } from "@/types";
+import { createOrder, updateOrder } from "./api";
 
-/** Customer/checkout details collected before placing an order. */
-export interface CustomerInfo {
-  customer_name: string;
-  customer_email: string;
-  customer_phone: string;
-  shipping_address: string;
-  billing_address?: string | null;
-  payment_method: string;
-  notes?: string;
-  shipping_cost?: number;
-  tax?: number;
-}
-
-/** Shared cart state + checkout used by the storefront and the admin sale screen. */
-export function useCart(onOrderComplete: () => void) {
+/** Shared cart state + checkout used by the storefront and the admin sale screen.
+ *  `submitStatus` controls what a new order is saved as: customers create
+ *  "pending" orders; the admin creates/approves "approved" ones. */
+export function useCart(
+  onOrderComplete: () => void,
+  submitStatus: OrderStatus = "pending"
+) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [notes, setNotes] = useState("");
   const [discount, setDiscount] = useState<number>(0);
   const [order, setOrder] = useState<Order | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  // Stable across retries so a resubmit/refresh can't create a duplicate.
-  const idemKeyRef = useRef<string | null>(null);
+  const [editingOrderId, setEditingOrderId] = useState<number | null>(null);
 
   const add = useCallback((product: Product) => {
     setItems((prev) => {
       const existing = prev.find(
-        (ci) => ci.product_id === product.id && !ci.is_free,
+        (ci) => ci.product_id === product.id && !ci.is_free
       );
       if (existing) {
         return prev.map((ci) =>
@@ -42,7 +32,7 @@ export function useCart(onOrderComplete: () => void) {
                 quantity: ci.quantity + 1,
                 subtotal: (ci.quantity + 1) * ci.unit_price,
               }
-            : ci,
+            : ci
         );
       }
       return [
@@ -74,7 +64,7 @@ export function useCart(onOrderComplete: () => void) {
               quantity: ci.quantity - 1,
               subtotal: (ci.quantity - 1) * ci.unit_price,
             }
-          : ci,
+          : ci
       );
     });
   }, []);
@@ -82,11 +72,11 @@ export function useCart(onOrderComplete: () => void) {
   const addFree = useCallback((product: Product) => {
     setItems((prev) => {
       const existing = prev.find(
-        (ci) => ci.product_id === product.id && ci.is_free,
+        (ci) => ci.product_id === product.id && ci.is_free
       );
       if (existing) {
         return prev.map((ci) =>
-          ci === existing ? { ...ci, quantity: ci.quantity + 1, subtotal: 0 } : ci,
+          ci === existing ? { ...ci, quantity: ci.quantity + 1, subtotal: 0 } : ci
         );
       }
       return [
@@ -108,13 +98,13 @@ export function useCart(onOrderComplete: () => void) {
     setItems((prev) => {
       if (qty <= 0) {
         return prev.filter(
-          (ci) => !(ci.product_id === productId && ci.is_free === isFree),
+          (ci) => !(ci.product_id === productId && ci.is_free === isFree)
         );
       }
       return prev.map((ci) =>
         ci.product_id === productId && ci.is_free === isFree
           ? { ...ci, quantity: qty, subtotal: isFree ? 0 : qty * ci.unit_price }
-          : ci,
+          : ci
       );
     });
   }, []);
@@ -129,11 +119,11 @@ export function useCart(onOrderComplete: () => void) {
                 unit_price: price,
                 subtotal: isFree ? 0 : ci.quantity * price,
               }
-            : ci,
-        ),
+            : ci
+        )
       );
     },
-    [],
+    []
   );
 
   const clear = useCallback(() => {
@@ -142,62 +132,66 @@ export function useCart(onOrderComplete: () => void) {
     setDiscount(0);
   }, []);
 
-  const submit = useCallback(
-    async (customer: CustomerInfo) => {
-      if (items.length === 0 || submitting) return;
-      setSubmitting(true);
-      setSubmitError(null);
+  /** Preload an existing order into the cart for admin review/editing. */
+  const loadOrder = useCallback((existing: Order) => {
+    setItems(
+      existing.items.map((it) => ({
+        product_id: it.product_id,
+        product_code: it.product_code,
+        product_name: it.product_name,
+        quantity: it.quantity,
+        unit_price: it.unit_price,
+        subtotal: it.subtotal,
+        is_free: it.is_free,
+      }))
+    );
+    setNotes(existing.notes);
+    const subtotal = existing.items.reduce((sum, it) => sum + it.subtotal, 0);
+    setDiscount(subtotal > 0 ? Math.round((existing.discount / subtotal) * 100) : 0);
+    setEditingOrderId(existing.id);
+    setOrder(null);
+    setSubmitError(null);
+  }, []);
 
-      if (!idemKeyRef.current) idemKeyRef.current = crypto.randomUUID();
+  const submit = useCallback(async () => {
+    if (items.length === 0 || submitting) return;
+    setSubmitting(true);
+    setSubmitError(null);
 
-      const itemsTotal = items.reduce((sum, ci) => sum + ci.subtotal, 0);
-      const discountAmount = (itemsTotal * discount) / 100;
-      const input: CreateOrderInput = {
-        idempotency_key: idemKeyRef.current,
-        customer_name: customer.customer_name,
-        customer_email: customer.customer_email,
-        customer_phone: customer.customer_phone,
-        shipping_address: customer.shipping_address,
-        billing_address: customer.billing_address ?? null,
-        payment_method: customer.payment_method,
-        notes: customer.notes ?? notes,
-        shipping_cost: customer.shipping_cost ?? 0,
-        tax: customer.tax ?? 0,
-        discount: discountAmount,
-        items: items.map((ci) => ({
-          product_id: ci.product_id,
-          product_code: ci.product_code,
-          product_name: ci.product_name,
-          quantity: ci.quantity,
-          unit_price: ci.unit_price,
-          subtotal: ci.subtotal,
-          is_free: ci.is_free,
-        })),
-      };
+    const itemsTotal = items.reduce((sum, ci) => sum + ci.subtotal, 0);
+    const discountAmount = (itemsTotal * discount) / 100;
+    const payload: OrderCreate = {
+      notes,
+      discount: discountAmount,
+      grand_total: Math.max(0, itemsTotal - discountAmount),
+      status: submitStatus,
+      items: items.map((ci) => ({ ...ci })),
+    };
 
-      try {
-        const saved = await createOrder(input);
-        saveMyOrder(saved);
-        setOrder(saved);
-        idemKeyRef.current = null; // next order gets a fresh key
-        onOrderComplete();
-      } catch (err) {
-        setSubmitError(err instanceof Error ? err.message : String(err));
-        console.error(err);
-      } finally {
-        setSubmitting(false);
-      }
-    },
-    [items, notes, discount, submitting, onOrderComplete],
-  );
+    try {
+      const saved = editingOrderId
+        ? await updateOrder(editingOrderId, payload)
+        : await createOrder(payload);
+      setOrder(saved);
+      setEditingOrderId(null);
+      onOrderComplete();
+    } catch (err) {
+      setSubmitError(
+        `Failed to save order: ${err instanceof Error ? err.message : String(err)}`
+      );
+      console.error(err);
+    } finally {
+      setSubmitting(false);
+    }
+  }, [items, notes, discount, submitting, submitStatus, editingOrderId, onOrderComplete]);
 
   const reset = useCallback(() => {
     setOrder(null);
     setItems([]);
     setNotes("");
     setDiscount(0);
+    setEditingOrderId(null);
     setSubmitError(null);
-    idemKeyRef.current = null;
   }, []);
 
   const totalQty = items.reduce((sum, ci) => sum + ci.quantity, 0);
@@ -217,6 +211,8 @@ export function useCart(onOrderComplete: () => void) {
     setQty,
     setUnitPrice,
     clear,
+    loadOrder,
+    editingOrderId,
     submit,
     reset,
     totalQty,

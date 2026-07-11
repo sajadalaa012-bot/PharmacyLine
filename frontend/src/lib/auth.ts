@@ -1,33 +1,32 @@
-// Client helpers for the server-enforced admin session. The actual check and
-// credentials live on the server (see lib/serverAuth.ts + /api/admin/*); the
-// browser only holds an httpOnly cookie it can't read, so auth is real.
+// Client-side admin gate for the browser-only app. Since there is no server,
+// this is a soft UI lock (the credentials live in the built JS). It keeps the
+// admin screens out of casual reach — it is not server-enforced security.
+//
+// Credentials come from build-time env vars, with dev-friendly fallbacks:
+//   NEXT_PUBLIC_ADMIN_EMAIL, NEXT_PUBLIC_ADMIN_PASSWORD
 
-export async function isAuthed(): Promise<boolean> {
-  try {
-    const res = await fetch("/api/admin/session", { cache: "no-store" });
-    if (!res.ok) return false;
-    const data = await res.json();
-    return data.authenticated === true;
-  } catch {
-    return false;
-  }
+const TOKEN_KEY = "pos_admin";
+
+const ADMIN_EMAIL = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "pharmacyline@gmail.com")
+  .trim()
+  .toLowerCase();
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "pharmacyline";
+
+export function isAuthed(): boolean {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem(TOKEN_KEY) === "1";
 }
 
-/** Sign in with admin email + password. Throws on bad credentials. */
+/** Validate admin email + password locally. Throws on mismatch. */
 export async function login(email: string, password: string): Promise<void> {
-  const res = await fetch("/api/admin/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "Login failed.");
-  }
+  const ok =
+    email.trim().toLowerCase() === ADMIN_EMAIL && password === ADMIN_PASSWORD;
+  if (!ok) throw new Error("Incorrect email or password.");
+  localStorage.setItem(TOKEN_KEY, "1");
 }
 
 /** Sign out and return to the login screen. */
-export async function logout(): Promise<void> {
-  await fetch("/api/admin/logout", { method: "POST" }).catch(() => {});
+export function logout(): void {
+  localStorage.removeItem(TOKEN_KEY);
   if (typeof window !== "undefined") window.location.reload();
 }
