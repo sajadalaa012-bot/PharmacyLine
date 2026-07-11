@@ -12,8 +12,16 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
-    setAuthed(isAuthed());
-    setReady(true);
+    let active = true;
+    isAuthed().then((ok) => {
+      if (active) {
+        setAuthed(ok);
+        setReady(true);
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
   // Avoid a hydration flash: render nothing until we've read localStorage.

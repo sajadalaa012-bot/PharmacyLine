@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Order, OrderStatus } from "@/types";
-import { fetchOrders } from "@/lib/api";
+import { trackOrder, OrderTracking } from "@/lib/api";
+import { getMyOrders, SavedOrder } from "@/lib/myOrders";
 import { money, orderNo, shortDate, shortTime } from "@/lib/format";
 import { ClipboardList } from "lucide-react";
 
-/** Status pill — Pending = yellow/orange, Approved = green. */
-function StatusBadge({ status }: { status: OrderStatus }) {
+function StatusBadge({ status }: { status: "pending" | "approved" }) {
   const pending = status === "pending";
   return (
     <span
@@ -22,21 +21,31 @@ function StatusBadge({ status }: { status: OrderStatus }) {
   );
 }
 
-/**
- * The customer's order history, shown in the cart drawer. Lists orders placed
- * from this device with their ID, date, and status. Re-fetches each time it
- * mounts (i.e. every time the "My Orders" tab is opened).
- */
+type Row = SavedOrder & { tracking?: OrderTracking | null };
+
+/** The customer's own orders (placed from this device) with live status. */
 export default function OrderHistory() {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
-    fetchOrders()
-      .then((o) => active && setOrders(o))
-      .catch(() => active && setOrders([]))
-      .finally(() => active && setLoading(false));
+    const saved = getMyOrders();
+    if (saved.length === 0) {
+      setLoading(false);
+      return;
+    }
+    Promise.all(
+      saved.map(async (o) => ({
+        ...o,
+        tracking: await trackOrder(o.id, o.token).catch(() => null),
+      })),
+    ).then((resolved) => {
+      if (active) {
+        setRows(resolved);
+        setLoading(false);
+      }
+    });
     return () => {
       active = false;
     };
@@ -50,7 +59,7 @@ export default function OrderHistory() {
     );
   }
 
-  if (orders.length === 0) {
+  if (rows.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 px-6 py-12 text-center">
         <div className="flex h-14 w-14 items-center justify-center rounded-full border border-dashed border-line-strong text-ink-3">
@@ -65,23 +74,27 @@ export default function OrderHistory() {
   return (
     <div className="scroll-thin h-full overflow-y-auto px-5 py-4">
       <ul className="space-y-3">
-        {orders.map((order) => (
+        {rows.map((row) => (
           <li
-            key={order.id}
+            key={row.id}
             className="rounded-lg border border-line bg-sunken/30 px-4 py-3"
           >
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm font-semibold text-ink tabular-nums">
-                {orderNo(order.id)}
+                {orderNo(row.id)}
               </span>
-              <StatusBadge status={order.status} />
+              {row.tracking ? (
+                <StatusBadge status={row.tracking.status} />
+              ) : (
+                <span className="label-caps text-ink-3">status unavailable</span>
+              )}
             </div>
             <div className="mt-1.5 flex items-center justify-between gap-3">
               <span className="text-[11px] text-ink-3">
-                {shortDate(order.created_at)} · {shortTime(order.created_at)}
+                {shortDate(row.created_at)} · {shortTime(row.created_at)}
               </span>
               <span className="text-[13px] font-bold text-ink tabular-nums">
-                {money(order.grand_total)}
+                {money(row.tracking?.grand_total ?? row.grand_total)}
               </span>
             </div>
           </li>
