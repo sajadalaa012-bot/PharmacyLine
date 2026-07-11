@@ -13,6 +13,7 @@ interface ReceiptProps {
 export default function Receipt({ order, onBack }: ReceiptProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const itemsSubtotal = order.items.reduce((sum, it) => sum + it.subtotal, 0);
   const discountPercent =
     itemsSubtotal > 0 ? Math.round((order.discount / itemsSubtotal) * 100) : 0;
@@ -21,19 +22,48 @@ export default function Receipt({ order, onBack }: ReceiptProps) {
   const saveAsImage = async () => {
     if (!cardRef.current || saving) return;
     setSaving(true);
+    setSaveError(null);
     try {
-      const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, {
+      const { toBlob } = await import("html-to-image");
+      const blob = await toBlob(cardRef.current, {
         pixelRatio: 2,
         backgroundColor:
           getComputedStyle(cardRef.current).backgroundColor || "#ffffff",
       });
+      if (!blob) throw new Error("Could not render the receipt.");
+
+      const fileName = `pharmacy-line-order-${String(order.id).padStart(5, "0")}.png`;
+      const file = new File([blob], fileName, { type: "image/png" });
+
+      // iOS / mobile: use the native share sheet so the user can "Save Image"
+      // to Photos (programmatic downloads don't work there).
+      const nav = navigator as Navigator & {
+        canShare?: (data: ShareData) => boolean;
+      };
+      if (nav.canShare && nav.canShare({ files: [file] })) {
+        try {
+          await nav.share({ files: [file], title: fileName });
+          return;
+        } catch (err) {
+          if ((err as Error).name === "AbortError") return; // user cancelled
+          // otherwise fall through to a normal download
+        }
+      }
+
+      // Desktop: download via a temporary object URL.
+      const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = `pharmacy-line-order-${String(order.id).padStart(5, "0")}.png`;
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
       a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
     } catch (err) {
       console.error("Failed to save receipt image:", err);
+      setSaveError(
+        "Couldn't save the image on this device — please take a screenshot of the receipt instead.",
+      );
     } finally {
       setSaving(false);
     }
@@ -148,6 +178,12 @@ export default function Receipt({ order, onBack }: ReceiptProps) {
             </p>
           </div>
         </div>
+
+        {saveError && (
+          <div className="print-hidden mt-4 rounded-md border border-rose/30 bg-rose/10 p-3 text-center text-xs text-rose">
+            {saveError}
+          </div>
+        )}
 
         {/* Actions */}
         <div className="print-hidden mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
