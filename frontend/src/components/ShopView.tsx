@@ -22,11 +22,6 @@ import CartPanel from "./CartPanel";
 import OrderConfirmation from "./OrderConfirmation";
 import ThemeToggle from "./ThemeToggle";
 
-const PROMOS = [
-  "100% authentic products",
-  "Same-day order confirmation",
-];
-
 const TRUST = [
   { icon: Truck, label: "Fast local delivery" },
   { icon: ShieldCheck, label: "Authentic & sealed" },
@@ -196,27 +191,11 @@ export default function ShopView() {
     <div className={`shop min-h-screen bg-paper ${isStandalone ? "pb-20 sm:pb-0" : ""}`}>
       {/* Fixed top bar: promo + navbar, pinned together */}
       <div className="sticky top-0 z-40">
-      {/* Announcement bar — pads for the notch / status bar in standalone */}
-      <div
-        className="bg-ink text-paper"
+      {/* Header — pads for the notch / status bar in standalone */}
+      <header
+        className="border-b border-line bg-paper/85 backdrop-blur-md"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
-        <div className="no-scrollbar mx-auto flex max-w-7xl items-center justify-center gap-3 overflow-x-auto px-5 py-2 sm:gap-8">
-          {PROMOS.map((promo, i) => (
-            <div key={promo} className="flex items-center gap-3 sm:gap-8">
-              {i > 0 && (
-                <span className="h-1 w-1 shrink-0 rounded-full bg-paper/40" />
-              )}
-              <span className="whitespace-nowrap text-[11px] font-medium tracking-[0.04em] text-paper/85">
-                {promo}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Header */}
-      <header className="border-b border-line bg-paper/85 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-5 py-4">
           {/* Logo */}
           <button
