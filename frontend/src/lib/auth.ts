@@ -1,42 +1,32 @@
-// Client-side auth: stores the bearer token from /api/login in localStorage
-// and exposes helpers used by the API layer and the login gate.
+// Client-side admin gate for the browser-only app. Since there is no server,
+// this is a soft UI lock (the credentials live in the built JS). It keeps the
+// admin screens out of casual reach — it is not server-enforced security.
+//
+// Credentials come from build-time env vars, with dev-friendly fallbacks:
+//   NEXT_PUBLIC_ADMIN_EMAIL, NEXT_PUBLIC_ADMIN_PASSWORD
 
-const TOKEN_KEY = "pos_token";
+const TOKEN_KEY = "pos_admin";
 
-export function getToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(TOKEN_KEY);
-}
-
-export function setToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token);
-}
-
-export function clearToken(): void {
-  localStorage.removeItem(TOKEN_KEY);
-}
+const ADMIN_EMAIL = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@example.com")
+  .trim()
+  .toLowerCase();
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "changeme";
 
 export function isAuthed(): boolean {
-  return !!getToken();
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem(TOKEN_KEY) === "1";
 }
 
-/** Exchange admin email + password for a token. Throws on bad credentials. */
+/** Validate admin email + password locally. Throws on mismatch. */
 export async function login(email: string, password: string): Promise<void> {
-  const res = await fetch("/api/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.detail || "Login failed.");
-  }
-  const data = await res.json();
-  setToken(data.token);
+  const ok =
+    email.trim().toLowerCase() === ADMIN_EMAIL && password === ADMIN_PASSWORD;
+  if (!ok) throw new Error("Incorrect email or password.");
+  localStorage.setItem(TOKEN_KEY, "1");
 }
 
-/** Log out and return to the login screen. */
+/** Sign out and return to the login screen. */
 export function logout(): void {
-  clearToken();
+  localStorage.removeItem(TOKEN_KEY);
   if (typeof window !== "undefined") window.location.reload();
 }
