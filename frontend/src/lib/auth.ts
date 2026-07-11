@@ -10,7 +10,7 @@ const TOKEN_KEY = "pos_admin";
 const ADMIN_EMAIL = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "pharmacyline@gmail.com")
   .trim()
   .toLowerCase();
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "Bhfjdirew5";
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "pharmacyline";
 
 export function isAuthed(): boolean {
   if (typeof window === "undefined") return false;
