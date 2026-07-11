@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { Category } from "@/types";
 import { fetchProducts } from "@/lib/api";
 import { useCart } from "@/lib/useCart";
@@ -16,6 +17,7 @@ import {
   Home,
   Store,
   ArrowLeft,
+  Lock,
 } from "lucide-react";
 import ProductCard from "./ProductCard";
 import CartPanel from "./CartPanel";
@@ -442,9 +444,18 @@ export default function ShopView() {
           </div>
         </div>
         <div className="border-t border-line/70">
-          <p className="mx-auto max-w-7xl px-5 py-4 text-[11px] text-ink-3">
-            © 2026 Pharmacy Line — Pharmacy &amp; Wellness. All rights reserved.
-          </p>
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-4">
+            <p className="text-[11px] text-ink-3">
+              © 2026 Pharmacy Line — Pharmacy &amp; Wellness. All rights reserved.
+            </p>
+            <Link
+              href="/admin"
+              className="label-caps flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-[11px] text-ink-3 transition hover:border-brand/40 hover:text-brand"
+            >
+              <Lock className="h-3 w-3" />
+              Staff login
+            </Link>
+          </div>
         </div>
       </footer>
 
