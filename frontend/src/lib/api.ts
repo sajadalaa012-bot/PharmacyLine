@@ -15,7 +15,11 @@ async function apiFetch(input: string, init: RequestInit = {}): Promise<Response
   const res = await fetch(input, { ...init, headers });
   if (res.status === 401) {
     clearToken();
-    if (typeof window !== "undefined") window.location.reload();
+    // Only bounce to the login screen inside the admin area; the public
+    // storefront never calls protected endpoints, so it must not reload.
+    if (typeof window !== "undefined" && window.location.pathname.startsWith("/admin")) {
+      window.location.reload();
+    }
     throw new Error("Session expired. Please sign in again.");
   }
   return res;

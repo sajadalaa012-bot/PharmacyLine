@@ -1,9 +1,10 @@
-"""Minimal shared-password auth for the POS.
+"""Admin-only email + password auth for the POS.
 
-A single admin password (env var ADMIN_PASSWORD) protects the whole API.
-On login the server hands back a stable bearer token derived from the
-password; the frontend stores it and sends it on every request. This is
-intentionally simple — one operator, one password — not multi-user auth.
+The storefront is public. The admin back office is protected by a single
+set of credentials (env vars ADMIN_EMAIL + ADMIN_PASSWORD). On login the
+server hands back a stable bearer token derived from a secret; the frontend
+stores it and sends it on admin requests. This is intentionally simple —
+one admin account — not multi-user auth.
 """
 
 import hashlib
@@ -12,9 +13,10 @@ import os
 
 from fastapi import Header, HTTPException
 
-# The password required to log in. Set this in the hosting dashboard.
-# Falls back to a placeholder ONLY so local dev works without config —
-# never rely on the fallback in production.
+# The admin credentials required to sign in. Set these in the hosting
+# dashboard. The fallbacks exist ONLY so local dev works without config —
+# never rely on them in production.
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@example.com")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "changeme")
 
 # Optional independent secret for signing the token. Defaults to the
@@ -23,14 +25,19 @@ _AUTH_SECRET = os.environ.get("AUTH_SECRET", ADMIN_PASSWORD)
 
 
 def _expected_token() -> str:
-    """Deterministic token for the current password/secret."""
+    """Deterministic token for the current secret."""
     return hmac.new(
         _AUTH_SECRET.encode("utf-8"), b"pos-auth-v1", hashlib.sha256
     ).hexdigest()
 
 
-def verify_password(password: str) -> bool:
-    return hmac.compare_digest(password or "", ADMIN_PASSWORD)
+def verify_credentials(email: str, password: str) -> bool:
+    """Constant-time check of both email and password."""
+    email_ok = hmac.compare_digest(
+        (email or "").strip().lower(), ADMIN_EMAIL.strip().lower()
+    )
+    password_ok = hmac.compare_digest(password or "", ADMIN_PASSWORD)
+    return email_ok and password_ok
 
 
 def issue_token() -> str:

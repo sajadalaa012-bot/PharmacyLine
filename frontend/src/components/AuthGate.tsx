@@ -4,9 +4,8 @@ import { useEffect, useState } from "react";
 import { isAuthed, login } from "@/lib/auth";
 
 /**
- * Wraps the whole app. Until a valid token is stored, it shows a password
- * screen. The static HTML/JS is public, but every /api call behind this
- * gate requires the token, so no real data loads without signing in.
+ * Wraps the admin back office only. The storefront is public; this gate
+ * shows an email + password screen until a valid admin token is stored.
  */
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
@@ -28,6 +27,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
 }
 
 function LoginScreen({ onSuccess }: { onSuccess: () => void }) {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -37,13 +37,16 @@ function LoginScreen({ onSuccess }: { onSuccess: () => void }) {
     setBusy(true);
     setError("");
     try {
-      await login(password);
+      await login(email, password);
       onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed.");
       setBusy(false);
     }
   }
+
+  const inputClass =
+    "mt-1.5 w-full rounded-md border border-line bg-paper px-3 py-2.5 text-sm text-ink outline-none focus:border-brand";
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-paper px-4 text-ink">
@@ -54,17 +57,28 @@ function LoginScreen({ onSuccess }: { onSuccess: () => void }) {
         <p className="font-display text-2xl font-semibold tracking-tight">
           Pharmacy Line
         </p>
-        <p className="mt-1 text-sm text-ink-3">Sign in to continue</p>
+        <p className="mt-1 text-sm text-ink-3">Admin sign in</p>
 
-        <label className="mt-6 block text-sm font-medium text-ink-2">
+        <label className="mt-6 block text-sm font-medium text-ink-2">Email</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoFocus
+          autoComplete="username"
+          className={inputClass}
+          placeholder="you@example.com"
+        />
+
+        <label className="mt-4 block text-sm font-medium text-ink-2">
           Password
         </label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          autoFocus
-          className="mt-1.5 w-full rounded-md border border-line bg-paper px-3 py-2.5 text-sm text-ink outline-none focus:border-brand"
+          autoComplete="current-password"
+          className={inputClass}
           placeholder="Enter password"
         />
 
@@ -72,7 +86,7 @@ function LoginScreen({ onSuccess }: { onSuccess: () => void }) {
 
         <button
           type="submit"
-          disabled={busy || !password}
+          disabled={busy || !email || !password}
           className="mt-5 w-full rounded-md bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand transition-colors hover:opacity-90 disabled:opacity-50"
         >
           {busy ? "Signing in…" : "Sign in"}

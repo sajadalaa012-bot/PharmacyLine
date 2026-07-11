@@ -12,6 +12,7 @@ import {
   LogOut,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import AuthGate from "@/components/AuthGate";
 import { logout } from "@/lib/auth";
 
 const NAV = [
@@ -28,6 +29,7 @@ export default function AdminLayout({
   const pathname = usePathname();
 
   return (
+    <AuthGate>
     <div className="admin flex h-screen w-full overflow-hidden bg-paper text-ink">
       {/* Side rail (desktop) */}
       <aside className="print-hidden hidden w-60 shrink-0 flex-col border-r border-line bg-surface md:flex">
@@ -117,5 +119,6 @@ export default function AdminLayout({
         <main className="scroll-thin min-h-0 flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
+    </AuthGate>
   );
 }

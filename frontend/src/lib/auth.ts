@@ -20,12 +20,12 @@ export function isAuthed(): boolean {
   return !!getToken();
 }
 
-/** Exchange a password for a token. Throws on wrong password. */
-export async function login(password: string): Promise<void> {
+/** Exchange admin email + password for a token. Throws on bad credentials. */
+export async function login(email: string, password: string): Promise<void> {
   const res = await fetch("/api/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ password }),
+    body: JSON.stringify({ email, password }),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));

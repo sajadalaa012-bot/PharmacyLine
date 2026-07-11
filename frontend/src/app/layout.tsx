@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Archivo, IBM_Plex_Sans_Arabic } from "next/font/google";
 import PWARegister from "@/components/PWARegister";
-import AuthGate from "@/components/AuthGate";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -65,7 +64,7 @@ export default function RootLayout({
       <body
         className={`${fraunces.variable} ${archivo.variable} ${plexArabic.variable} font-sans antialiased`}
       >
-        <AuthGate>{children}</AuthGate>
+        {children}
         <PWARegister />
       </body>
     </html>

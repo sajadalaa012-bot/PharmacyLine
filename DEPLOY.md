@@ -70,10 +70,12 @@ In the service → **Variables**, add:
 
 | Variable         | Value                                  |
 | ---------------- | -------------------------------------- |
+| `ADMIN_EMAIL`    | *the email you'll sign in with*        |
 | `ADMIN_PASSWORD` | *a strong password you choose*         |
 | `AUTH_SECRET`    | *(optional)* a long random string      |
 
-- `ADMIN_PASSWORD` is what you'll type on the login screen.
+- `ADMIN_EMAIL` + `ADMIN_PASSWORD` are the admin login. The **storefront is
+  public**; only the `/admin` back office asks for these.
 - `AUTH_SECRET` is optional; set it so existing logins survive a password change.
 
 Railway sets `PORT` automatically — don't add it yourself.
@@ -105,12 +107,13 @@ Railway automatically rebuilds and redeploys. Your data on `/data` is preserved.
 ---
 
 ## Notes & caveats
-- **Auth is a single shared password** for the whole app (both the storefront and
-  the back office). It's a solid first gate. If you later need per-user accounts,
-  audit logs, or roles, that's a bigger add — ask and I'll scope it.
-- **Prices/totals are still trusted from the client** (see the earlier audit).
-  With login in place this is much lower risk, but if untrusted people ever get
-  the password, consider server-side total recomputation. I can add that.
+- **The storefront is public; the `/admin` back office requires email + password**
+  (`ADMIN_EMAIL` + `ADMIN_PASSWORD`). It's a single admin account. If you later
+  need per-user accounts, roles, or audit logs, that's a bigger add — ask.
+- **The public storefront can browse products and place orders without logging in.**
+  That also means order totals/prices are accepted from the browser (see the
+  earlier audit). If you want the server to recompute totals from the catalog, or
+  to require login to place orders, I can add either.
 - **Free tier:** Railway's free/trial tier is fine to launch. If the service is
   paused for inactivity or you outgrow the credit, a small paid plan keeps it
   always-on. The volume requires the app to stay on one instance (it does).

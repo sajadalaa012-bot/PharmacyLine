@@ -12,7 +12,7 @@ from database import engine, get_db, Base, DATA_DIR
 from models import Category, Product, Order, OrderItem
 from schemas import CategoryOut, ProductUpdate, ProductOut, OrderCreate, OrderOut, ProductCreate, CategoryCreate, CategoryUpdate
 from seed import seed_database
-from auth import require_auth, verify_password, issue_token
+from auth import require_auth, verify_credentials, issue_token
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -76,6 +76,7 @@ app.add_middleware(
 # ── Public routes (no auth) ──────────────────────────────────────────
 
 class LoginRequest(BaseModel):
+    email: str
     password: str
 
 
@@ -86,20 +87,17 @@ def health():
 
 @app.post("/api/login")
 def login(payload: LoginRequest):
-    """Exchange the admin password for a bearer token."""
-    if not verify_password(payload.password):
-        raise HTTPException(status_code=401, detail="Incorrect password.")
+    """Exchange admin email + password for a bearer token."""
+    if not verify_credentials(payload.email, payload.password):
+        raise HTTPException(status_code=401, detail="Incorrect email or password.")
     return {"token": issue_token()}
 
 
-# ── Protected routes — every endpoint below requires a valid token ───
+# ── Public storefront routes (no auth) ───────────────────────────────
 
-api = APIRouter(dependencies=[Depends(require_auth)])
-
-
-@api.get("/api/products", response_model=list[CategoryOut])
+@app.get("/api/products", response_model=list[CategoryOut])
 def get_products(db: Session = Depends(get_db)):
-    """Return all products grouped by category."""
+    """Return all products grouped by category. Public — storefront browsing."""
     categories = (
         db.query(Category)
         .order_by(Category.display_order)
@@ -108,9 +106,9 @@ def get_products(db: Session = Depends(get_db)):
     return categories
 
 
-@api.post("/api/orders", response_model=OrderOut, status_code=201)
+@app.post("/api/orders", response_model=OrderOut, status_code=201)
 def create_order(payload: OrderCreate, db: Session = Depends(get_db)):
-    """Save a new order with items and notes."""
+    """Save a new order with items and notes. Public — storefront checkout."""
     if not payload.items:
         raise HTTPException(status_code=400, detail="Order must have at least one item.")
 
@@ -139,6 +137,11 @@ def create_order(payload: OrderCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(order)
     return order
+
+
+# ── Protected admin routes — every endpoint below requires a valid token ───
+
+api = APIRouter(dependencies=[Depends(require_auth)])
 
 
 @api.get("/api/orders", response_model=list[OrderOut])
