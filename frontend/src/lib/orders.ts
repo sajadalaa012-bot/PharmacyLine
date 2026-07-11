@@ -26,6 +26,8 @@ export interface OrderInput {
     is_free: boolean;
   }[];
   idempotency_key?: string;
+  /** Optional original timestamp, used when recovering older orders. */
+  created_at?: string;
 }
 
 export function validateOrderInput(body: unknown): OrderInput {
@@ -61,12 +63,18 @@ export function validateOrderInput(body: unknown): OrderInput {
     };
   });
 
+  let created_at: string | undefined;
+  if (typeof b.created_at === "string" && !Number.isNaN(Date.parse(b.created_at))) {
+    created_at = new Date(b.created_at).toISOString();
+  }
+
   return {
     notes: typeof b.notes === "string" ? b.notes : "",
     discount: Math.max(0, num(b.discount, 0)),
     items,
     idempotency_key:
       typeof b.idempotency_key === "string" ? b.idempotency_key : undefined,
+    created_at,
   };
 }
 
@@ -131,17 +139,30 @@ export async function createOrder(
       }
     }
 
+    const cols = [
+      "idempotency_key",
+      "track_token",
+      "notes",
+      "discount",
+      "grand_total",
+      "status",
+    ];
+    const vals: unknown[] = [
+      input.idempotency_key ?? null,
+      token,
+      input.notes,
+      input.discount,
+      grand_total,
+      status,
+    ];
+    if (input.created_at) {
+      cols.push("created_at");
+      vals.push(input.created_at);
+    }
+    const placeholders = vals.map((_, i) => `$${i + 1}`).join(",");
     const ins = await client.query(
-      `INSERT INTO orders (idempotency_key, track_token, notes, discount, grand_total, status)
-       VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
-      [
-        input.idempotency_key ?? null,
-        token,
-        input.notes,
-        input.discount,
-        grand_total,
-        status,
-      ],
+      `INSERT INTO orders (${cols.join(",")}) VALUES (${placeholders}) RETURNING id`,
+      vals,
     );
     const id = Number(ins.rows[0].id);
     for (const it of input.items) {
