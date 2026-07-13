@@ -9,6 +9,7 @@ import {
   ClipboardList,
   ShoppingBag,
   Monitor,
+  MapPin,
   LogOut,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -21,6 +22,7 @@ const NAV = [
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/categories", label: "Categories", icon: Folder },
   { href: "/admin/orders", label: "Orders", icon: ClipboardList },
+  { href: "/admin/pharmacies", label: "Pharmacies", icon: MapPin },
 ];
 
 export default function AdminLayout({

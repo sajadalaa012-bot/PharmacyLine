@@ -3,7 +3,7 @@
 //   • Orders: the shared Postgres database via the /api routes, so orders
 //     appear in the admin on every device.
 
-import { Category, Product, Order, OrderCreate } from "@/types";
+import { Category, Product, Order, OrderCreate, Pharmacy } from "@/types";
 import {
   STORE,
   getAll,
@@ -126,6 +126,43 @@ export async function deleteCategory(categoryId: number): Promise<void> {
     throw new Error("Cannot delete category containing products.");
   }
   await deleteOne(STORE.categories, categoryId);
+}
+
+// ── Pharmacies (local — admin directory board) ──────────────────────
+
+export async function fetchPharmacies(): Promise<Pharmacy[]> {
+  await ensureSeeded();
+  const list = await getAll<Pharmacy>(STORE.pharmacies);
+  return list.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export async function createPharmacy(data: {
+  name: string;
+  phone: string;
+  location: string;
+  notes: string;
+}): Promise<Pharmacy> {
+  await ensureSeeded();
+  const pharmacy: Pharmacy = { id: await nextId("Pharmacy"), ...data };
+  await putOne(STORE.pharmacies, pharmacy);
+  return pharmacy;
+}
+
+export async function updatePharmacy(
+  pharmacyId: number,
+  data: { name: string; phone: string; location: string; notes: string },
+): Promise<Pharmacy> {
+  await ensureSeeded();
+  const existing = await getOne<Pharmacy>(STORE.pharmacies, pharmacyId);
+  if (!existing) throw new Error("Pharmacy not found.");
+  const updated: Pharmacy = { id: pharmacyId, ...data };
+  await putOne(STORE.pharmacies, updated);
+  return updated;
+}
+
+export async function deletePharmacy(pharmacyId: number): Promise<void> {
+  await ensureSeeded();
+  await deleteOne(STORE.pharmacies, pharmacyId);
 }
 
 export async function uploadProductImage(

@@ -6,12 +6,13 @@ import catalog from "@/data/catalog.json";
 import { Product } from "@/types";
 
 const DB_NAME = "pharmacy_pos";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 export const STORE = {
   categories: "categories",
   products: "products",
   orders: "orders",
+  pharmacies: "pharmacies",
   meta: "meta",
 } as const;
 
@@ -38,6 +39,8 @@ function openDB(): Promise<IDBDatabase> {
         db.createObjectStore(STORE.products, { keyPath: "id" });
       if (!db.objectStoreNames.contains(STORE.orders))
         db.createObjectStore(STORE.orders, { keyPath: "id" });
+      if (!db.objectStoreNames.contains(STORE.pharmacies))
+        db.createObjectStore(STORE.pharmacies, { keyPath: "id" });
       if (!db.objectStoreNames.contains(STORE.meta))
         db.createObjectStore(STORE.meta, { keyPath: "key" });
     };
@@ -143,7 +146,7 @@ export function ensureSeeded(): Promise<void> {
 
 /** Atomically allocate the next id for an entity. */
 export async function nextId(
-  kind: "Category" | "Product" | "Order",
+  kind: "Category" | "Product" | "Order" | "Pharmacy",
 ): Promise<number> {
   const key = `next${kind}Id`;
   const db = await openDB();

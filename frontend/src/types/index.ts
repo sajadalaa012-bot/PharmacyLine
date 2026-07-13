@@ -16,6 +16,16 @@ export interface Category {
   products: Product[];
 }
 
+// ── Pharmacy directory (admin board) ────────────────────────────────
+
+export interface Pharmacy {
+  id: number;
+  name: string;
+  phone: string;
+  location: string; // address, coordinates, or a Google Maps link
+  notes: string;
+}
+
 // ── Cart types ──────────────────────────────────────────────────────
 
 export interface CartItem {
