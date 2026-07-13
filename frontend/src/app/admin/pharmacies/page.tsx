@@ -138,7 +138,7 @@ export default function AdminPharmaciesPage() {
     "h-10 w-full rounded-md border border-line bg-sunken px-3.5 text-sm text-ink outline-none transition placeholder:text-ink-3 focus:border-brand/50 focus:ring-1 focus:ring-brand/25";
 
   return (
-    <div className="mx-auto max-w-5xl space-y-5 px-6 py-7">
+    <div className="mx-auto max-w-5xl space-y-5 px-4 py-6 sm:px-6 sm:py-7">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">

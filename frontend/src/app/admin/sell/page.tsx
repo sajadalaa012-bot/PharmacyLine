@@ -75,9 +75,9 @@ export default function AdminSellPage() {
   return (
     <div className="flex h-full flex-col">
       {/* Toolbar */}
-      <div className="flex shrink-0 items-center gap-4 border-b border-line bg-surface px-6 py-4">
-        <div>
-          <h1 className="font-display text-xl font-semibold tracking-tight text-ink">
+      <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-line bg-surface px-4 py-3 sm:gap-4 sm:px-6 sm:py-4">
+        <div className="min-w-0">
+          <h1 className="font-display text-lg font-semibold tracking-tight text-ink sm:text-xl">
             {cart.editingOrderId
               ? `Review order #${String(cart.editingOrderId).padStart(5, "0")}`
               : "New sale"}
@@ -89,7 +89,7 @@ export default function AdminSellPage() {
           </p>
         </div>
 
-        <div className="relative ml-auto w-full max-w-xs">
+        <div className="relative order-last w-full sm:order-none sm:ml-auto sm:w-auto sm:max-w-xs sm:flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
           <input
             type="text"
@@ -113,7 +113,7 @@ export default function AdminSellPage() {
         {/* Mobile cart trigger */}
         <button
           onClick={() => setCartOpen(true)}
-          className="relative flex h-9 shrink-0 items-center gap-2 rounded-md bg-brand px-3.5 text-on-brand transition hover:bg-brand-deep active:scale-[0.98] lg:hidden"
+          className="relative ml-auto flex h-9 shrink-0 items-center gap-2 rounded-md bg-brand px-3.5 text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:ml-0 lg:hidden"
         >
           <ShoppingCart className="h-4 w-4" />
           {cart.totalQty > 0 && (
@@ -126,7 +126,7 @@ export default function AdminSellPage() {
 
       <div className="flex min-h-0 flex-1">
         {/* Catalog */}
-        <main className="scroll-thin min-w-0 flex-1 overflow-y-auto px-6 py-5">
+        <main className="scroll-thin min-w-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
           {filtered.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
               <div className="flex h-14 w-14 items-center justify-center rounded-full border border-dashed border-line-strong text-ink-3">

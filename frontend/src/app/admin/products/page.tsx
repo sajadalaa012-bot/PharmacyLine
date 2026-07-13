@@ -105,7 +105,7 @@ export default function AdminProductsPage() {
   });
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5 px-6 py-7">
+    <div className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6 sm:py-7">
       {/* Header + toolbar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -161,8 +161,77 @@ export default function AdminProductsPage() {
         </div>
       )}
 
-      {/* Table */}
-      <div className="overflow-x-auto rounded-lg border border-line bg-surface">
+      {/* Card list (mobile) */}
+      <div className="space-y-2.5 sm:hidden">
+        {filtered.length === 0 ? (
+          <div className="rounded-lg border border-line bg-surface py-12 text-center text-xs text-ink-3">
+            No matching products
+          </div>
+        ) : (
+          filtered.map((p) => (
+            <div
+              key={p.id}
+              className="flex items-center gap-3 rounded-lg border border-line bg-surface p-3"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-white">
+                {p.image_url ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={p.image_url}
+                    alt={p.name}
+                    className="h-full w-full object-contain p-0.5"
+                  />
+                ) : (
+                  <Package className="h-5 w-5 text-line-strong" />
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-ink">
+                  <bdi>{p.name}</bdi>
+                </p>
+                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="font-mono text-[11px] font-bold text-brand">
+                    {p.code}
+                  </span>
+                  <span className="label-caps rounded-sm border border-brand/25 bg-brand/[0.08] px-1.5 py-0.5 text-brand">
+                    {p.categoryName}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm font-semibold text-ink tabular-nums">
+                  {money(p.price)}
+                </p>
+              </div>
+              <div className="flex shrink-0 flex-col gap-1.5">
+                <button
+                  onClick={() => {
+                    setEditingProduct(p);
+                    setModalOpen(true);
+                  }}
+                  title="Edit product"
+                  className="flex h-9 w-9 items-center justify-center rounded-md border border-line text-ink-2 transition hover:border-brand/40 hover:text-brand"
+                >
+                  <Edit3 className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => handleRowDelete(p)}
+                  title={pendingDelete === p.id ? "Tap again to confirm" : "Delete product"}
+                  className={`flex h-9 items-center justify-center gap-1 rounded-md border transition ${
+                    pendingDelete === p.id
+                      ? "label-caps animate-pulse border-rose bg-rose px-2 text-white"
+                      : "w-9 border-line text-ink-2 hover:border-rose/40 hover:text-rose"
+                  }`}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {pendingDelete === p.id && "Sure?"}
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Table (tablet & desktop) */}
+      <div className="hidden overflow-x-auto rounded-lg border border-line bg-surface sm:block">
         <table className="w-full min-w-[640px] border-collapse text-left">
           <thead>
             <tr className="label-caps border-b border-line bg-sunken/60 text-ink-3">

@@ -258,6 +258,20 @@ body::after {
   animation: slide-in-right 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+    opacity: 0.4;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.slide-in-left {
+  animation: slide-in-left 0.26s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -287,6 +301,7 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .rise,
   .slide-in-right,
+  .slide-in-left,
   .fade-in,
   .pop {
     animation-duration: 0.01ms;

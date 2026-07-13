@@ -116,7 +116,7 @@ export default function AdminCategoriesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-5 px-6 py-7">
+    <div className="mx-auto max-w-3xl space-y-5 px-4 py-6 sm:px-6 sm:py-7">
       <div>
         <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
           Categories
