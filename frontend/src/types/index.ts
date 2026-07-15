@@ -18,8 +18,15 @@ export interface Category {
 
 // ── Pharmacy directory (admin board) ────────────────────────────────
 
+/** A named group the admin creates to organise pharmacies. */
+export interface PharmacyFolder {
+  id: number;
+  name: string;
+}
+
 export interface Pharmacy {
   id: number;
+  folder_id: number | null; // null = "Unfiled"
   name: string;
   phone: string;
   location: string; // address, coordinates, or a Google Maps link

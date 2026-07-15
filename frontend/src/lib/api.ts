@@ -3,7 +3,14 @@
 //   • Orders: the shared Postgres database via the /api routes, so orders
 //     appear in the admin on every device.
 
-import { Category, Product, Order, OrderCreate, Pharmacy } from "@/types";
+import {
+  Category,
+  Product,
+  Order,
+  OrderCreate,
+  Pharmacy,
+  PharmacyFolder,
+} from "@/types";
 import {
   STORE,
   getAll,
@@ -128,41 +135,105 @@ export async function deleteCategory(categoryId: number): Promise<void> {
   await deleteOne(STORE.categories, categoryId);
 }
 
-// ── Pharmacies (local — admin directory board) ──────────────────────
+// ── Pharmacies & folders (shared database via /api) ─────────────────
+// The admin directory board lives server-side so it appears on every device.
 
-export async function fetchPharmacies(): Promise<Pharmacy[]> {
-  await ensureSeeded();
-  const list = await getAll<Pharmacy>(STORE.pharmacies);
-  return list.sort((a, b) => a.name.localeCompare(b.name));
-}
-
-export async function createPharmacy(data: {
+export interface PharmacyData {
+  folder_id: number | null;
   name: string;
   phone: string;
   location: string;
   notes: string;
-}): Promise<Pharmacy> {
-  await ensureSeeded();
-  const pharmacy: Pharmacy = { id: await nextId("Pharmacy"), ...data };
-  await putOne(STORE.pharmacies, pharmacy);
-  return pharmacy;
+}
+
+export async function fetchPharmacies(): Promise<Pharmacy[]> {
+  const res = await fetch("/api/pharmacies");
+  bounceIfUnauthorized(res);
+  if (!res.ok)
+    throw new Error(await readError(res, "Failed to load pharmacies."));
+  return res.json();
+}
+
+export async function createPharmacy(data: PharmacyData): Promise<Pharmacy> {
+  const res = await fetch("/api/pharmacies", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  bounceIfUnauthorized(res);
+  if (!res.ok)
+    throw new Error(await readError(res, "Failed to save pharmacy."));
+  return res.json();
 }
 
 export async function updatePharmacy(
   pharmacyId: number,
-  data: { name: string; phone: string; location: string; notes: string },
+  data: PharmacyData,
 ): Promise<Pharmacy> {
-  await ensureSeeded();
-  const existing = await getOne<Pharmacy>(STORE.pharmacies, pharmacyId);
-  if (!existing) throw new Error("Pharmacy not found.");
-  const updated: Pharmacy = { id: pharmacyId, ...data };
-  await putOne(STORE.pharmacies, updated);
-  return updated;
+  const res = await fetch(`/api/pharmacies/${pharmacyId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  bounceIfUnauthorized(res);
+  if (!res.ok)
+    throw new Error(await readError(res, "Failed to update pharmacy."));
+  return res.json();
 }
 
 export async function deletePharmacy(pharmacyId: number): Promise<void> {
-  await ensureSeeded();
-  await deleteOne(STORE.pharmacies, pharmacyId);
+  const res = await fetch(`/api/pharmacies/${pharmacyId}`, {
+    method: "DELETE",
+  });
+  bounceIfUnauthorized(res);
+  if (!res.ok && res.status !== 204)
+    throw new Error(await readError(res, "Failed to delete pharmacy."));
+}
+
+export async function fetchPharmacyFolders(): Promise<PharmacyFolder[]> {
+  const res = await fetch("/api/pharmacy-folders");
+  bounceIfUnauthorized(res);
+  if (!res.ok)
+    throw new Error(await readError(res, "Failed to load folders."));
+  return res.json();
+}
+
+export async function createPharmacyFolder(
+  name: string,
+): Promise<PharmacyFolder> {
+  const res = await fetch("/api/pharmacy-folders", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+  bounceIfUnauthorized(res);
+  if (!res.ok)
+    throw new Error(await readError(res, "Failed to create folder."));
+  return res.json();
+}
+
+export async function renamePharmacyFolder(
+  folderId: number,
+  name: string,
+): Promise<PharmacyFolder> {
+  const res = await fetch(`/api/pharmacy-folders/${folderId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+  bounceIfUnauthorized(res);
+  if (!res.ok)
+    throw new Error(await readError(res, "Failed to rename folder."));
+  return res.json();
+}
+
+export async function deletePharmacyFolder(folderId: number): Promise<void> {
+  const res = await fetch(`/api/pharmacy-folders/${folderId}`, {
+    method: "DELETE",
+  });
+  bounceIfUnauthorized(res);
+  if (!res.ok && res.status !== 204)
+    throw new Error(await readError(res, "Failed to delete folder."));
 }
 
 export async function uploadProductImage(
