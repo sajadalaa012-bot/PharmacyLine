@@ -18,6 +18,7 @@ import {
   Store,
   ArrowLeft,
   Lock,
+  SlidersHorizontal,
 } from "lucide-react";
 import ProductCard from "./ProductCard";
 import CartPanel from "./CartPanel";
@@ -37,6 +38,8 @@ export default function ShopView() {
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<number | "all">("all");
   const [query, setQuery] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const [cartOpen, setCartOpen] = useState(false);
   const [cartTab, setCartTab] = useState<"cart" | "orders">("cart");
   const [view, setView] = useState<"home" | "store">("home");
@@ -78,12 +81,39 @@ export default function ShopView() {
       ? allProducts
       : allProducts.filter((p) => p.category_id === activeCategory);
   const q = query.trim().toLowerCase();
-  const visibleProducts = q
+  const bySearch = q
     ? byCategory.filter(
         (p) =>
           p.name.toLowerCase().includes(q) || p.code.toLowerCase().includes(q)
       )
     : byCategory;
+
+  // Price range filter (IQD). Empty inputs mean "no bound".
+  const min = minPrice.trim() === "" ? null : Number(minPrice);
+  const max = maxPrice.trim() === "" ? null : Number(maxPrice);
+  const priceActive =
+    (min !== null && Number.isFinite(min)) ||
+    (max !== null && Number.isFinite(max));
+  const visibleProducts = priceActive
+    ? bySearch.filter((p) => {
+        if (min !== null && Number.isFinite(min) && p.price < min) return false;
+        if (max !== null && Number.isFinite(max) && p.price > max) return false;
+        return true;
+      })
+    : bySearch;
+
+  // Bounds across the whole catalog, used as input placeholders.
+  const priceBounds = allProducts.reduce(
+    (acc, p) => ({
+      min: Math.min(acc.min, p.price),
+      max: Math.max(acc.max, p.price),
+    }),
+    { min: Infinity, max: 0 }
+  );
+  const clearPrice = () => {
+    setMinPrice("");
+    setMaxPrice("");
+  };
 
   const activeName =
     activeCategory === "all"
@@ -377,13 +407,63 @@ export default function ShopView() {
 
       {/* Catalog */}
       <main id="catalog" className="mx-auto max-w-7xl scroll-mt-24 px-5 py-10 pb-24">
-        <div className="mb-6 flex items-baseline justify-between gap-4">
-          <h2 className="font-display text-2xl font-semibold tracking-tight text-ink">
-            <bdi>{activeName}</bdi>
-          </h2>
-          <span className="label-caps text-ink-3">
-            {visibleProducts.length} {visibleProducts.length === 1 ? "item" : "items"}
-          </span>
+        <div className="mb-6 space-y-4">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="font-display text-2xl font-semibold tracking-tight text-ink">
+              <bdi>{activeName}</bdi>
+            </h2>
+            <span className="label-caps text-ink-3">
+              {visibleProducts.length}{" "}
+              {visibleProducts.length === 1 ? "item" : "items"}
+            </span>
+          </div>
+
+          {/* Price filter */}
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
+            <span className="label-caps flex items-center gap-1.5 text-ink-3">
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              Price
+            </span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+              placeholder={
+                Number.isFinite(priceBounds.min)
+                  ? `Min ${priceBounds.min.toLocaleString("en-US")}`
+                  : "Min"
+              }
+              aria-label="Minimum price"
+              className="h-9 w-28 rounded-full border border-line bg-surface px-3.5 text-sm text-ink outline-none transition [appearance:textfield] placeholder:text-ink-3 focus:border-brand/50 focus:ring-2 focus:ring-brand/15 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            />
+            <span className="text-ink-3">–</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              placeholder={
+                priceBounds.max > 0
+                  ? `Max ${priceBounds.max.toLocaleString("en-US")}`
+                  : "Max"
+              }
+              aria-label="Maximum price"
+              className="h-9 w-28 rounded-full border border-line bg-surface px-3.5 text-sm text-ink outline-none transition [appearance:textfield] placeholder:text-ink-3 focus:border-brand/50 focus:ring-2 focus:ring-brand/15 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            />
+            <span className="text-xs text-ink-3">IQD</span>
+            {priceActive && (
+              <button
+                onClick={clearPrice}
+                className="flex items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs font-medium text-ink-2 transition hover:border-brand/40 hover:text-brand"
+              >
+                <X className="h-3 w-3" />
+                Clear
+              </button>
+            )}
+          </div>
         </div>
 
         {visibleProducts.length === 0 ? (
@@ -392,10 +472,18 @@ export default function ShopView() {
               <ShoppingBag className="h-7 w-7" />
             </div>
             <p className="text-sm font-medium text-ink-2">
-              {q ? `Nothing matches “${query}”` : "No products here yet"}
+              {q
+                ? `Nothing matches “${query}”`
+                : priceActive
+                  ? "No products in this price range"
+                  : "No products here yet"}
             </p>
             <p className="text-xs text-ink-3">
-              {q ? "Try a different search or category" : "Add products from the Admin dashboard"}
+              {q
+                ? "Try a different search or category"
+                : priceActive
+                  ? "Try widening the price range or clearing the filter"
+                  : "Add products from the Admin dashboard"}
             </p>
           </div>
         ) : (
