@@ -31,7 +31,13 @@ export interface Pharmacy {
   phone: string;
   location: string; // address, coordinates, or a Google Maps link
   notes: string;
+  // Map pin, resolved from `location` on save. null = not pinned yet.
+  lat: number | null;
+  lng: number | null;
 }
+
+/** A pharmacy that has coordinates — the shape the visit map works with. */
+export type MappedPharmacy = Pharmacy & { lat: number; lng: number };
 
 // ── Cart types ──────────────────────────────────────────────────────
 

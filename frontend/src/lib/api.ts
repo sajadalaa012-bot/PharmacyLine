@@ -144,6 +144,37 @@ export interface PharmacyData {
   phone: string;
   location: string;
   notes: string;
+  /** Exact pin, sent when the admin drags the marker on the visit map. */
+  lat?: number | null;
+  lng?: number | null;
+}
+
+/** Re-run server-side geocoding for a pharmacy whose pin is missing. */
+export async function locatePharmacy(p: Pharmacy): Promise<Pharmacy> {
+  return updatePharmacy(p.id, {
+    folder_id: p.folder_id,
+    name: p.name,
+    phone: p.phone,
+    location: p.location,
+    notes: p.notes,
+  });
+}
+
+/** Move a pharmacy's pin to an exact position. */
+export async function movePharmacyPin(
+  p: Pharmacy,
+  lat: number,
+  lng: number,
+): Promise<Pharmacy> {
+  return updatePharmacy(p.id, {
+    folder_id: p.folder_id,
+    name: p.name,
+    phone: p.phone,
+    location: p.location,
+    notes: p.notes,
+    lat,
+    lng,
+  });
 }
 
 export async function fetchPharmacies(): Promise<Pharmacy[]> {

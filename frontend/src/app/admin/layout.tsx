@@ -11,6 +11,7 @@ import {
   ShoppingBag,
   Monitor,
   MapPin,
+  Map as MapIcon,
   LogOut,
   Menu,
   X,
@@ -26,6 +27,7 @@ const NAV = [
   { href: "/admin/categories", label: "Categories", icon: Folder },
   { href: "/admin/orders", label: "Orders", icon: ClipboardList },
   { href: "/admin/pharmacies", label: "Pharmacies", icon: MapPin },
+  { href: "/admin/map", label: "Visit map", icon: MapIcon },
 ];
 
 /** The rail contents — shared by the desktop sidebar and the mobile drawer. */

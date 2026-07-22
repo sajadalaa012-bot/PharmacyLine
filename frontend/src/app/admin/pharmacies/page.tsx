@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import Link from "next/link";
 import { Pharmacy, PharmacyFolder } from "@/types";
 import {
   fetchPharmacies,
@@ -25,6 +26,7 @@ import {
   Folder,
   FolderPlus,
   Layers,
+  Map as MapIcon,
 } from "lucide-react";
 
 /** Build a keyless Google Maps embed URL from an address, coordinates, or link. */
@@ -286,16 +288,25 @@ export default function AdminPharmaciesPage() {
             Directory board — saved to your account and synced on every device
           </p>
         </div>
-        {!formOpen && (
-          <button
-            type="button"
-            onClick={openAdd}
-            className="label-caps flex h-10 shrink-0 items-center gap-1.5 rounded-md bg-brand px-4 text-on-brand transition hover:bg-brand-deep active:scale-[0.98]"
+        <div className="flex shrink-0 items-center gap-2">
+          <Link
+            href="/admin/map"
+            className="label-caps flex h-10 items-center gap-1.5 rounded-md border border-line bg-surface px-3 text-ink-2 transition hover:text-ink"
           >
-            <Plus className="h-4 w-4" />
-            Add pharmacy
-          </button>
-        )}
+            <MapIcon className="h-4 w-4" />
+            Visit map
+          </Link>
+          {!formOpen && (
+            <button
+              type="button"
+              onClick={openAdd}
+              className="label-caps flex h-10 items-center gap-1.5 rounded-md bg-brand px-4 text-on-brand transition hover:bg-brand-deep active:scale-[0.98]"
+            >
+              <Plus className="h-4 w-4" />
+              Add pharmacy
+            </button>
+          )}
+        </div>
       </div>
 
       {error && (

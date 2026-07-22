@@ -95,5 +95,10 @@ async function initSchema(): Promise<void> {
     );
 
     CREATE INDEX IF NOT EXISTS idx_pharmacies_folder_id ON pharmacies (folder_id);
+
+    -- Map pin for the visit map. Resolved from "location" when a pharmacy is
+    -- saved, or set by dragging the pin on /admin/map. NULL = not pinned yet.
+    ALTER TABLE pharmacies ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION;
+    ALTER TABLE pharmacies ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION;
   `);
 }

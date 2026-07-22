@@ -5,6 +5,8 @@
 
 import { getPool, ensureSchema } from "./db";
 import { Pharmacy, PharmacyFolder } from "@/types";
+import { LatLng } from "./geo";
+import { resolveLocation } from "./geocode";
 
 export class PharmacyValidationError extends Error {}
 
@@ -22,6 +24,8 @@ function mapPharmacy(r: Row): Pharmacy {
     phone: String(r.phone ?? ""),
     location: String(r.location ?? ""),
     notes: String(r.notes ?? ""),
+    lat: r.lat == null ? null : Number(r.lat),
+    lng: r.lng == null ? null : Number(r.lng),
   };
 }
 
@@ -78,6 +82,8 @@ export interface PharmacyInput {
   phone: string;
   location: string;
   notes: string;
+  /** An exact pin (dragged on the map). When set it wins over geocoding. */
+  coords: LatLng | null;
 }
 
 export function validatePharmacyInput(body: unknown): PharmacyInput {
@@ -93,12 +99,27 @@ export function validatePharmacyInput(body: unknown): PharmacyInput {
     folder_id = Number.isInteger(n) && n > 0 ? n : null;
   }
 
+  let coords: LatLng | null = null;
+  const lat = Number(b.lat);
+  const lng = Number(b.lng);
+  if (
+    b.lat != null &&
+    b.lng != null &&
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    Math.abs(lat) <= 90 &&
+    Math.abs(lng) <= 180
+  ) {
+    coords = { lat, lng };
+  }
+
   return {
     folder_id,
     name,
     phone: typeof b.phone === "string" ? b.phone.trim() : "",
     location: typeof b.location === "string" ? b.location.trim() : "",
     notes: typeof b.notes === "string" ? b.notes.trim() : "",
+    coords,
   };
 }
 
@@ -114,10 +135,19 @@ export async function createPharmacy(
   input: PharmacyInput,
 ): Promise<Pharmacy> {
   await ensureSchema();
+  const pin = input.coords ?? (await resolveLocation(input.location));
   const res = await getPool().query(
-    `INSERT INTO pharmacies (folder_id, name, phone, location, notes)
-     VALUES ($1,$2,$3,$4,$5) RETURNING *`,
-    [input.folder_id, input.name, input.phone, input.location, input.notes],
+    `INSERT INTO pharmacies (folder_id, name, phone, location, notes, lat, lng)
+     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+    [
+      input.folder_id,
+      input.name,
+      input.phone,
+      input.location,
+      input.notes,
+      pin?.lat ?? null,
+      pin?.lng ?? null,
+    ],
   );
   return mapPharmacy(res.rows[0]);
 }
@@ -127,11 +157,38 @@ export async function updatePharmacy(
   input: PharmacyInput,
 ): Promise<Pharmacy | null> {
   await ensureSchema();
+  const before = await getPool().query(
+    "SELECT location, lat, lng FROM pharmacies WHERE id = $1",
+    [id],
+  );
+  if (!before.rows[0]) return null;
+  const prev = before.rows[0] as { location: string; lat: unknown; lng: unknown };
+  const hadPin = prev.lat != null && prev.lng != null;
+  const sameLocation = String(prev.location ?? "") === input.location;
+
+  // Re-geocode only when there is something new to resolve: an explicit pin
+  // always wins, an unchanged location keeps the pin it already had.
+  let pin: LatLng | null;
+  if (input.coords) pin = input.coords;
+  else if (sameLocation && hadPin)
+    pin = { lat: Number(prev.lat), lng: Number(prev.lng) };
+  else pin = await resolveLocation(input.location);
+
   const res = await getPool().query(
     `UPDATE pharmacies
-       SET folder_id = $1, name = $2, phone = $3, location = $4, notes = $5
-     WHERE id = $6 RETURNING *`,
-    [input.folder_id, input.name, input.phone, input.location, input.notes, id],
+       SET folder_id = $1, name = $2, phone = $3, location = $4, notes = $5,
+           lat = $6, lng = $7
+     WHERE id = $8 RETURNING *`,
+    [
+      input.folder_id,
+      input.name,
+      input.phone,
+      input.location,
+      input.notes,
+      pin?.lat ?? null,
+      pin?.lng ?? null,
+      id,
+    ],
   );
   return res.rows[0] ? mapPharmacy(res.rows[0]) : null;
 }
