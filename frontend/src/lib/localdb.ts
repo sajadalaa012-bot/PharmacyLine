@@ -125,6 +125,10 @@ async function seed(): Promise<void> {
           price: p.price,
           image_url: p.image_url,
           category_id: p.category_id,
+          description: p.description,
+          benefits: p.benefits,
+          ingredients: p.ingredients,
+          usage: p.usage,
         });
         maxProd = Math.max(maxProd, p.id);
       }

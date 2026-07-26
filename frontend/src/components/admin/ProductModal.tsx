@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Product, Category } from "@/types";
+import { Product, Category, ProductInput } from "@/types";
 import { uploadProductImage } from "@/lib/api";
 import { X, Package } from "lucide-react";
 import Dropdown from "@/components/Dropdown";
@@ -13,13 +13,7 @@ interface ProductModalProps {
   product?: Product | null;
   categories: Category[];
   defaultCategoryId?: number;
-  onSave: (productData: {
-    name: string;
-    code: string;
-    price: number;
-    image_url: string;
-    category_id: number;
-  }) => Promise<void>;
+  onSave: (productData: ProductInput) => Promise<void>;
   onDelete?: (productId: number) => Promise<void>;
 }
 
@@ -37,6 +31,10 @@ export default function ProductModal({
   const [price, setPrice] = useState("");
   const [categoryId, setCategoryId] = useState<number>(0);
   const [imageUrl, setImageUrl] = useState("");
+  const [description, setDescription] = useState("");
+  const [benefits, setBenefits] = useState("");
+  const [ingredients, setIngredients] = useState("");
+  const [usage, setUsage] = useState("");
 
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,12 +52,20 @@ export default function ProductModal({
         setPrice(product.price.toString());
         setCategoryId(product.category_id);
         setImageUrl(product.image_url);
+        setDescription(product.description ?? "");
+        setBenefits(product.benefits ?? "");
+        setIngredients(product.ingredients ?? "");
+        setUsage(product.usage ?? "");
       } else {
         setName("");
         setCode("");
         setPrice("");
         setCategoryId(defaultCategoryId || categories[0]?.id || 0);
         setImageUrl("");
+        setDescription("");
+        setBenefits("");
+        setIngredients("");
+        setUsage("");
       }
     }
   }, [isOpen, product, categories, defaultCategoryId]);
@@ -99,6 +105,10 @@ export default function ProductModal({
         price: parsedPrice,
         image_url: imageUrl.trim(),
         category_id: categoryId,
+        description: description.trim(),
+        benefits: benefits.trim(),
+        ingredients: ingredients.trim(),
+        usage: usage.trim(),
       });
       onClose();
     } catch (err) {
@@ -130,15 +140,16 @@ export default function ProductModal({
 
   const inputCls =
     "w-full rounded-md border border-line bg-sunken px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-3 focus:border-brand/60 focus:ring-1 focus:ring-brand/30";
+  const textareaCls = `${inputCls} min-h-20 resize-y leading-relaxed`;
 
   return (
     <div className="fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-[2px]">
       <div
-        className="pop w-full max-w-lg overflow-hidden rounded-lg border border-line-strong bg-surface shadow-2xl"
+        className="pop flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-lg border border-line-strong bg-surface shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-line px-6 py-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-line px-6 py-4">
           <h2 className="font-display text-lg font-semibold tracking-tight text-ink">
             {product ? "Edit product" : "New product"}
           </h2>
@@ -152,7 +163,7 @@ export default function ProductModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
+        <form onSubmit={handleSubmit} className="overflow-y-auto p-6">
           {error && (
             <div className="mb-4 rounded-md border border-rose/30 bg-rose/10 p-3 text-xs text-rose">
               {error}
@@ -261,6 +272,62 @@ export default function ProductModal({
                   />
                 </div>
               </div>
+            </div>
+
+            {/* ── Product details (shown to shoppers on the detail view) ── */}
+            <div className="mt-1 border-t border-line pt-4">
+              <p className="label-caps text-ink-3">Details (optional)</p>
+              <p className="mt-1 text-[11px] text-ink-3">
+                These show when a shopper opens the product.
+              </p>
+            </div>
+
+            <div>
+              <label className="label-caps mb-1.5 block text-ink-3">
+                Description
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="A short overview of the product…"
+                className={textareaCls}
+              />
+            </div>
+
+            <div>
+              <label className="label-caps mb-1.5 block text-ink-3">
+                Benefits
+              </label>
+              <textarea
+                value={benefits}
+                onChange={(e) => setBenefits(e.target.value)}
+                placeholder="What it helps with — one point per line…"
+                className={textareaCls}
+              />
+            </div>
+
+            <div>
+              <label className="label-caps mb-1.5 block text-ink-3">
+                Ingredients
+              </label>
+              <textarea
+                value={ingredients}
+                onChange={(e) => setIngredients(e.target.value)}
+                placeholder="Active ingredients / composition…"
+                className={textareaCls}
+              />
+            </div>
+
+            <div>
+              <label className="label-caps mb-1.5 block text-ink-3">
+                How to use
+              </label>
+              <textarea
+                value={usage}
+                onChange={(e) => setUsage(e.target.value)}
+                placeholder="Directions / dosage…"
+                className={textareaCls}
+              />
             </div>
           </div>
 

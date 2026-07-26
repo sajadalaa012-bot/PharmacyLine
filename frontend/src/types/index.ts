@@ -7,6 +7,28 @@ export interface Product {
   price: number;
   image_url: string;
   category_id: number;
+  // ── Optional detail fields (shown on the product detail view) ──
+  /** Short overview / marketing blurb. */
+  description?: string;
+  /** What the product helps with. */
+  benefits?: string;
+  /** What's inside — active ingredients / composition. */
+  ingredients?: string;
+  /** How to use / directions / dosage. */
+  usage?: string;
+}
+
+/** The editable payload for creating or updating a product. */
+export interface ProductInput {
+  name: string;
+  code: string;
+  price: number;
+  image_url: string;
+  category_id: number;
+  description?: string;
+  benefits?: string;
+  ingredients?: string;
+  usage?: string;
 }
 
 export interface Category {

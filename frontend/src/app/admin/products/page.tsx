@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Category, Product } from "@/types";
+import { Category, Product, ProductInput } from "@/types";
 import {
   fetchProducts,
   createProduct,
@@ -37,13 +37,7 @@ export default function AdminProductsPage() {
   }, [load]);
 
   const handleSave = useCallback(
-    async (productData: {
-      name: string;
-      code: string;
-      price: number;
-      image_url: string;
-      category_id: number;
-    }) => {
+    async (productData: ProductInput) => {
       if (editingProduct) {
         await updateProduct(editingProduct.id, productData);
       } else {

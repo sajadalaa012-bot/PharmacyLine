@@ -6,6 +6,7 @@
 import {
   Category,
   Product,
+  ProductInput,
   Order,
   OrderCreate,
   Pharmacy,
@@ -40,13 +41,9 @@ export async function fetchProducts(): Promise<Category[]> {
     }));
 }
 
-export async function createProduct(productData: {
-  name: string;
-  code: string;
-  price: number;
-  image_url: string;
-  category_id: number;
-}): Promise<Product> {
+export async function createProduct(
+  productData: ProductInput,
+): Promise<Product> {
   await ensureSeeded();
   const existing = await getAll<Product>(STORE.products);
   if (existing.some((p) => p.code === productData.code)) {
@@ -59,13 +56,7 @@ export async function createProduct(productData: {
 
 export async function updateProduct(
   productId: number,
-  productData: {
-    name: string;
-    code: string;
-    price: number;
-    image_url: string;
-    category_id: number;
-  },
+  productData: ProductInput,
 ): Promise<Product> {
   await ensureSeeded();
   const product = await getOne<Product>(STORE.products, productId);

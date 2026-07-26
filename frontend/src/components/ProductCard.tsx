@@ -1,7 +1,7 @@
 "use client";
 
 import { Product } from "@/types";
-import { Package, Plus, Minus } from "lucide-react";
+import { Package, Plus, Minus, Maximize2 } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
@@ -10,6 +10,8 @@ interface ProductCardProps {
   onAdd: (product: Product) => void;
   onRemove: (product: Product) => void;
   onFree?: (product: Product) => void;
+  /** When set, tapping the image or name opens the product detail view. */
+  onOpenDetail?: (product: Product) => void;
   index?: number;
 }
 
@@ -20,6 +22,7 @@ export default function ProductCard({
   onAdd,
   onRemove,
   onFree,
+  onOpenDetail,
   index = 0,
 }: ProductCardProps) {
   // Every item shares the same peach tint (matches the F7 card).
@@ -38,11 +41,16 @@ export default function ProductCard({
         </span>
       )}
 
-      {/* Image — floats on a clean white plate framed by the pastel card */}
-      <div
-        className={`relative m-2.5 flex items-center justify-center overflow-hidden rounded-xl bg-white p-2 ${
+      {/* Image — floats on a clean white plate framed by the pastel card.
+          Tapping it opens the product detail view (when enabled). */}
+      <button
+        type="button"
+        onClick={() => onOpenDetail?.(product)}
+        disabled={!onOpenDetail}
+        aria-label={onOpenDetail ? `View details for ${product.name}` : undefined}
+        className={`group/img relative m-2.5 flex items-center justify-center overflow-hidden rounded-xl bg-white p-2 ${
           mode === "shop" ? "h-32" : "h-24"
-        }`}
+        } ${onOpenDetail ? "cursor-zoom-in" : "cursor-default"}`}
       >
         {product.image_url ? (
           /* eslint-disable-next-line @next/next/no-img-element */
@@ -50,12 +58,17 @@ export default function ProductCard({
             src={product.image_url}
             alt={product.name}
             loading="lazy"
-            className="max-h-full max-w-full object-contain"
+            className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover/img:scale-105"
           />
         ) : (
           <Package className="h-8 w-8 text-line-strong" />
         )}
-      </div>
+        {onOpenDetail && (
+          <span className="pointer-events-none absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-ink/55 text-white opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover/img:opacity-100">
+            <Maximize2 className="h-3 w-3" />
+          </span>
+        )}
+      </button>
 
       {/* Body */}
       <div className={`flex flex-1 flex-col gap-1.5 ${mode === "shop" ? "px-3.5 pb-3.5 pt-1" : "px-3 pb-3 pt-0.5"}`}>
@@ -64,9 +77,10 @@ export default function ProductCard({
         </span>
 
         <h3
+          onClick={onOpenDetail ? () => onOpenDetail(product) : undefined}
           className={`line-clamp-2 font-medium leading-snug text-[#211d17] ${
             mode === "shop" ? "min-h-10 text-sm" : "min-h-9 text-[13px]"
-          }`}
+          } ${onOpenDetail ? "cursor-pointer transition-colors hover:text-brand" : ""}`}
         >
           <bdi>{product.name}</bdi>
         </h3>

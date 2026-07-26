@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Category } from "@/types";
+import { Category, Product } from "@/types";
 import { fetchProducts } from "@/lib/api";
 import { useCart } from "@/lib/useCart";
 import {
@@ -21,6 +21,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import ProductCard from "./ProductCard";
+import ProductDetailModal from "./ProductDetailModal";
 import CartPanel from "./CartPanel";
 import OrderConfirmation from "./OrderConfirmation";
 import OrderHistory from "./OrderHistory";
@@ -44,6 +45,7 @@ export default function ShopView() {
   const [cartTab, setCartTab] = useState<"cart" | "orders">("cart");
   const [view, setView] = useState<"home" | "store">("home");
   const [isStandalone, setIsStandalone] = useState(false);
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -503,6 +505,7 @@ export default function ShopView() {
                   mode="shop"
                   onAdd={cart.add}
                   onRemove={cart.remove}
+                  onOpenDetail={setDetailProduct}
                   index={i}
                 />
               );
@@ -646,6 +649,21 @@ export default function ShopView() {
             </div>
           </div>
         ))}
+
+      {/* Product detail — opened by tapping a product card */}
+      {detailProduct && (
+        <ProductDetailModal
+          product={detailProduct}
+          qty={
+            cart.items.find(
+              (ci) => ci.product_id === detailProduct.id && !ci.is_free
+            )?.quantity ?? 0
+          }
+          onClose={() => setDetailProduct(null)}
+          onAdd={cart.add}
+          onRemove={cart.remove}
+        />
+      )}
     </div>
   );
 }
