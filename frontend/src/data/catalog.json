@@ -8,153 +8,229 @@
         "id": 1,
         "name": "HAIR SKIN NAILS GUMMIES",
         "code": "F1",
-        "price": 21000.0,
+        "price": 21000,
         "image_url": "/products/F1.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "Chewable beauty gummies that support healthy hair, skin and nails from within.",
+        "benefits": "Supports stronger hair and nails\nHelps skin look healthy and clear\nEasy, great-tasting daily gummy",
+        "ingredients": "Biotin, Vitamins A, C & E, Zinc, folic acid.",
+        "usage": "Chew 1–2 gummies daily, preferably with a meal."
       },
       {
         "id": 2,
         "name": "HAIR SKIN NAILS GUMMIES ADVANCED",
         "code": "F2",
-        "price": 21000.0,
+        "price": 21000,
         "image_url": "/products/F2.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "An advanced-strength beauty gummy with higher biotin and added antioxidants for hair, skin and nails.",
+        "benefits": "Higher biotin dose for hair and nails\nAntioxidant support for the skin\nConvenient daily chewable",
+        "ingredients": "Biotin (high strength), Vitamins A, C, E, Zinc, folic acid.",
+        "usage": "Chew 2 gummies daily with food."
       },
       {
         "id": 3,
         "name": "HYDROXY BLACK الأمريكي الأصلي",
         "code": "F3",
-        "price": 31500.0,
+        "price": 31500,
         "image_url": "/products/F3.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "An American thermogenic energy and metabolism support supplement.",
+        "benefits": "Supports energy and focus\nHelps support metabolism\nCaffeine-based pick-me-up",
+        "ingredients": "Caffeine, green coffee / green tea extract, B vitamins.",
+        "usage": "Take as directed on the label; avoid late in the day. Not for pregnancy or heart conditions — consult a doctor first."
       },
       {
         "id": 4,
         "name": "HYDROXY GAMMIES MUILT VIT",
         "code": "F4",
-        "price": 18000.0,
+        "price": 18000,
         "image_url": "/products/F4.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "A daily multivitamin in gummy form covering everyday essential nutrients.",
+        "benefits": "Fills common dietary gaps\nSupports energy and immunity\nEasy chewable multivitamin",
+        "ingredients": "Vitamins A, C, D, E, B-complex, zinc.",
+        "usage": "Chew 1–2 gummies daily with a meal."
       },
       {
         "id": 5,
         "name": "HYDROXY GAMMIES",
         "code": "F5",
-        "price": 18000.0,
+        "price": 18000,
         "image_url": "/products/F5.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "Everyday vitamin gummies for general wellbeing.",
+        "benefits": "Daily vitamin support\nPleasant taste\nSuitable for adults",
+        "ingredients": "Multivitamin blend (A, C, D, E, B group).",
+        "usage": "Chew 1–2 gummies daily."
       },
       {
         "id": 6,
         "name": "B12 100 TAB الأمريكي الأصلي",
         "code": "F6",
-        "price": 22000.0,
+        "price": 22000,
         "image_url": "/products/F6.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "High-potency Vitamin B12 tablets — genuine American formula.",
+        "benefits": "Supports energy and reduces tiredness\nHelps nerve and blood cell health\nGood for low-B12 or plant-based diets",
+        "ingredients": "Vitamin B12 (cyanocobalamin/methylcobalamin).",
+        "usage": "Take 1 tablet daily, or as advised by your doctor."
       },
       {
         "id": 7,
         "name": "B12 STROBARY 100 TAB الأمريكي الأصلي",
         "code": "F7",
-        "price": 22000.0,
+        "price": 22000,
         "image_url": "/products/F7.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "Strawberry-flavoured chewable Vitamin B12 — genuine American formula.",
+        "benefits": "Supports energy metabolism\nSupports healthy nerves\nPleasant strawberry chewable",
+        "ingredients": "Vitamin B12, natural strawberry flavour.",
+        "usage": "Chew 1 tablet daily."
       },
       {
         "id": 8,
         "name": "BIOTIN 1000 MCG 100 TAB الأمريكي الأصلي",
         "code": "F8",
-        "price": 19000.0,
+        "price": 19000,
         "image_url": "/products/F8.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "Biotin 1000 mcg tablets — genuine American formula for hair, skin and nails.",
+        "benefits": "Supports hair strength and growth\nStrengthens brittle nails\nSupports healthy skin",
+        "ingredients": "Biotin (Vitamin B7) 1000 mcg.",
+        "usage": "Take 1 tablet daily with water."
       },
       {
         "id": 9,
         "name": "FISH OIL 1200 MG 120 SOFT GEL الأمريكي الأصلي",
         "code": "F9",
-        "price": 19000.0,
+        "price": 19000,
         "image_url": "/products/F9.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "Omega-3 fish oil softgels, 1200 mg — genuine American formula.",
+        "benefits": "Supports heart and circulation\nSupports brain and eye health\nHelps joints and skin",
+        "ingredients": "Fish oil 1200 mg providing EPA & DHA omega-3.",
+        "usage": "Take 1 softgel 1–2 times daily with meals."
       },
       {
         "id": 10,
         "name": "NOW BIOTIN صنع في تركيا",
         "code": "F10",
-        "price": 17000.0,
+        "price": 17000,
         "image_url": "/products/F10.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "NOW Biotin supplement (made in Türkiye) for hair, skin and nail support.",
+        "benefits": "Supports healthy hair and nails\nSupports skin\nHigh-quality daily dose",
+        "ingredients": "Biotin (Vitamin B7).",
+        "usage": "Take 1 capsule daily with food."
       },
       {
         "id": 11,
         "name": "NOW E-400 صنع في تركيا",
         "code": "F11",
-        "price": 12000.0,
+        "price": 12000,
         "image_url": "/products/F11.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "NOW Vitamin E 400 IU (made in Türkiye) — a fat-soluble antioxidant.",
+        "benefits": "Antioxidant protection for cells\nSupports skin health\nSupports immune function",
+        "ingredients": "Vitamin E (d-alpha tocopherol) 400 IU.",
+        "usage": "Take 1 softgel daily with a meal."
       },
       {
         "id": 12,
         "name": "NOW CHOLINE & INOSITOL صنع في تركيا",
         "code": "F12",
-        "price": 25000.0,
+        "price": 25000,
         "image_url": "/products/F12.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "NOW Choline & Inositol (made in Türkiye) supporting brain and liver function.",
+        "benefits": "Supports brain and nerve function\nSupports healthy liver fat metabolism\nSupports mood balance",
+        "ingredients": "Choline bitartrate, Inositol.",
+        "usage": "Take 1 capsule 1–2 times daily with food."
       },
       {
         "id": 13,
         "name": "NOW B-50 صنع في تركيا",
         "code": "F13",
-        "price": 17000.0,
+        "price": 17000,
         "image_url": "/products/F13.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "NOW B-50 balanced B-complex (made in Türkiye).",
+        "benefits": "Supports energy production\nSupports nervous system\nHelps with stress and tiredness",
+        "ingredients": "Balanced B-vitamin complex (B1, B2, B3, B6, B12, folate, biotin).",
+        "usage": "Take 1 capsule daily with a meal."
       },
       {
         "id": 14,
         "name": "NOW MAGNESIUM صنع في تركيا",
         "code": "F14",
-        "price": 17000.0,
+        "price": 17000,
         "image_url": "/products/F14.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "NOW Magnesium (made in Türkiye) — an essential mineral for muscles and nerves.",
+        "benefits": "Supports muscle and nerve function\nHelps reduce cramps\nSupports relaxation and sleep",
+        "ingredients": "Magnesium (oxide/citrate).",
+        "usage": "Take 1 capsule daily, preferably in the evening."
       },
       {
         "id": 15,
         "name": "APPLE CIDER GAMMIES",
         "code": "F15",
-        "price": 16500.0,
+        "price": 16500,
         "image_url": "/products/F15.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "Apple cider vinegar gummies — the benefits of ACV without the sour taste.",
+        "benefits": "Supports digestion\nSupports metabolism\nEasy alternative to liquid vinegar",
+        "ingredients": "Apple cider vinegar, B12, beetroot/pomegranate.",
+        "usage": "Chew 1–2 gummies daily."
       },
       {
         "id": 16,
         "name": "ONE A DAY VIT FOR WOMEN 200 TAB",
         "code": "F16",
-        "price": 22500.0,
+        "price": 22500,
         "image_url": "/products/F16.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "One A Day multivitamin formulated for women — 200 tablets.",
+        "benefits": "Complete daily nutrition for women\nSupports bone, skin and immune health\nSupports energy",
+        "ingredients": "Vitamins A, C, D, E, B group, calcium, iron, folic acid.",
+        "usage": "Take 1 tablet daily with food."
       },
       {
         "id": 17,
         "name": "ONE A DAY VIT FOR WOMEN 60 TAB",
         "code": "F17",
-        "price": 14250.0,
+        "price": 14250,
         "image_url": "/products/F17.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "One A Day multivitamin for women — 60 tablets.",
+        "benefits": "Daily nutrition for women\nSupports energy and immunity\nSupports bone health",
+        "ingredients": "Vitamins A, C, D, E, B group, calcium, iron, folic acid.",
+        "usage": "Take 1 tablet daily with food."
       },
       {
         "id": 18,
         "name": "ONE A DAY VIT FOR MEN 200 TAB",
         "code": "F18",
-        "price": 22500.0,
+        "price": 22500,
         "image_url": "/products/F18.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "One A Day multivitamin formulated for men — 200 tablets.",
+        "benefits": "Complete daily nutrition for men\nSupports heart and muscle function\nSupports energy and immunity",
+        "ingredients": "Vitamins A, C, D, E, B group, magnesium, zinc.",
+        "usage": "Take 1 tablet daily with food."
       },
       {
         "id": 19,
         "name": "ONE A DAY VIT FOR MEN 60 TAB",
         "code": "F19",
-        "price": 14250.0,
+        "price": 14250,
         "image_url": "/products/F19.jpg",
-        "category_id": 1
+        "category_id": 1,
+        "description": "One A Day multivitamin for men — 60 tablets.",
+        "benefits": "Daily nutrition for men\nSupports energy\nSupports immune health",
+        "ingredients": "Vitamins A, C, D, E, B group, magnesium, zinc.",
+        "usage": "Take 1 tablet daily with food."
       }
     ]
   },
@@ -167,137 +243,205 @@
         "id": 20,
         "name": "سيروم بيوتي الكوري استيراد دبي ) BEAUTY OF JOSEN (",
         "code": "F21",
-        "price": 12750.0,
+        "price": 12750,
         "image_url": "/products/F21.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "Beauty of Joseon Korean glow serum — a lightweight brightening treatment.",
+        "benefits": "Brightens and evens skin tone\nHydrates and soothes\nGives a healthy glow",
+        "ingredients": "Propolis extract, Niacinamide.",
+        "usage": "Apply a few drops to clean skin morning and night, before moisturiser."
       },
       {
         "id": 21,
         "name": "GINSENG CLEANSING OIL استيراد دبي BEAUTY OF JOSEN",
         "code": "F23",
-        "price": 12750.0,
+        "price": 12750,
         "image_url": "/products/F23.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "Beauty of Joseon Ginseng Cleansing Oil — a first-step oil cleanser.",
+        "benefits": "Melts away makeup and sunscreen\nDoesn't strip the skin\nLeaves skin soft",
+        "ingredients": "Ginseng root extract, plant oils.",
+        "usage": "Massage onto dry skin, add water to emulsify, then rinse. Follow with a face wash."
       },
       {
         "id": 22,
         "name": "(تونر الحلزون ) الكوري COSRX استيراد دبي",
         "code": "F28",
-        "price": 16500.0,
+        "price": 16500,
         "image_url": "/products/F28.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "COSRX Korean snail-mucin toner for hydration and repair.",
+        "benefits": "Deeply hydrates\nSoothes and repairs the skin barrier\nAdds a plump, healthy look",
+        "ingredients": "Snail secretion filtrate, hyaluronic acid.",
+        "usage": "After cleansing, pat a few drops over the face before serum and moisturiser."
       },
       {
         "id": 23,
         "name": "RETINAL SHOT",
         "code": "F33",
-        "price": 12000.0,
+        "price": 12000,
         "image_url": "/products/F33.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "A retinaldehyde (retinal) serum — a fast-acting form of Vitamin A.",
+        "benefits": "Smooths fine lines and texture\nEvens tone and fades marks\nBoosts skin renewal",
+        "ingredients": "Retinaldehyde, soothing/hydrating base.",
+        "usage": "Use at night on dry skin, starting 2–3 times a week. Always wear sunscreen the next day."
       },
       {
         "id": 24,
         "name": "ORDINARY سيروم الفا اربوتين استيراد دبي",
         "code": "F35",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F35.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "The Ordinary Alpha Arbutin 2% + HA — a targeted brightening serum.",
+        "benefits": "Fades dark spots and pigmentation\nEvens skin tone\nHydrates with hyaluronic acid",
+        "ingredients": "Alpha Arbutin 2%, Hyaluronic Acid.",
+        "usage": "Apply a few drops morning and night before heavier creams."
       },
       {
         "id": 25,
         "name": "ORDINARY سيروم ريتينول استيراد دبي",
         "code": "F36",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F36.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "The Ordinary Retinol serum in squalane — for signs of ageing and texture.",
+        "benefits": "Reduces fine lines\nImproves texture and tone\nSupports skin renewal",
+        "ingredients": "Retinol, squalane.",
+        "usage": "Apply at night only, starting slowly. Use sunscreen daily."
       },
       {
         "id": 26,
         "name": "ORDINARY سيروم الكافيين استيراد دبي",
         "code": "F37",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F37.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "The Ordinary Caffeine Solution 5% + EGCG — an eye-area serum.",
+        "benefits": "Reduces the look of puffiness\nHelps with dark circles\nRefreshes tired eyes",
+        "ingredients": "Caffeine 5%, EGCG (green tea).",
+        "usage": "Dab gently around the eye area morning and night."
       },
       {
         "id": 27,
         "name": "ORDINARY سيروم مقشر استيراد دبي",
         "code": "F38",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F38.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "The Ordinary AHA/BHA exfoliating peeling solution for a weekly deep exfoliation.",
+        "benefits": "Clears dull, rough skin\nUnclogs pores\nBrightens and smooths",
+        "ingredients": "AHA (glycolic/lactic) + BHA (salicylic acid).",
+        "usage": "Apply to clean dry skin for no more than 10 minutes, then rinse. Once or twice a week at night. Sunscreen essential."
       },
       {
         "id": 28,
         "name": "ORDINARY سيروم حمض اللاكتيك استيراد دبي",
         "code": "F39",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F39.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "The Ordinary Lactic Acid 10% + HA — a gentle exfoliating serum.",
+        "benefits": "Smooths and brightens\nGently exfoliates\nHydrates while it works",
+        "ingredients": "Lactic Acid 10%, Hyaluronic Acid.",
+        "usage": "Apply a few drops at night. Wear sunscreen during the day."
       },
       {
         "id": 29,
         "name": "ORDINARY سيروم نيساميد + زنك استيراد دبي",
         "code": "F40",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F40.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "The Ordinary Niacinamide 10% + Zinc 1% — for oily, blemish-prone skin.",
+        "benefits": "Controls oil and shine\nMinimises the look of pores\nCalms blemishes",
+        "ingredients": "Niacinamide 10%, Zinc PCA 1%.",
+        "usage": "Apply a few drops morning and/or night before moisturiser."
       },
       {
         "id": 30,
         "name": "ORDINARY ( TONER 7% BYLOCOLICACID ) استيراد دبي",
         "code": "F41",
-        "price": 16500.0,
+        "price": 16500,
         "image_url": "/products/F41.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "The Ordinary Glycolic Acid 7% toning solution — an exfoliating toner.",
+        "benefits": "Brightens and refines skin\nImproves texture and radiance\nHelps fade marks",
+        "ingredients": "Glycolic Acid 7%, aloe, ginseng.",
+        "usage": "Sweep over clean skin at night with a cotton pad. Not for sensitive or broken skin. Use sunscreen."
       },
       {
         "id": 31,
         "name": "Dr. melaxin ampoule الأصلي",
         "code": "F42",
-        "price": 18000.0,
+        "price": 18000,
         "image_url": "/products/F42.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "Dr. Melaxin concentrated treatment ampoule for radiant, revitalised skin.",
+        "benefits": "Intensive brightening and repair\nBoosts hydration\nRevitalises tired skin",
+        "ingredients": "Concentrated brightening and antioxidant complex.",
+        "usage": "Apply to clean skin before moisturiser, morning and night."
       },
       {
         "id": 32,
         "name": "Dr. melaxin Niacinamide serum الأصلي",
         "code": "F46",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F46.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "Dr. Melaxin Niacinamide serum for tone and oil balance.",
+        "benefits": "Brightens and evens tone\nControls excess oil\nRefines pores",
+        "ingredients": "Niacinamide, hydrating actives.",
+        "usage": "Apply a few drops to clean skin before moisturiser."
       },
       {
         "id": 33,
         "name": "SERUM SIMPLE ( VIT F , VIT C , NAIC )",
         "code": "F96",
-        "price": 6000.0,
+        "price": 6000,
         "image_url": "/products/F96.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "Simple multi-vitamin serum with Vitamin F, Vitamin C and Niacinamide.",
+        "benefits": "Brightens with Vitamin C\nStrengthens the barrier with Vitamin F\nEvens tone with Niacinamide",
+        "ingredients": "Vitamin F (essential fatty acids), Vitamin C, Niacinamide.",
+        "usage": "Apply to clean skin morning and night before moisturiser."
       },
       {
         "id": 34,
         "name": "CENTELLA SERUM FRESH AMP",
         "code": "F111",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F113.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "Fresh Centella ampoule serum to calm and soothe stressed skin.",
+        "benefits": "Calms redness and irritation\nStrengthens the barrier\nLightweight hydration",
+        "ingredients": "Centella asiatica (Cica) extract.",
+        "usage": "Apply to clean skin morning and night before moisturiser."
       },
       {
         "id": 35,
         "name": "CENTELLA SERUM",
         "code": "F112",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F114.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "Centella soothing serum for sensitive and blemish-prone skin.",
+        "benefits": "Soothes irritation\nSupports healing\nHydrates and comforts",
+        "ingredients": "Centella asiatica extract, hydrating base.",
+        "usage": "Apply a few drops to clean skin twice daily."
       },
       {
         "id": 36,
         "name": "CENTELLA HYLA SERUM",
         "code": "F118",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F120.jpg",
-        "category_id": 2
+        "category_id": 2,
+        "description": "Centella + Hyaluronic acid serum for calm, well-hydrated skin.",
+        "benefits": "Deeply hydrates\nSoothes sensitivity\nPlumps and smooths",
+        "ingredients": "Centella asiatica, Hyaluronic Acid.",
+        "usage": "Apply to clean skin morning and night before moisturiser."
       }
     ]
   },
@@ -310,353 +454,529 @@
         "id": 37,
         "name": "(كريم هايلورونيك أسيد) الكوري COSRX استيراد دبي",
         "code": "F27",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F27.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "COSRX Hyaluronic Acid cream — lightweight, long-lasting hydration.",
+        "benefits": "Deeply hydrates\nPlumps and smooths\nStrengthens the moisture barrier",
+        "ingredients": "Hyaluronic acid, panthenol.",
+        "usage": "Apply to clean skin as the last step, morning and night."
       },
       {
         "id": 38,
         "name": "(كريم الحلزون) الكوري COSRX استيراد دبي",
         "code": "F29",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F29.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "COSRX snail-mucin all-in-one cream for repair and hydration.",
+        "benefits": "Repairs and soothes\nHydrates and plumps\nImproves skin texture",
+        "ingredients": "Snail secretion filtrate, hyaluronic acid.",
+        "usage": "Apply to clean skin morning and night."
       },
       {
         "id": 39,
         "name": "عصارة 345 الكورية استيراد دبي",
         "code": "F31",
-        "price": 11250.0,
+        "price": 11250,
         "image_url": "/products/F31.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Korean hydrating facial essence-cream for smooth, glowing skin.",
+        "benefits": "Boosts hydration\nSmooths and softens\nAdds a healthy glow",
+        "ingredients": "Korean botanical hydrating complex.",
+        "usage": "Apply to clean skin morning and night."
       },
       {
         "id": 40,
         "name": "عصارة 922 استيراد دبي",
         "code": "F32",
-        "price": 12750.0,
+        "price": 12750,
         "image_url": "/products/F32.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Hydrating Korean essence-cream for daily moisture.",
+        "benefits": "Replenishes moisture\nSoftens the skin\nSupports a smooth finish",
+        "ingredients": "Botanical hydrating blend.",
+        "usage": "Apply to clean skin twice daily."
       },
       {
         "id": 41,
         "name": "Dr. melaxin Niacinamide cream الأصلي",
         "code": "F43",
-        "price": 16500.0,
+        "price": 16500,
         "image_url": "/products/F43.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Dr. Melaxin Niacinamide cream for tone, oil balance and hydration.",
+        "benefits": "Brightens and evens tone\nBalances oil\nHydrates and refines",
+        "ingredients": "Niacinamide, moisturising base.",
+        "usage": "Apply to clean skin morning and night."
       },
       {
         "id": 42,
         "name": "Dr. melaxin Eye cream الأصلي",
         "code": "F44",
-        "price": 18000.0,
+        "price": 18000,
         "image_url": "/products/F44.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Dr. Melaxin eye cream for the delicate skin around the eyes.",
+        "benefits": "Reduces the look of fine lines\nHydrates the eye area\nHelps with puffiness",
+        "ingredients": "Peptides, hydrating and brightening actives.",
+        "usage": "Gently dab around the eye area morning and night."
       },
       {
         "id": 43,
         "name": "Dr. melaxin repaire cream الأصلي",
         "code": "F45",
-        "price": 16500.0,
+        "price": 16500,
         "image_url": "/products/F45.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Dr. Melaxin repair cream to restore and strengthen the skin barrier.",
+        "benefits": "Repairs and nourishes\nStrengthens the barrier\nRelieves dryness",
+        "ingredients": "Ceramides, soothing repair complex.",
+        "usage": "Apply to clean skin morning and night."
       },
       {
         "id": 44,
         "name": "MELANO FREE 4% الأصلي استيراد دبي",
         "code": "F48",
-        "price": 5250.0,
+        "price": 5250,
         "image_url": "/products/F48.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Melano Free 4% brightening cream for stubborn dark spots and melasma.",
+        "benefits": "Fades dark spots and melasma\nEvens skin tone\nTargeted spot treatment",
+        "ingredients": "4% brightening actives (arbutin/kojic complex).",
+        "usage": "Apply a thin layer to dark areas at night. Sunscreen is essential daily. Patch test first."
       },
       {
         "id": 45,
         "name": "كريم ميلانو علبة الأصلي استيراد دبي",
         "code": "F49",
-        "price": 5250.0,
+        "price": 5250,
         "image_url": "/products/F49.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Melano brightening cream for an even, radiant complexion.",
+        "benefits": "Brightens the complexion\nHelps fade discolouration\nEvens tone",
+        "ingredients": "Brightening and antioxidant complex.",
+        "usage": "Apply to affected areas at night. Use sunscreen during the day."
       },
       {
         "id": 46,
         "name": "عصارة A313 استيراد دبي",
         "code": "F50",
-        "price": 11250.0,
+        "price": 11250,
         "image_url": "/products/F50.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "A313 Vitamin A pommade — a classic French retinol treatment for renewal.",
+        "benefits": "Smooths lines and texture\nBoosts skin renewal\nEvens tone",
+        "ingredients": "Vitamin A (retinol esters).",
+        "usage": "Apply a small amount at night, starting a few times a week. Wear sunscreen daily."
       },
       {
         "id": 47,
         "name": "الاصدار الجديد QVكريم استيراد دبي",
         "code": "F51",
-        "price": 11250.0,
+        "price": 11250,
         "image_url": "/products/F51.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "QV moisturising cream (new version) for very dry and sensitive skin.",
+        "benefits": "Intense, gentle moisture\nFragrance-free and soothing\nGood for eczema-prone skin",
+        "ingredients": "Emollients, glycerin; fragrance-free.",
+        "usage": "Apply to face and body as often as needed."
       },
       {
         "id": 48,
         "name": "لوشن QV استيراد دبي",
         "code": "F52",
-        "price": 11250.0,
+        "price": 11250,
         "image_url": "/products/F52.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "QV moisturising lotion for daily hydration on dry, sensitive skin.",
+        "benefits": "Lightweight daily moisture\nGentle and fragrance-free\nSoothes dryness",
+        "ingredients": "Emollients, glycerin; fragrance-free.",
+        "usage": "Apply to the body daily, especially after washing."
       },
       {
         "id": 49,
         "name": "day cream QV 75 g",
         "code": "F53",
-        "price": 13500.0,
+        "price": 13500,
         "image_url": "/products/F53.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "QV day cream, 75 g — gentle facial moisture for sensitive skin.",
+        "benefits": "Hydrates sensitive skin\nNon-greasy finish\nFragrance-free",
+        "ingredients": "Emollients, glycerin.",
+        "usage": "Apply to the face each morning."
       },
       {
         "id": 50,
         "name": "skin lotion QV 500 mL",
         "code": "F54",
-        "price": 13500.0,
+        "price": 13500,
         "image_url": "/products/F54.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "QV skin lotion, 500 mL — a large-size body moisturiser for dry skin.",
+        "benefits": "All-over body hydration\nGreat value large size\nGentle and fragrance-free",
+        "ingredients": "Emollients, glycerin.",
+        "usage": "Apply generously to the body as needed."
       },
       {
         "id": 51,
         "name": "hand cream QV spF 15",
         "code": "F55",
-        "price": 11250.0,
+        "price": 11250,
         "image_url": "/products/F55.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "QV hand cream with SPF 15 — moisture plus daytime UV protection.",
+        "benefits": "Softens dry hands\nProtects with SPF 15\nNon-greasy",
+        "ingredients": "Emollients, SPF 15 sunscreen filters.",
+        "usage": "Apply to hands through the day, especially before sun exposure."
       },
       {
         "id": 52,
         "name": "ACM DEPWHITE ADVANCE وارد تركي",
         "code": "F56",
-        "price": 9000.0,
+        "price": 9000,
         "image_url": "/products/F56.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "ACM Depiwhite Advanced brightening cream for dark spots and uneven tone.",
+        "benefits": "Fades dark spots\nEvens complexion\nPrevents new pigmentation",
+        "ingredients": "Depigmenting complex, antioxidants.",
+        "usage": "Apply to spots or the whole face at night. Daily sunscreen essential."
       },
       {
         "id": 53,
         "name": "CREAM COLLAGEN ELIZA",
         "code": "F64",
-        "price": 13500.0,
+        "price": 13500,
         "image_url": "/products/F64.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Eliza collagen cream for firmer, more supple-looking skin.",
+        "benefits": "Supports firmness and elasticity\nDeeply moisturises\nSmooths fine lines",
+        "ingredients": "Collagen, moisturising emollients.",
+        "usage": "Apply to the face and neck morning and night."
       },
       {
         "id": 54,
         "name": "ISISPHARMA مرطب للبشرة الجافة صنع في تركيا",
         "code": "F65",
-        "price": 9000.0,
+        "price": 9000,
         "image_url": "/products/F65.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "ISISPHARMA moisturiser for dry skin (made in Türkiye).",
+        "benefits": "Relieves dryness\nRestores comfort\nStrengthens the barrier",
+        "ingredients": "Emollients, humectants.",
+        "usage": "Apply to clean skin as needed."
       },
       {
         "id": 55,
         "name": "ISISPHARMA مقشر للبقع الداكنة صنع في تركيا",
         "code": "F66",
-        "price": 10500.0,
+        "price": 10500,
         "image_url": "/products/F66.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "ISISPHARMA exfoliating treatment for dark spots (made in Türkiye).",
+        "benefits": "Fades dark spots\nExfoliates and renews\nEvens tone",
+        "ingredients": "Exfoliating acids, brightening actives.",
+        "usage": "Apply as directed, usually at night. Use sunscreen during the day."
       },
       {
         "id": 56,
         "name": "سيباميل كريم اليد صنع في تركيا",
         "code": "F68",
-        "price": 5000.0,
+        "price": 5000,
         "image_url": "/products/F68.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Sebamed hand cream for dry, hardworking hands (made in Türkiye).",
+        "benefits": "Deeply nourishes dry hands\npH 5.5 skin-friendly\nAbsorbs without greasiness",
+        "ingredients": "Panthenol, chamomile, emollients; pH 5.5.",
+        "usage": "Massage into hands as often as needed."
       },
       {
         "id": 57,
         "name": "سيباميل مرهم وقاية صنع في تركيا",
         "code": "F69",
-        "price": 6000.0,
+        "price": 6000,
         "image_url": "/products/F69.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Sebamed protective ointment (made in Türkiye) for very dry or irritated areas.",
+        "benefits": "Protects and soothes\nSeals in moisture\nGentle for sensitive skin",
+        "ingredients": "Protective emollient base, panthenol.",
+        "usage": "Apply a thin layer to affected areas as needed."
       },
       {
         "id": 58,
         "name": "سيباميل بلسم للكعب المتشقق صنع في تركيا",
         "code": "F70",
-        "price": 6000.0,
+        "price": 6000,
         "image_url": "/products/F70.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Sebamed cracked-heel balm (made in Türkiye) for rough, dry feet.",
+        "benefits": "Softens hard, cracked heels\nDeeply moisturises\nRestores smoothness",
+        "ingredients": "Urea, emollients, panthenol.",
+        "usage": "Massage into heels and feet daily, ideally at night."
       },
       {
         "id": 59,
         "name": "( lotion Moisturizing ) Cerave 732 مل وارد الامارات",
         "code": "F72",
-        "price": 12000.0,
+        "price": 12000,
         "image_url": "/products/F72.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "CeraVe Moisturising Lotion (732 mL) with ceramides and hyaluronic acid.",
+        "benefits": "Restores the skin barrier\n24-hour hydration\nLightweight, fragrance-free",
+        "ingredients": "3 essential ceramides, hyaluronic acid.",
+        "usage": "Apply to face and body as needed."
       },
       {
         "id": 60,
         "name": "( SA lotion ) Cerave 732 مل وارد الامارات",
         "code": "F75",
-        "price": 12000.0,
+        "price": 12000,
         "image_url": "/products/F75.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "CeraVe SA Lotion (732 mL) with salicylic acid for rough, bumpy skin.",
+        "benefits": "Smooths rough, bumpy skin\nExfoliates gently\nHydrates with ceramides",
+        "ingredients": "Salicylic acid, ceramides, hyaluronic acid.",
+        "usage": "Apply to affected areas of the body daily."
       },
       {
         "id": 61,
         "name": "Cerave ( 343 غم مرطب ) وارد الامارات",
         "code": "F76",
-        "price": 12000.0,
+        "price": 12000,
         "image_url": "/products/F76.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "CeraVe moisturising cream (343 g) — rich hydration for dry skin.",
+        "benefits": "Rich, lasting moisture\nRestores the barrier\nFragrance-free and gentle",
+        "ingredients": "3 essential ceramides, hyaluronic acid.",
+        "usage": "Apply to face and body as needed."
       },
       {
         "id": 62,
         "name": "EUCERIN Q10 ANTI – WRINKLE الأصلي",
         "code": "F82",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F82.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Eucerin Q10 Anti-Wrinkle cream to reduce the look of fine lines.",
+        "benefits": "Reduces fine lines\nFirms and smooths\nHydrates sensitive skin",
+        "ingredients": "Coenzyme Q10, antioxidants.",
+        "usage": "Apply to clean skin each morning."
       },
       {
         "id": 63,
         "name": "EUCERIN NIGHT CREAM الأصلي",
         "code": "F83",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F83.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Eucerin night cream for overnight repair and renewal.",
+        "benefits": "Supports overnight renewal\nHydrates and firms\nWake to smoother skin",
+        "ingredients": "Q10, hydrating and firming actives.",
+        "usage": "Apply to clean skin at night."
       },
       {
         "id": 64,
         "name": "EUCERIN GEL CREAM الأصلي",
         "code": "F84",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F84.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Eucerin gel-cream — lightweight, oil-free hydration.",
+        "benefits": "Light, non-greasy moisture\nGood for oily/combination skin\nRefreshing feel",
+        "ingredients": "Hyaluronic acid, light gel base.",
+        "usage": "Apply to clean skin morning and night."
       },
       {
         "id": 65,
         "name": "EUCERIN BRIGHTENING",
         "code": "F85",
-        "price": 19500.0,
+        "price": 19500,
         "image_url": "/products/F85.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Eucerin brightening cream for a more even, radiant complexion.",
+        "benefits": "Brightens dull skin\nEvens tone\nHydrates",
+        "ingredients": "Brightening actives, antioxidants.",
+        "usage": "Apply to clean skin daily. Use sunscreen during the day."
       },
       {
         "id": 66,
         "name": "EUCERIN PH5",
         "code": "F86",
-        "price": 19500.0,
+        "price": 19500,
         "image_url": "/products/F86.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Eucerin pH5 cream to restore and protect sensitive skin.",
+        "benefits": "Restores the skin's pH balance\nStrengthens sensitive skin\nHydrates and protects",
+        "ingredients": "pH5 Citrate buffer, glycerin.",
+        "usage": "Apply to face and body as needed."
       },
       {
         "id": 67,
         "name": "EUCERIN ROUGH NESS RELIEF LOTION",
         "code": "F87",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F87.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Eucerin Roughness Relief lotion for very dry, rough skin.",
+        "benefits": "Smooths rough, dry patches\nDeeply moisturises\nGentle daily care",
+        "ingredients": "Urea, lactate, ceramides.",
+        "usage": "Apply to the body daily."
       },
       {
         "id": 68,
         "name": "EQQUAL BERRY RICE PDRN",
         "code": "F89",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F89.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Eqqual Berry Rice PDRN treatment for glass-skin radiance and repair.",
+        "benefits": "Boosts radiance and glow\nSupports skin repair\nHydrates and smooths",
+        "ingredients": "PDRN, rice extract, berry antioxidants.",
+        "usage": "Apply to clean skin morning and night."
       },
       {
         "id": 69,
         "name": "EQQUAL BERRY PLUMPING",
         "code": "F90",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F90.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Eqqual Berry plumping treatment for firmer, bouncier skin.",
+        "benefits": "Plumps and firms\nSmooths fine lines\nDeep hydration",
+        "ingredients": "Berry extract, hyaluronic acid, peptides.",
+        "usage": "Apply to clean skin morning and night."
       },
       {
         "id": 70,
         "name": "EQQUAL BERRY VITAMIN",
         "code": "F91",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F91.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Eqqual Berry vitamin treatment for a brighter, healthier glow.",
+        "benefits": "Brightens and revitalises\nAntioxidant protection\nEvens tone",
+        "ingredients": "Vitamin C & E, berry antioxidants.",
+        "usage": "Apply to clean skin, ideally in the morning before sunscreen."
       },
       {
         "id": 71,
         "name": "SIMPLE LOTION 15 ML الأصلي",
         "code": "F93",
-        "price": 7500.0,
+        "price": 7500,
         "image_url": "/products/F93.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Simple hydrating lotion, 15 mL — gentle, kind-to-skin moisture.",
+        "benefits": "Gentle daily hydration\nNo harsh chemicals or perfume\nGood for sensitive skin",
+        "ingredients": "Glycerin, Pro-Vitamin B5, Vitamin E.",
+        "usage": "Apply to clean skin morning and night."
       },
       {
         "id": 72,
         "name": "KENTA CREAM لتفتيح وتبيض البشرة الأصلي",
         "code": "F99",
-        "price": 11250.0,
+        "price": 11250,
         "image_url": "/products/F101.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Kenta whitening cream for a brighter, more even complexion.",
+        "benefits": "Brightens the skin\nHelps fade dark areas\nEvens tone",
+        "ingredients": "Brightening complex, moisturisers.",
+        "usage": "Apply to clean skin at night. Use sunscreen during the day."
       },
       {
         "id": 73,
         "name": "جل الصبار (إماراتي)",
         "code": "F110",
-        "price": 3750.0,
+        "price": 3750,
         "image_url": "/products/F112.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Aloe vera gel (UAE) — a cooling multi-use gel for face, body and hair.",
+        "benefits": "Soothes and cools\nHydrates without grease\nCalms sunburn and irritation",
+        "ingredients": "Aloe vera leaf extract.",
+        "usage": "Apply to skin or hair as needed."
       },
       {
         "id": 74,
         "name": "CENTELLA TONER",
         "code": "F113",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F115.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Centella soothing toner to calm and prep the skin.",
+        "benefits": "Soothes and hydrates\nPreps skin for serums\nCalms redness",
+        "ingredients": "Centella asiatica extract.",
+        "usage": "After cleansing, sweep or pat over the face before serum."
       },
       {
         "id": 75,
         "name": "CENTELLA PRO BIO _ CICA",
         "code": "F114",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F116.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Centella Pro-Biotic Cica treatment for barrier support and calm skin.",
+        "benefits": "Strengthens the skin barrier\nSoothes sensitivity\nBalances the skin",
+        "ingredients": "Centella (Cica), probiotic ferments.",
+        "usage": "Apply to clean skin morning and night."
       },
       {
         "id": 76,
         "name": "CENTELLA (PRO BIO-CICA CREAM)",
         "code": "F119",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F121.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Centella Pro-Biotic Cica cream — a soothing barrier-repair moisturiser.",
+        "benefits": "Repairs and calms\nDeeply hydrates\nStrengthens sensitive skin",
+        "ingredients": "Centella (Cica), probiotic ferments, ceramides.",
+        "usage": "Apply to clean skin as the last step, morning and night."
       },
       {
         "id": 77,
         "name": "كريم فيتامين E الإماراتي المزدوج",
         "code": "F120",
-        "price": 3000.0,
+        "price": 3000,
         "image_url": "/products/F122.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Double Vitamin E cream (UAE) — rich nourishment for dry skin.",
+        "benefits": "Deeply nourishes\nAntioxidant protection\nSoftens rough skin",
+        "ingredients": "Vitamin E, emollients.",
+        "usage": "Apply to face and body as needed."
       },
       {
         "id": 78,
         "name": "كريم الجلسرين الأصلي",
         "code": "F121",
-        "price": 3750.0,
+        "price": 3750,
         "image_url": "/products/F123.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Glycerin cream — simple, effective moisture for dry skin.",
+        "benefits": "Locks in moisture\nSoftens dry skin\nGentle and affordable",
+        "ingredients": "Glycerin, emollient base.",
+        "usage": "Apply to face, hands and body as needed."
       },
       {
         "id": 79,
         "name": "عصارة الجلسرين الأصلي",
         "code": "F122",
-        "price": 3000.0,
+        "price": 3000,
         "image_url": "/products/F124.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "Glycerin essence — a lightweight humectant for hydration.",
+        "benefits": "Draws moisture into the skin\nSoftens and smooths\nMulti-use",
+        "ingredients": "Glycerin.",
+        "usage": "Apply a small amount to damp skin, or mix into your moisturiser."
       },
       {
         "id": 80,
         "name": "CICAPLAST B5 استيراد دبي",
         "code": "F123",
-        "price": 9750.0,
+        "price": 9750,
         "image_url": "/products/F125.jpg",
-        "category_id": 3
+        "category_id": 3,
+        "description": "La Roche-Posay Cicaplast Baume B5 — a soothing multi-repair balm.",
+        "benefits": "Soothes dry, irritated skin\nSupports skin recovery\nProtects and comforts",
+        "ingredients": "Panthenol (B5), Madecassoside, Shea butter.",
+        "usage": "Apply to dry or irritated areas as needed, on face, body or lips."
       }
     ]
   },
@@ -669,97 +989,145 @@
         "id": 81,
         "name": "واقي شمس بيوتي الكوري استيراد دبي BEAUTY OF JOSEN",
         "code": "F22",
-        "price": 13750.0,
+        "price": 13750,
         "image_url": "/products/F22.jpg",
-        "category_id": 4
+        "category_id": 4,
+        "description": "Beauty of Joseon Relief Sun — a lightweight Korean rice-based SPF50 sunscreen.",
+        "benefits": "High SPF50+ protection\nLightweight, no white cast\nHydrates and soothes",
+        "ingredients": "Rice extract, probiotics, UV filters (SPF50+).",
+        "usage": "Apply as the last step each morning; reapply every 2 hours in the sun."
       },
       {
         "id": 82,
         "name": "واقي شمس بيوتي (الاصدار الجديد) استيراد دبي BEAUTY OF JOSEN",
         "code": "F24",
-        "price": 12750.0,
+        "price": 12750,
         "image_url": "/products/F24.jpg",
-        "category_id": 4
+        "category_id": 4,
+        "description": "Beauty of Joseon sunscreen (new version) — comfortable daily SPF50 protection.",
+        "benefits": "SPF50+ broad protection\nSilky, non-greasy finish\nHydrating formula",
+        "ingredients": "Rice extract, UV filters (SPF50+).",
+        "usage": "Apply every morning as the last step; reapply during sun exposure."
       },
       {
         "id": 83,
         "name": "(واقي شمس ألوفيرا) 50 COSRX استيراد دبي",
         "code": "F30",
-        "price": 13500.0,
+        "price": 13500,
         "image_url": "/products/F30.jpg",
-        "category_id": 4
+        "category_id": 4,
+        "description": "COSRX Aloe soothing sunscreen SPF50 — gentle daily UV protection.",
+        "benefits": "SPF50 broad-spectrum\nSoothes with aloe\nLightweight and hydrating",
+        "ingredients": "Aloe vera, UV filters (SPF50).",
+        "usage": "Apply generously each morning; reapply every 2 hours outdoors."
       },
       {
         "id": 84,
         "name": "Pharmacies W وارد تركي",
         "code": "F47",
-        "price": 12750.0,
+        "price": 12750,
         "image_url": "/products/F47.jpg",
-        "category_id": 4
+        "category_id": 4,
+        "description": "Pharmaceris protective daily sunscreen (Turkish import).",
+        "benefits": "Daily UV protection\nSuitable for sensitive skin\nNon-greasy",
+        "ingredients": "Broad-spectrum UV filters.",
+        "usage": "Apply to the face each morning; reapply during sun exposure."
       },
       {
         "id": 85,
         "name": "ACM SPF 50 وارد تركي",
         "code": "F59",
-        "price": 7500.0,
+        "price": 7500,
         "image_url": "/products/F59.jpg",
-        "category_id": 4
+        "category_id": 4,
+        "description": "ACM SPF50 sunscreen (Turkish import) for high daily protection.",
+        "benefits": "SPF50 broad protection\nSuitable for sensitive skin\nLightweight finish",
+        "ingredients": "Broad-spectrum UV filters (SPF50).",
+        "usage": "Apply every morning; reapply every 2 hours in the sun."
       },
       {
         "id": 86,
         "name": "واقي شمس SIMPLE +50 SPF",
         "code": "F60",
-        "price": 6000.0,
+        "price": 6000,
         "image_url": "/products/F60.jpg",
-        "category_id": 4
+        "category_id": 4,
+        "description": "Simple SPF50+ sunscreen — gentle, high protection for sensitive skin.",
+        "benefits": "SPF50+ broad protection\nNo perfume or harsh chemicals\nHydrating",
+        "ingredients": "UV filters, Pro-Vitamin B5, Vitamin E (SPF50+).",
+        "usage": "Apply as the last step each morning; reapply during sun exposure."
       },
       {
         "id": 87,
         "name": "واقي شمس فارمسرز امتياز طبق الاصل 50",
         "code": "F61",
-        "price": 4500.0,
+        "price": 4500,
         "image_url": "/products/F61.jpg",
-        "category_id": 4
+        "category_id": 4,
+        "description": "Pharmaceris-style SPF50 facial sunscreen (premium replica).",
+        "benefits": "High SPF50 protection\nEvens and protects\nDaily use",
+        "ingredients": "Broad-spectrum UV filters (SPF50).",
+        "usage": "Apply every morning; reapply every 2 hours outdoors."
       },
       {
         "id": 88,
         "name": "TIZO ULTRA ZINC وارد دبي",
         "code": "F62",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F62.jpg",
-        "category_id": 4
+        "category_id": 4,
+        "description": "TIZO Ultra Zinc mineral sunscreen (Dubai import) — pure physical protection.",
+        "benefits": "100% mineral (zinc) protection\nGreat for sensitive, reactive skin\nBroad-spectrum",
+        "ingredients": "Zinc oxide (mineral SPF).",
+        "usage": "Apply generously each morning; reapply during sun exposure."
       },
       {
         "id": 89,
         "name": "واقي شمس AVENE SPF 50",
         "code": "F63",
-        "price": 10500.0,
+        "price": 10500,
         "image_url": "/products/F63.jpg",
-        "category_id": 4
+        "category_id": 4,
+        "description": "Avène SPF50 sunscreen — high protection for sensitive skin.",
+        "benefits": "Very high SPF50 protection\nSoothes with thermal water\nWater-resistant",
+        "ingredients": "UV filters, Avène thermal spring water (SPF50).",
+        "usage": "Apply every morning; reapply every 2 hours in the sun."
       },
       {
         "id": 90,
         "name": "عصارة واقي شمس لاروش الاصدار الجديد استيراد دبي",
         "code": "F100",
-        "price": 10000.0,
+        "price": 10000,
         "image_url": "/products/F102.jpg",
-        "category_id": 4
+        "category_id": 4,
+        "description": "La Roche-Posay Anthelios sunscreen essence (new version) — fluid daily SPF.",
+        "benefits": "Very high UV protection\nLightweight, invisible finish\nSuitable for sensitive skin",
+        "ingredients": "Broad-spectrum UV filters, thermal water.",
+        "usage": "Apply every morning; reapply during sun exposure."
       },
       {
         "id": 91,
         "name": "واقي شمس لاروش الاصدار الجديد استيراد دبي",
         "code": "F101",
-        "price": 10000.0,
+        "price": 10000,
         "image_url": "/products/F103.jpg",
-        "category_id": 4
+        "category_id": 4,
+        "description": "La Roche-Posay Anthelios sunscreen (new version) for high daily protection.",
+        "benefits": "Very high SPF protection\nNon-greasy, comfortable\nGood for sensitive skin",
+        "ingredients": "Broad-spectrum UV filters, thermal water.",
+        "usage": "Apply as the last morning step; reapply every 2 hours outdoors."
       },
       {
         "id": 92,
         "name": "واقي شمس UV الأصلي",
         "code": "F103",
-        "price": 13000.0,
+        "price": 13000,
         "image_url": "/products/F105.jpg",
-        "category_id": 4
+        "category_id": 4,
+        "description": "UV sunscreen — everyday broad-spectrum protection.",
+        "benefits": "Daily UV defence\nHelps prevent dark spots and ageing\nLightweight",
+        "ingredients": "Broad-spectrum UV filters.",
+        "usage": "Apply every morning; reapply during sun exposure."
       }
     ]
   },
@@ -772,121 +1140,181 @@
         "id": 93,
         "name": "عصارة سالسيك أسيد الكوري COSRX استيراد دبي",
         "code": "F25",
-        "price": 12750.0,
+        "price": 12750,
         "image_url": "/products/F25.jpg",
-        "category_id": 5
+        "category_id": 5,
+        "description": "COSRX salicylic acid cleanser for oily and blemish-prone skin.",
+        "benefits": "Deep-cleans and unclogs pores\nHelps clear blemishes\nControls oil",
+        "ingredients": "Salicylic acid (BHA).",
+        "usage": "Massage onto wet skin, then rinse. Use once or twice daily."
       },
       {
         "id": 94,
         "name": "CLEANSER PH LOW الكوري COSRX استيراد دبي",
         "code": "F26",
-        "price": 12750.0,
+        "price": 12750,
         "image_url": "/products/F26.jpg",
-        "category_id": 5
+        "category_id": 5,
+        "description": "COSRX Low pH Good Morning gel cleanser — a gentle daily wash.",
+        "benefits": "Gently cleanses without stripping\nMaintains skin's pH\nRefreshing",
+        "ingredients": "Low-pH gel base, tea tree oil, BHA.",
+        "usage": "Massage onto wet skin, then rinse. Morning and/or night."
       },
       {
         "id": 95,
         "name": "( Acne control ) Cerave 732 مل وارد الامارات",
         "code": "F73",
-        "price": 12000.0,
+        "price": 12000,
         "image_url": "/products/F73.jpg",
-        "category_id": 5
+        "category_id": 5,
+        "description": "CeraVe Acne Control cleanser (732 mL) with salicylic acid.",
+        "benefits": "Clears and prevents breakouts\nRemoves oil and buildup\nKeeps the barrier intact",
+        "ingredients": "Salicylic acid, ceramides, niacinamide.",
+        "usage": "Massage onto wet skin, then rinse. Use once or twice daily."
       },
       {
         "id": 96,
         "name": "( hydrating to foam ) Cerave 732 مل وارد الامارات",
         "code": "F74",
-        "price": 12000.0,
+        "price": 12000,
         "image_url": "/products/F74.jpg",
-        "category_id": 5
+        "category_id": 5,
+        "description": "CeraVe Hydrating Foaming cleanser (732 mL) for normal to dry skin.",
+        "benefits": "Cleanses without stripping\nHydrates while it cleans\nFragrance-free",
+        "ingredients": "Ceramides, hyaluronic acid.",
+        "usage": "Massage onto wet skin, then rinse. Morning and night."
       },
       {
         "id": 97,
         "name": "بايوديرم غسول (العرض الخاص) الأصلي",
         "code": "F88",
-        "price": 25500.0,
+        "price": 25500,
         "image_url": "/products/F88.jpg",
-        "category_id": 5
+        "category_id": 5,
+        "description": "Bioderma facial cleanser (special offer) — gentle daily cleansing.",
+        "benefits": "Removes impurities and makeup\nRespects sensitive skin\nSoothing formula",
+        "ingredients": "Gentle cleansing agents, soothing actives.",
+        "usage": "Apply to wet or dry skin, then rinse or wipe off."
       },
       {
         "id": 98,
         "name": "PANOXYL ACNE FOAMING WASH الاصدار الجديد",
         "code": "F92",
-        "price": 18000.0,
+        "price": 18000,
         "image_url": "/products/F92.jpg",
-        "category_id": 5
+        "category_id": 5,
+        "description": "PanOxyl Acne Foaming Wash (new version) with benzoyl peroxide.",
+        "benefits": "Kills acne-causing bacteria\nClears and prevents breakouts\nDeep pore cleansing",
+        "ingredients": "Benzoyl peroxide (up to 10%).",
+        "usage": "Lather on affected areas for a minute, then rinse. Start once daily. May bleach fabrics; use sunscreen."
       },
       {
         "id": 99,
         "name": "SIMPLE MOISTURIZING الأصلي",
         "code": "F94",
-        "price": 6000.0,
+        "price": 6000,
         "image_url": "/products/F94.jpg",
-        "category_id": 5
+        "category_id": 5,
+        "description": "Simple Moisturising facial wash — gentle cleansing for sensitive skin.",
+        "benefits": "Cleanses without drying\nAdds moisture\nNo perfume or harsh chemicals",
+        "ingredients": "Pro-Vitamin B5, Vitamin E, glycerin.",
+        "usage": "Massage onto wet skin, then rinse. Morning and night."
       },
       {
         "id": 100,
         "name": "SIMPLE REFRESHING الأصلي",
         "code": "F95",
-        "price": 6000.0,
+        "price": 6000,
         "image_url": "/products/F95.jpg",
-        "category_id": 5
+        "category_id": 5,
+        "description": "Simple Refreshing facial wash — a light, everyday gel cleanser.",
+        "benefits": "Refreshes and cleans\nKind to sensitive skin\nLeaves skin comfortable",
+        "ingredients": "Pro-Vitamin B5, Vitamin E.",
+        "usage": "Massage onto wet skin, then rinse."
       },
       {
         "id": 101,
         "name": "NEUTROGENA الاصدار الجديد",
         "code": "F98",
-        "price": 11250.0,
+        "price": 11250,
         "image_url": "/products/F100.jpg",
-        "category_id": 5
+        "category_id": 5,
+        "description": "Neutrogena facial wash (new version) for clear, fresh skin.",
+        "benefits": "Deep-cleans pores\nRemoves oil and impurities\nLeaves skin clean",
+        "ingredients": "Cleansing complex (glycerin, gentle surfactants).",
+        "usage": "Massage onto wet skin, then rinse. Use daily."
       },
       {
         "id": 102,
         "name": "غسول نيفيا الأصلي",
         "code": "F104",
-        "price": 5500.0,
+        "price": 5500,
         "image_url": "/products/F106.jpg",
-        "category_id": 5
+        "category_id": 5,
+        "description": "Nivea facial wash for daily cleansing.",
+        "benefits": "Gently removes dirt and oil\nRefreshes the skin\nEveryday use",
+        "ingredients": "Mild cleansing agents, vitamins.",
+        "usage": "Massage onto wet skin, then rinse."
       },
       {
         "id": 103,
         "name": "غسول كارنيه استيراد دبي",
         "code": "F105",
-        "price": 5500.0,
+        "price": 5500,
         "image_url": "/products/F107.jpg",
-        "category_id": 5
+        "category_id": 5,
+        "description": "Garnier facial wash (Dubai import) for fresh, clean skin.",
+        "benefits": "Removes impurities\nBrightens dull skin\nRefreshing",
+        "ingredients": "Vitamin C / botanical cleansing complex.",
+        "usage": "Massage onto wet skin, then rinse. Use daily."
       },
       {
         "id": 104,
         "name": "REVUELE الأصلي",
         "code": "F107",
-        "price": 5250.0,
+        "price": 5250,
         "image_url": "/products/F109.jpg",
-        "category_id": 5
+        "category_id": 5,
+        "description": "Revuele facial care product for clearer, healthier skin.",
+        "benefits": "Targets everyday skin concerns\nCleanses and cares\nAffordable daily use",
+        "ingredients": "Active skincare complex (see pack).",
+        "usage": "Use as directed on the packaging."
       },
       {
         "id": 105,
         "name": "CENTELLA LIGHT CLEANSER OIL",
         "code": "F115",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F117.jpg",
-        "category_id": 5
+        "category_id": 5,
+        "description": "Centella light cleansing oil — a gentle first-step makeup remover.",
+        "benefits": "Melts makeup and sunscreen\nCalms with centella\nDoesn't strip the skin",
+        "ingredients": "Centella extract, light plant oils.",
+        "usage": "Massage onto dry skin, emulsify with water, then rinse."
       },
       {
         "id": 106,
         "name": "CENTELLA TEA – TRICA FOAM 100 ML",
         "code": "F116",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F118.jpg",
-        "category_id": 5
+        "category_id": 5,
+        "description": "Centella Tea-tree Cica foam (100 mL) for blemish-prone skin.",
+        "benefits": "Cleanses and clears\nSoothes with centella\nControls oil",
+        "ingredients": "Centella, tea tree extract.",
+        "usage": "Lather onto wet skin, then rinse. Morning and night."
       },
       {
         "id": 107,
         "name": "CENTELLA AMPOULE FOAM 125 ML",
         "code": "F117",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F119.jpg",
-        "category_id": 5
+        "category_id": 5,
+        "description": "Centella ampoule foam (125 mL) — a soothing, nourishing cleanser.",
+        "benefits": "Gentle daily cleansing\nSoothes and hydrates\nBarrier-friendly",
+        "ingredients": "Centella ampoule complex.",
+        "usage": "Lather onto wet skin, then rinse."
       }
     ]
   },
@@ -899,129 +1327,193 @@
         "id": 108,
         "name": "MINOXIDIL KIT USA غير متوفر",
         "code": "F20",
-        "price": 39000.0,
+        "price": 39000,
         "image_url": "/products/F20.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "Minoxidil hair-regrowth kit (USA) for thinning hair. Currently unavailable.",
+        "benefits": "Helps regrow thinning hair\nStimulates hair follicles\nFor scalp use",
+        "ingredients": "Minoxidil topical solution.",
+        "usage": "Apply to the scalp as directed, usually twice daily. Consistent long-term use is needed."
       },
       {
         "id": 109,
         "name": "CRESCINA امبولات انبات الشعر (صنع تركي طبق الاصل)",
         "code": "F34",
-        "price": 60000.0,
+        "price": 60000,
         "image_url": "/products/F34.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "Crescina hair-growth ampoules (Turkish replica) for thinning hair.",
+        "benefits": "Supports hair regrowth\nStrengthens weak hair\nReduces hair fall",
+        "ingredients": "Amino acids, hair-growth complex.",
+        "usage": "Apply one ampoule to the scalp as directed, several times a week."
       },
       {
         "id": 110,
         "name": "ACM NOVOPHANE LOTION وارد تركي",
         "code": "F57",
-        "price": 10500.0,
+        "price": 10500,
         "image_url": "/products/F57.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "ACM Novophane anti-hair-loss lotion (Turkish import).",
+        "benefits": "Reduces hair fall\nStrengthens the hair\nStimulates the scalp",
+        "ingredients": "Novophane complex, plant actives.",
+        "usage": "Massage into the scalp as directed; do not rinse."
       },
       {
         "id": 111,
         "name": "ACM NOVOPHANE CAP. وارد تركي",
         "code": "F58",
-        "price": 21000.0,
+        "price": 21000,
         "image_url": "/products/F58.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "ACM Novophane capsules (Turkish import) — a hair and nail supplement.",
+        "benefits": "Nourishes hair and nails from within\nReduces hair fall\nSupports growth",
+        "ingredients": "Vitamins, minerals, amino acids.",
+        "usage": "Take 1 capsule daily with food."
       },
       {
         "id": 112,
         "name": "كريم الشعر الياباني استيراد دبي FINO",
         "code": "F79",
-        "price": 13500.0,
+        "price": 13500,
         "image_url": "/products/F79.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "FINO Japanese premium hair mask (Dubai import) for deep repair.",
+        "benefits": "Deeply repairs damaged hair\nAdds shine and softness\nSmooths frizz",
+        "ingredients": "Royal jelly, penetrating oils, proteins.",
+        "usage": "Apply to damp hair, leave 5 minutes, then rinse."
       },
       {
         "id": 113,
         "name": "شامبو + مكيف استيراد دبي FINO",
         "code": "F80",
-        "price": 11250.0,
+        "price": 11250,
         "image_url": "/products/F80.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "FINO shampoo + conditioner (Dubai import) for nourished, healthy hair.",
+        "benefits": "Cleanses and conditions\nAdds softness and shine\nNourishes damaged hair",
+        "ingredients": "Nourishing oils and proteins.",
+        "usage": "Use as a regular shampoo and conditioner in the shower."
       },
       {
         "id": 114,
         "name": "بخاخ معالج استيراد دبي FINO",
         "code": "F81",
-        "price": 10500.0,
+        "price": 10500,
         "image_url": "/products/F81.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "FINO treatment hair spray (Dubai import) for daily care and shine.",
+        "benefits": "Detangles and smooths\nAdds shine\nProtects the hair",
+        "ingredients": "Leave-in conditioning complex.",
+        "usage": "Spray onto damp or dry hair; do not rinse."
       },
       {
         "id": 115,
         "name": "سيروم اكليل الجبل الأصلي (استيراد خاص)",
         "code": "F108",
-        "price": 11250.0,
+        "price": 11250,
         "image_url": "/products/F110.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "Rosemary hair serum (special import) to support growth and reduce fall.",
+        "benefits": "Supports hair growth\nReduces hair fall\nNourishes the scalp",
+        "ingredients": "Rosemary extract/oil, botanical oils.",
+        "usage": "Massage a few drops into the scalp several times a week."
       },
       {
         "id": 116,
         "name": "شامبو اكليل الجبل (إماراتي أصلي)",
         "code": "F109",
-        "price": 6750.0,
+        "price": 6750,
         "image_url": "/products/F111.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "Rosemary shampoo (UAE) for stronger, healthier hair.",
+        "benefits": "Strengthens hair\nSoothes the scalp\nSupports growth",
+        "ingredients": "Rosemary extract, gentle cleansers.",
+        "usage": "Massage into wet hair and scalp, then rinse. Use regularly."
       },
       {
         "id": 117,
         "name": "شامبو قمل لوباج صنع في تركيا",
         "code": "F136",
-        "price": 5500.0,
+        "price": 5500,
         "image_url": "/products/F138.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "Lupage anti-lice shampoo (made in Türkiye) for head-lice treatment.",
+        "benefits": "Kills head lice and nits\nEasy shampoo application\nFor the whole family",
+        "ingredients": "Anti-parasitic actives (e.g. permethrin/dimeticone).",
+        "usage": "Apply to hair, leave as directed, then rinse and comb out nits. Repeat after a week if needed."
       },
       {
         "id": 118,
         "name": "شامبو كيتوناز صنع في تركيا",
         "code": "F137",
-        "price": 2800.0,
+        "price": 2800,
         "image_url": "/products/F139.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "Ketonaz anti-dandruff shampoo (made in Türkiye) with ketoconazole.",
+        "benefits": "Fights dandruff and flaking\nRelieves an itchy scalp\nTreats fungal scalp conditions",
+        "ingredients": "Ketoconazole.",
+        "usage": "Apply to wet hair, leave 3–5 minutes, then rinse. Use 2–3 times a week."
       },
       {
         "id": 119,
         "name": "شامبو كيتونازول 9% شركة كور مسك",
         "code": "F138",
-        "price": 4500.0,
+        "price": 4500,
         "image_url": "/products/F140.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "Ketoconazole 9% shampoo (Kormsk) — a strong anti-fungal, anti-dandruff wash.",
+        "benefits": "Strong anti-dandruff action\nTreats fungal scalp issues\nSoothes itch and flaking",
+        "ingredients": "Ketoconazole 9%.",
+        "usage": "Apply to wet hair, leave a few minutes, then rinse. Use 2 times a week."
       },
       {
         "id": 120,
         "name": "MINOXIDIL 10% صنع في تركيا",
         "code": "F139",
-        "price": 5000.0,
+        "price": 5000,
         "image_url": "/products/F141.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "Minoxidil 10% topical solution (made in Türkiye) for hair regrowth.",
+        "benefits": "Strong regrowth support\nStimulates follicles\nFor thinning hair",
+        "ingredients": "Minoxidil 10%.",
+        "usage": "Apply to the dry scalp as directed. Consistent long-term use is essential; consult a pharmacist."
       },
       {
         "id": 121,
         "name": "شامبو سيلسن بلو صنع في تركيا",
         "code": "F140",
-        "price": 5000.0,
+        "price": 5000,
         "image_url": "/products/F142.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "Selsun Blue anti-dandruff shampoo (made in Türkiye) with selenium sulfide.",
+        "benefits": "Controls dandruff\nRelieves itching and flaking\nSoothes the scalp",
+        "ingredients": "Selenium sulfide.",
+        "usage": "Massage into wet hair, leave 2–3 minutes, then rinse. Use twice a week."
       },
       {
         "id": 122,
         "name": "SHAMPO CONAZOL صنع في تركيا",
         "code": "F141",
-        "price": 4500.0,
+        "price": 4500,
         "image_url": "/products/F143.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "Conazol anti-dandruff / anti-fungal shampoo (made in Türkiye).",
+        "benefits": "Treats dandruff\nFights scalp fungus\nRelieves itch",
+        "ingredients": "Anti-fungal active (ketoconazole).",
+        "usage": "Apply to wet hair, leave a few minutes, then rinse. Use 2–3 times a week."
       },
       {
         "id": 123,
         "name": "بخاخ القمل نايدا بلس (وارد تركي)",
         "code": "F142",
-        "price": 8250.0,
+        "price": 8250,
         "image_url": "/products/F144.jpg",
-        "category_id": 6
+        "category_id": 6,
+        "description": "Nayda Plus anti-lice spray (Turkish import) for quick head-lice treatment.",
+        "benefits": "Kills lice and eggs\nEasy spray application\nFast-acting",
+        "ingredients": "Anti-parasitic actives (e.g. dimeticone).",
+        "usage": "Spray onto dry hair, leave as directed, then comb out and wash. Repeat after a week if needed."
       }
     ]
   },
@@ -1034,89 +1526,133 @@
         "id": 124,
         "name": "صابون كوجك",
         "code": "F124",
-        "price": 2250.0,
+        "price": 2250,
         "image_url": "/products/F126.jpg",
-        "category_id": 7
+        "category_id": 7,
+        "description": "Kojic acid soap for brightening and evening skin tone.",
+        "benefits": "Brightens the skin\nHelps fade dark spots\nEvens tone",
+        "ingredients": "Kojic acid.",
+        "usage": "Lather on wet skin, leave briefly, then rinse. Use sunscreen during the day."
       },
       {
         "id": 125,
         "name": "صابون ميلانو",
         "code": "F125",
-        "price": 3000.0,
+        "price": 3000,
         "image_url": "/products/F127.jpg",
-        "category_id": 7
+        "category_id": 7,
+        "description": "Melano brightening soap for a clearer, more even complexion.",
+        "benefits": "Brightens dull skin\nHelps with dark patches\nDaily cleansing",
+        "ingredients": "Brightening complex.",
+        "usage": "Lather on wet skin, then rinse. Use daily."
       },
       {
         "id": 126,
         "name": "صابون كوزركس",
         "code": "F126",
-        "price": 3000.0,
+        "price": 3000,
         "image_url": "/products/F128.jpg",
-        "category_id": 7
+        "category_id": 7,
+        "description": "COSRX-style cleansing soap for daily face and body use.",
+        "benefits": "Gently cleanses\nBalances the skin\nEveryday use",
+        "ingredients": "Mild cleansing base.",
+        "usage": "Lather on wet skin, then rinse."
       },
       {
         "id": 127,
         "name": "صابون الصبار",
         "code": "F127",
-        "price": 2250.0,
+        "price": 2250,
         "image_url": "/products/F129.jpg",
-        "category_id": 7
+        "category_id": 7,
+        "description": "Aloe vera soap — soothing, gentle cleansing.",
+        "benefits": "Soothes and calms\nGently cleanses\nHydrating",
+        "ingredients": "Aloe vera, gentle soap base.",
+        "usage": "Lather on wet skin, then rinse."
       },
       {
         "id": 128,
         "name": "صابون الثمن التايلاندي",
         "code": "F128",
-        "price": 2250.0,
+        "price": 2250,
         "image_url": "/products/F130.jpg",
-        "category_id": 7
+        "category_id": 7,
+        "description": "Thai herbal whitening soap for brighter, smoother skin.",
+        "benefits": "Brightens the complexion\nExfoliates gently\nNatural herbal blend",
+        "ingredients": "Thai herbal extracts, natural whitening agents.",
+        "usage": "Lather on wet skin, leave briefly, then rinse."
       },
       {
         "id": 129,
         "name": "صابون كبسولة",
         "code": "F129",
-        "price": 2250.0,
+        "price": 2250,
         "image_url": "/products/F131.jpg",
-        "category_id": 7
+        "category_id": 7,
+        "description": "Capsule collagen soap for soft, supple-looking skin.",
+        "benefits": "Nourishes the skin\nSupports softness and elasticity\nDaily cleansing",
+        "ingredients": "Collagen, moisturising soap base.",
+        "usage": "Lather on wet skin, then rinse."
       },
       {
         "id": 130,
         "name": "صابون الحبة السوداء",
         "code": "F130",
-        "price": 1500.0,
+        "price": 1500,
         "image_url": "/products/F132.jpg",
-        "category_id": 7
+        "category_id": 7,
+        "description": "Black seed (Nigella) soap — traditional cleansing for problem skin.",
+        "benefits": "Cleanses and soothes\nHelps blemish-prone skin\nNatural black-seed oil",
+        "ingredients": "Black seed (Nigella sativa) oil.",
+        "usage": "Lather on wet skin, then rinse."
       },
       {
         "id": 131,
         "name": "صابون الجلسرين",
         "code": "F131",
-        "price": 1500.0,
+        "price": 1500,
         "image_url": "/products/F133.jpg",
-        "category_id": 7
+        "category_id": 7,
+        "description": "Glycerin soap — a gentle, moisturising cleansing bar.",
+        "benefits": "Cleanses without drying\nHydrates the skin\nGood for sensitive skin",
+        "ingredients": "Glycerin soap base.",
+        "usage": "Lather on wet skin, then rinse."
       },
       {
         "id": 132,
         "name": "صابون الكبريت",
         "code": "F132",
-        "price": 2250.0,
+        "price": 2250,
         "image_url": "/products/F134.jpg",
-        "category_id": 7
+        "category_id": 7,
+        "description": "Sulfur soap for oily, acne-prone and problem skin.",
+        "benefits": "Helps clear acne and blemishes\nControls oil\nHelps with fungal skin issues",
+        "ingredients": "Sulfur.",
+        "usage": "Lather on affected areas, leave briefly, then rinse. Use once daily."
       },
       {
         "id": 133,
         "name": "صابون خميرة البيرة",
         "code": "F133",
-        "price": 1500.0,
+        "price": 1500,
         "image_url": "/products/F135.jpg",
-        "category_id": 7
+        "category_id": 7,
+        "description": "Brewer's yeast soap for nourished, balanced skin.",
+        "benefits": "Nourishes the skin\nHelps blemish-prone skin\nBalances oil",
+        "ingredients": "Brewer's yeast extract.",
+        "usage": "Lather on wet skin, then rinse."
       },
       {
         "id": 134,
         "name": "صابون رتن – أي",
         "code": "F134",
-        "price": 2250.0,
+        "price": 2250,
         "image_url": "/products/F136.jpg",
-        "category_id": 7
+        "category_id": 7,
+        "description": "Retin-A (retinol) soap to support skin renewal and clarity.",
+        "benefits": "Supports skin renewal\nHelps with texture and marks\nDaily cleansing",
+        "ingredients": "Retinol (Vitamin A).",
+        "usage": "Lather on wet skin, then rinse. Use sunscreen during the day."
       }
     ]
   },
@@ -1129,97 +1665,145 @@
         "id": 135,
         "name": "PHARMACERS KIT WHITENING صنع في تركيا",
         "code": "F67",
-        "price": 15500.0,
+        "price": 15500,
         "image_url": "/products/F67.jpg",
-        "category_id": 8
+        "category_id": 8,
+        "description": "Pharmaceris whitening kit (made in Türkiye) — a targeted brightening set.",
+        "benefits": "Fades dark spots and pigmentation\nEvens skin tone\nComplete routine in one kit",
+        "ingredients": "Brightening actives, sunscreen (see pack).",
+        "usage": "Follow the step-by-step routine on the kit. Daily sunscreen is essential."
       },
       {
         "id": 136,
         "name": "كريم المخدر الكوري الأصلي 222 غرام 21%",
         "code": "F77",
-        "price": 24750.0,
+        "price": 24750,
         "image_url": "/products/F77.jpg",
-        "category_id": 8
+        "category_id": 8,
+        "description": "Korean numbing cream 21% (222 g) — a strong topical anaesthetic for procedures.",
+        "benefits": "Numbs the skin before procedures\nStrong 21% formula\nLarge professional size",
+        "ingredients": "Lidocaine/prilocaine (topical anaesthetic).",
+        "usage": "Apply a layer to intact skin before a procedure and cover as directed. For external use only; do not use on broken skin or large areas. Follow professional guidance."
       },
       {
         "id": 137,
         "name": "عصارة لاروش EFFACLAR",
         "code": "F78",
-        "price": 7500.0,
+        "price": 7500,
         "image_url": "/products/F78.jpg",
-        "category_id": 8
+        "category_id": 8,
+        "description": "La Roche-Posay Effaclar treatment for oily, blemish-prone skin.",
+        "benefits": "Clears and prevents blemishes\nControls oil\nRefines skin texture",
+        "ingredients": "Salicylic/LHA acids, thermal water.",
+        "usage": "Apply to clean skin as directed. Use sunscreen during the day."
       },
       {
         "id": 138,
         "name": "بكج كوجك اسد استيراد دبي",
         "code": "F102",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F104.jpg",
-        "category_id": 8
+        "category_id": 8,
+        "description": "Kojic acid brightening package (Dubai import) for dark spots.",
+        "benefits": "Brightens and evens tone\nFades dark spots\nComplete brightening set",
+        "ingredients": "Kojic acid, brightening actives.",
+        "usage": "Follow the routine on the package. Daily sunscreen essential."
       },
       {
         "id": 139,
         "name": "بكج لاروش الاصدار الجديد واقي شمس + سيروم B5 الأصلي",
         "code": "F106",
-        "price": 22000.0,
+        "price": 22000,
         "image_url": "/products/F108.jpg",
-        "category_id": 8
+        "category_id": 8,
+        "description": "La Roche-Posay set (new version): sunscreen + B5 repair serum.",
+        "benefits": "Protects and repairs\nSoothes and hydrates\nHigh UV protection",
+        "ingredients": "Anthelios UV filters, Vitamin B5, madecassoside.",
+        "usage": "Apply the B5 serum, then sunscreen each morning as directed."
       },
       {
         "id": 140,
         "name": "عصارة كرم جي إيراني أصلي",
         "code": "F143",
-        "price": 3750.0,
+        "price": 3750,
         "image_url": "/products/F145.jpg",
-        "category_id": 8
+        "category_id": 8,
+        "description": "Karm-G Iranian herbal skin cream for everyday skin concerns.",
+        "benefits": "Soothes and nourishes\nHerbal formula\nMulti-use skin care",
+        "ingredients": "Herbal plant extracts.",
+        "usage": "Apply a thin layer to the affected area as directed."
       },
       {
         "id": 141,
         "name": "عصارة سكينورين ازليلاللك 20 اصلية وارد عمان",
         "code": "F144",
-        "price": 12000.0,
+        "price": 12000,
         "image_url": "/products/F146.jpg",
-        "category_id": 8
+        "category_id": 8,
+        "description": "Skinoren (azelaic acid 20%) — a treatment for acne and pigmentation. Genuine, Oman import.",
+        "benefits": "Treats acne and blackheads\nFades post-acne marks and melasma\nEvens skin tone",
+        "ingredients": "Azelaic acid 20%.",
+        "usage": "Apply a thin layer to affected areas twice daily. May tingle at first; use sunscreen."
       },
       {
         "id": 142,
         "name": "عصارة ميبو سكار وارد تركي",
         "code": "F145",
-        "price": 9750.0,
+        "price": 9750,
         "image_url": "/products/F147.jpg",
-        "category_id": 8
+        "category_id": 8,
+        "description": "Mebo Scar ointment (Turkish import) for softening and improving scars.",
+        "benefits": "Helps soften and flatten scars\nImproves scar colour and texture\nSupports healing",
+        "ingredients": "Herbal scar-care complex (sesame oil, beta-sitosterol).",
+        "usage": "Massage into the scar 2–3 times daily over several weeks."
       },
       {
         "id": 143,
         "name": "عصارة ميبو وارد تركي",
         "code": "F146",
-        "price": 9750.0,
+        "price": 9750,
         "image_url": "/products/F148.jpg",
-        "category_id": 8
+        "category_id": 8,
+        "description": "Mebo burn and wound ointment (Turkish import) for minor burns and wounds.",
+        "benefits": "Soothes minor burns and wounds\nSupports healing\nRelieves pain",
+        "ingredients": "Herbal healing complex (sesame oil, beta-sitosterol).",
+        "usage": "Apply a layer to the clean affected area and cover if needed; reapply as directed."
       },
       {
         "id": 144,
         "name": "عصارة بيباثين كريم وارد تركي",
         "code": "F147",
-        "price": 4500.0,
+        "price": 4500,
         "image_url": "/products/F149.jpg",
-        "category_id": 8
+        "category_id": 8,
+        "description": "Bepanthen cream (Turkish import) — soothing care for irritated or dry skin.",
+        "benefits": "Soothes and protects\nSupports skin recovery\nGood for nappy area and minor irritation",
+        "ingredients": "Provitamin B5 (dexpanthenol).",
+        "usage": "Apply a thin layer to the affected area as needed."
       },
       {
         "id": 145,
         "name": "عصارة هايدروسوفت وارد تركي",
         "code": "F148",
-        "price": 4500.0,
+        "price": 4500,
         "image_url": "/products/F150.jpg",
-        "category_id": 8
+        "category_id": 8,
+        "description": "Hydrosoft moisturising cream (Turkish import) for very dry skin.",
+        "benefits": "Deep, lasting hydration\nSoftens rough, dry skin\nRestores comfort",
+        "ingredients": "Emollients, humectants.",
+        "usage": "Apply to dry areas as often as needed."
       },
       {
         "id": 146,
         "name": "صودة كريم 120 غرام صيني درجة اولى",
         "code": "F197",
-        "price": 3000.0,
+        "price": 3000,
         "image_url": "/products/F202.jpg",
-        "category_id": 8
+        "category_id": 8,
+        "description": "Soda cream, 120 g (first-grade, Chinese) — a soothing multi-use cream.",
+        "benefits": "Soothes and cools irritated skin\nGentle everyday care\nGreat value",
+        "ingredients": "Sodium bicarbonate (soda), emollient base.",
+        "usage": "Apply a thin layer to the affected area as needed."
       }
     ]
   },
@@ -1232,73 +1816,108 @@
         "id": 147,
         "name": "LACALUT غرغرة صنع في تركيا",
         "code": "F71",
-        "price": 6000.0,
+        "price": 6000,
         "image_url": "/products/F71.jpg",
-        "category_id": 9
+        "category_id": 9,
+        "description": "Lacalut mouthwash (made in Türkiye) for gum care and fresh breath.",
+        "benefits": "Protects the gums\nReduces plaque and bad breath\nFreshens the mouth",
+        "ingredients": "Antibacterial mouthwash complex (chlorhexidine/fluoride).",
+        "usage": "Rinse with a capful for 30 seconds after brushing; do not swallow."
       },
       {
         "id": 148,
         "name": "فازلين مورد شفه الأصلي",
         "code": "F97",
-        "price": 3750.0,
+        "price": 3750,
         "image_url": "/products/F99.jpg",
-        "category_id": 9
+        "category_id": 9,
+        "description": "Vaseline lip therapy — moisturising care for dry, chapped lips.",
+        "benefits": "Heals dry, chapped lips\nLocks in moisture\nAdds a soft sheen",
+        "ingredients": "Petrolatum, moisturising oils.",
+        "usage": "Apply to the lips as often as needed."
       },
       {
         "id": 149,
         "name": "غرغرة زاك متوفرة بثلاثة الوان صنع في تركيا",
         "code": "F135",
-        "price": 1500.0,
+        "price": 1500,
         "image_url": "/products/F137.jpg",
-        "category_id": 9
+        "category_id": 9,
+        "description": "Zac mouthwash (made in Türkiye) — available in three flavours.",
+        "benefits": "Freshens breath\nHelps keep the mouth clean\nChoice of flavours",
+        "ingredients": "Mouthwash complex with fluoride.",
+        "usage": "Rinse with a capful for 30 seconds; do not swallow."
       },
       {
         "id": 150,
         "name": "ماسكة يد",
         "code": "F191",
-        "price": 3000.0,
+        "price": 3000,
         "image_url": "/products/F196.jpg",
-        "category_id": 9
+        "category_id": 9,
+        "description": "Moisturising hand mask for soft, nourished hands.",
+        "benefits": "Intensely moisturises\nSoftens rough hands\nSpa-style treatment",
+        "ingredients": "Moisturising serum, nourishing oils.",
+        "usage": "Wear the mask on the hands for 15–20 minutes, then massage in the residue."
       },
       {
         "id": 151,
         "name": "دهن النعام الأصلي",
         "code": "F192",
-        "price": 4500.0,
+        "price": 4500,
         "image_url": "/products/F197.jpg",
-        "category_id": 9
+        "category_id": 9,
+        "description": "Ostrich oil — a traditional oil for skin, hair and joints.",
+        "benefits": "Nourishes skin and hair\nSoothes dryness\nTraditionally used for joints",
+        "ingredients": "Pure ostrich oil.",
+        "usage": "Massage a small amount into skin, hair or joints as needed."
       },
       {
         "id": 152,
         "name": "فكس",
         "code": "F193",
-        "price": 12000.0,
+        "price": 12000,
         "image_url": "/products/F198.jpg",
-        "category_id": 9
+        "category_id": 9,
+        "description": "Vicks VapoRub-style chest rub for cold and congestion relief.",
+        "benefits": "Eases coughs and congestion\nSoothing vapour\nRelieves blocked nose",
+        "ingredients": "Menthol, camphor, eucalyptus oil.",
+        "usage": "Rub onto the chest, throat or back. For external use; not for young infants' faces."
       },
       {
         "id": 153,
         "name": "كولجيت فرشاة",
         "code": "F194",
-        "price": 12000.0,
+        "price": 12000,
         "image_url": "/products/F199.jpg",
-        "category_id": 9
+        "category_id": 9,
+        "description": "Colgate toothbrush for everyday oral care.",
+        "benefits": "Cleans teeth effectively\nComfortable grip\nReliable everyday brush",
+        "usage": "Brush teeth twice daily; replace every 3 months."
       },
       {
         "id": 154,
         "name": "بكج زيت الخروع صيني درجة اولى",
         "code": "F195",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F200.jpg",
-        "category_id": 9
+        "category_id": 9,
+        "description": "Castor oil package (first-grade, Chinese) for hair, lashes and skin.",
+        "benefits": "Nourishes hair, lashes and brows\nMoisturises the skin\nMulti-use natural oil",
+        "ingredients": "Pure castor oil.",
+        "usage": "Apply a small amount to hair, lashes or skin as needed."
       },
       {
         "id": 155,
         "name": "معجون مارفيس وارد دبي",
         "code": "F196",
-        "price": 4500.0,
+        "price": 4500,
         "image_url": "/products/F201.jpg",
-        "category_id": 9
+        "category_id": 9,
+        "description": "Marvis toothpaste (Dubai import) — a premium Italian toothpaste.",
+        "benefits": "Freshens breath\nCleans and protects teeth\nDistinctive premium flavour",
+        "ingredients": "Fluoride toothpaste with mint flavours.",
+        "usage": "Brush teeth twice daily."
       }
     ]
   },
@@ -1311,97 +1930,144 @@
         "id": 156,
         "name": "C4 ULTIMATE BLACK الأصلي",
         "code": "F169",
-        "price": 17000.0,
+        "price": 17000,
         "image_url": "/products/F173.jpg",
-        "category_id": 10
+        "category_id": 10,
+        "description": "C4 Ultimate Black pre-workout — a high-intensity energy and focus formula.",
+        "benefits": "Boosts energy and focus\nSupports endurance and pumps\nStrong pre-workout",
+        "ingredients": "Caffeine, beta-alanine, citrulline, creatine.",
+        "usage": "Mix one scoop with water 20–30 minutes before training. Avoid late in the day; not for those sensitive to caffeine."
       },
       {
         "id": 157,
         "name": "كبسول ماشا تركي الأصلي",
         "code": "F170",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F175.jpg",
-        "category_id": 10
+        "category_id": 10,
+        "description": "Macha weight-management capsules (Turkish, genuine).",
+        "benefits": "Supports weight management\nHelps control appetite\nSupports metabolism",
+        "ingredients": "Matcha green tea and herbal extracts.",
+        "usage": "Take as directed on the pack with water. Consult a doctor if you have any health conditions."
       },
       {
         "id": 158,
         "name": "مسمن وجه هايدروكسي الأصلي",
         "code": "F171",
-        "price": 18000.0,
+        "price": 18000,
         "image_url": "/products/F176.jpg",
-        "category_id": 10
+        "category_id": 10,
+        "description": "Hydroxy facial weight-gain supplement (genuine) — to help fill out the face.",
+        "benefits": "Supports healthy weight gain\nHelps a fuller face\nAppetite support",
+        "ingredients": "Appetite-support and nutrient blend.",
+        "usage": "Take as directed on the pack. Consult a doctor before use, especially with any medical condition."
       },
       {
         "id": 159,
         "name": "مسمن هايدروكسي عام الأصلي",
         "code": "F172",
-        "price": 18000.0,
+        "price": 18000,
         "image_url": "/products/F177.jpg",
-        "category_id": 10
+        "category_id": 10,
+        "description": "Hydroxy general weight-gain supplement (genuine) for overall healthy gain.",
+        "benefits": "Supports healthy weight gain\nBoosts appetite\nNutrient support",
+        "ingredients": "Appetite-support and nutrient blend.",
+        "usage": "Take as directed on the pack. Consult a doctor before use."
       },
       {
         "id": 160,
         "name": "C4 ULTIMATE RED الأصلي",
         "code": "F173",
-        "price": 21000.0,
+        "price": 21000,
         "image_url": "/products/F178.jpg",
-        "category_id": 10
+        "category_id": 10,
+        "description": "C4 Ultimate Red pre-workout — explosive energy, pumps and focus.",
+        "benefits": "Intense energy and focus\nSupports muscle pumps\nSupports performance",
+        "ingredients": "Caffeine, beta-alanine, citrulline, creatine.",
+        "usage": "Mix one scoop with water before training. Avoid late in the day; not for those sensitive to caffeine."
       },
       {
         "id": 161,
         "name": "SMART KETO CAP 60 غير متوفر",
         "code": "F174",
-        "price": 21000.0,
+        "price": 21000,
         "image_url": "/products/F174.jpg",
-        "category_id": 10
+        "category_id": 10,
+        "description": "Smart Keto capsules — a keto-diet weight-management aid. Currently unavailable.",
+        "benefits": "Supports a keto lifestyle\nSupports fat metabolism\nHelps energy on low-carb diets",
+        "ingredients": "BHB ketones, keto-support blend.",
+        "usage": "Take as directed on the pack. Consult a doctor if you have any health conditions."
       },
       {
         "id": 162,
         "name": "PRO KETO CAP 60",
         "code": "F175",
-        "price": 21000.0,
+        "price": 21000,
         "image_url": "/products/F183.jpg",
-        "category_id": 10
+        "category_id": 10,
+        "description": "Pro Keto capsules — support for a ketogenic weight-management plan.",
+        "benefits": "Supports ketosis and fat metabolism\nHelps energy on low-carb diets\nSupports weight goals",
+        "ingredients": "BHB ketones, keto-support blend.",
+        "usage": "Take as directed on the pack with water."
       },
       {
         "id": 163,
         "name": "ACTIVE SLIM الأصلي اللبناني الاصدار الجديد",
         "code": "F176",
-        "price": 21000.0,
+        "price": 21000,
         "image_url": "/products/F179.jpg",
-        "category_id": 10
+        "category_id": 10,
+        "description": "Active Slim (Lebanese, new version) — a herbal weight-management supplement.",
+        "benefits": "Supports weight management\nHelps control appetite\nSupports metabolism",
+        "ingredients": "Herbal slimming blend.",
+        "usage": "Take as directed on the pack. Consult a doctor before use."
       },
       {
         "id": 164,
         "name": "TENUATE RETARD منحف",
         "code": "F177",
-        "price": 19500.0,
+        "price": 19500,
         "image_url": "/products/F180.jpg",
-        "category_id": 10
+        "category_id": 10,
+        "description": "Tenuate Retard — a strong appetite-suppressant slimming aid.",
+        "benefits": "Strongly reduces appetite\nSupports short-term weight loss",
+        "ingredients": "Diethylpropion (amfepramone) — an appetite-suppressant medicine.",
+        "usage": "This is a potent, medicine-grade appetite suppressant. Use only under a doctor's supervision. Not for heart conditions, high blood pressure, anxiety, pregnancy or long-term use."
       },
       {
         "id": 165,
         "name": "AB SLIM GREEN قاطع شهية",
         "code": "F186",
-        "price": 18500.0,
+        "price": 18500,
         "image_url": "/products/F190.jpg",
-        "category_id": 10
+        "category_id": 10,
+        "description": "AB Slim Green — a herbal appetite-control supplement.",
+        "benefits": "Helps curb appetite\nSupports weight management\nHerbal formula",
+        "ingredients": "Green tea and herbal appetite-control blend.",
+        "usage": "Take as directed on the pack with water. Consult a doctor before use."
       },
       {
         "id": 166,
         "name": "شاي ماتشا + فواكه تركي الأصلي",
         "code": "F187",
-        "price": 5500.0,
+        "price": 5500,
         "image_url": "/products/F191.jpg",
-        "category_id": 10
+        "category_id": 10,
+        "description": "Matcha + fruit slimming tea (Turkish, genuine) — a daily wellness tea.",
+        "benefits": "Supports metabolism\nAntioxidant-rich matcha\nPleasant fruit flavour",
+        "ingredients": "Matcha green tea, dried fruit and herbs.",
+        "usage": "Steep one sachet/spoon in hot water and drink 1–2 times daily."
       },
       {
         "id": 167,
         "name": "حزام مشد نسائي",
         "code": "F190",
-        "price": 8250.0,
+        "price": 8250,
         "image_url": "/products/F195.jpg",
-        "category_id": 10
+        "category_id": 10,
+        "description": "Women's shaping waist belt for a smoother, supported figure.",
+        "benefits": "Smooths the waistline\nSupports posture and the back\nWorn under clothing",
+        "usage": "Wear around the waist over light clothing for a few hours a day. Don't wear too tightly or while sleeping."
       }
     ]
   },
@@ -1414,121 +2080,181 @@
         "id": 168,
         "name": "العسل الحيوي الأصلي 12 SHEET",
         "code": "F149",
-        "price": 16500.0,
+        "price": 16500,
         "image_url": "/products/F151.jpg",
-        "category_id": 11
+        "category_id": 11,
+        "description": "Biological honey (12 sheets) — a herbal honey blend marketed for men's vitality.",
+        "benefits": "Marketed to support energy and stamina\nHerbal honey blend",
+        "ingredients": "Honey with herbal extracts (e.g. ginseng, royal jelly).",
+        "usage": "Consume one sachet as directed. Herbal enhancement products are not regulated medicines — consult a doctor first, and avoid with heart conditions or if taking nitrates or other medication."
       },
       {
         "id": 169,
         "name": "العسل السوري الصغير",
         "code": "F150",
-        "price": 3500.0,
+        "price": 3500,
         "image_url": "/products/F154.jpg",
-        "category_id": 11
+        "category_id": 11,
+        "description": "Small Syrian honey — a natural herbal honey blend for daily vitality.",
+        "benefits": "Natural energy support\nHerbal honey blend",
+        "ingredients": "Honey with herbal extracts.",
+        "usage": "Consume as directed. Consult a doctor if you have any health condition or take medication."
       },
       {
         "id": 170,
         "name": "عسل بلاك هورس 12SHEET",
         "code": "F151",
-        "price": 13500.0,
+        "price": 13500,
         "image_url": "/products/F155.jpg",
-        "category_id": 11
+        "category_id": 11,
+        "description": "Black Horse honey (12 sheets) — a herbal honey blend marketed for men's stamina.",
+        "benefits": "Marketed to support stamina and vitality\nHerbal honey blend",
+        "ingredients": "Honey with herbal extracts.",
+        "usage": "Consume one sachet as directed. Not a regulated medicine — consult a doctor first, and avoid with heart disease or if using nitrates."
       },
       {
         "id": 171,
         "name": "عسل WENICK 12SHEET",
         "code": "F152",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F156.jpg",
-        "category_id": 11
+        "category_id": 11,
+        "description": "Wenick honey (12 sheets) — a herbal honey blend marketed for men.",
+        "benefits": "Marketed to support vitality and stamina\nHerbal honey blend",
+        "ingredients": "Honey with herbal extracts.",
+        "usage": "Consume one sachet as directed. Consult a doctor before use, especially with any medical condition or medication."
       },
       {
         "id": 172,
         "name": "شوكولاتة BUFALO",
         "code": "F153",
-        "price": 3000.0,
+        "price": 3000,
         "image_url": "/products/F157.jpg",
-        "category_id": 11
+        "category_id": 11,
+        "description": "Bufalo chocolate — a herbal chocolate marketed for vitality.",
+        "benefits": "Marketed to support energy and mood\nEasy-to-take chocolate form",
+        "ingredients": "Chocolate with herbal extracts.",
+        "usage": "Consume as directed. Not a regulated medicine — consult a doctor first if you have any health condition."
       },
       {
         "id": 173,
         "name": "مزلق + مخدر تايلاندي",
         "code": "F154",
-        "price": 4500.0,
+        "price": 4500,
         "image_url": "/products/F158.jpg",
-        "category_id": 11
+        "category_id": 11,
+        "description": "Thai lubricant with a mild numbing effect for intimate comfort.",
+        "benefits": "Provides smooth lubrication\nMild soothing/numbing effect\nFor intimate use",
+        "ingredients": "Water/oil-based lubricant with a mild anaesthetic.",
+        "usage": "Apply a small amount externally as needed. Patch test first; discontinue if irritation occurs."
       },
       {
         "id": 174,
         "name": "مزلق PLAY امتياز",
         "code": "F155",
-        "price": 3000.0,
+        "price": 3000,
         "image_url": "/products/F159.jpg",
-        "category_id": 11
+        "category_id": 11,
+        "description": "PLAY personal lubricant for comfort during intimacy.",
+        "benefits": "Smooth, long-lasting lubrication\nReduces friction\nFor intimate use",
+        "ingredients": "Water-based lubricant.",
+        "usage": "Apply as needed. For external use."
       },
       {
         "id": 175,
         "name": "قطرات اثارة نسائي 8P – 1B تركي غير متوفر",
         "code": "F156",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F160.jpg",
-        "category_id": 11
+        "category_id": 11,
+        "description": "Women's arousal drops (Turkish) — a topical intimacy product. Currently unavailable.",
+        "benefits": "Marketed to enhance sensitivity for women\nFor intimate use",
+        "ingredients": "Warming/stimulating topical complex.",
+        "usage": "Apply a small amount externally as directed. Patch test first; discontinue if irritation occurs."
       },
       {
         "id": 176,
         "name": "شوكولاتة اثارة نسائي 8P – 1B تركي",
         "code": "F157",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F161.jpg",
-        "category_id": 11
+        "category_id": 11,
+        "description": "Women's arousal chocolate (Turkish) — a herbal chocolate for intimacy.",
+        "benefits": "Marketed to support women's libido\nEasy chocolate form",
+        "ingredients": "Chocolate with herbal extracts.",
+        "usage": "Consume as directed. Not a regulated medicine — consult a doctor first if you have any health condition."
       },
       {
         "id": 177,
         "name": "علك اثارة نسائي (الباكيت يحتوي على 2 قطع كل قطعة 8 شرايط )",
         "code": "F158",
-        "price": 9000.0,
+        "price": 9000,
         "image_url": "/products/F162.jpg",
-        "category_id": 11
+        "category_id": 11,
+        "description": "Women's arousal gum (2 pieces per pack) — a herbal intimacy product.",
+        "benefits": "Marketed to support women's libido\nDiscreet chewing-gum form",
+        "ingredients": "Chewing gum with herbal extracts.",
+        "usage": "Chew one piece as directed. Consult a doctor first if you have any health condition."
       },
       {
         "id": 178,
         "name": "بخاخ القرش DELAY SPRAY",
         "code": "F159",
-        "price": 3000.0,
+        "price": 3000,
         "image_url": "/products/F163.jpg",
-        "category_id": 11
+        "category_id": 11,
+        "description": "Shark Delay Spray — a topical spray marketed to help men delay climax.",
+        "benefits": "Marketed to help delay climax\nEasy spray application\nFor external intimate use",
+        "ingredients": "Topical mild anaesthetic (e.g. lidocaine).",
+        "usage": "Spray a small amount and allow it to absorb before intimacy. Patch test first; wipe off excess. Discontinue if irritation occurs."
       },
       {
         "id": 179,
         "name": "كريم ايروس الأصلي",
         "code": "F160",
-        "price": 3750.0,
+        "price": 3750,
         "image_url": "/products/F164.jpg",
-        "category_id": 11
+        "category_id": 11,
+        "description": "Eros intimacy cream for comfort and enhanced sensation.",
+        "benefits": "Marketed to enhance intimate sensation\nSmooth application\nFor external use",
+        "ingredients": "Topical intimacy complex.",
+        "usage": "Apply a small amount externally as directed. Patch test first."
       },
       {
         "id": 180,
         "name": "بخاخ ايروس الأصلي",
         "code": "F161",
-        "price": 5500.0,
+        "price": 5500,
         "image_url": "/products/F165.jpg",
-        "category_id": 11
+        "category_id": 11,
+        "description": "Eros intimacy spray for comfort and enhanced sensation.",
+        "benefits": "Marketed to enhance intimate sensation\nEasy spray form\nFor external use",
+        "ingredients": "Topical intimacy complex.",
+        "usage": "Apply a small amount externally as directed. Patch test first; discontinue if irritation occurs."
       },
       {
         "id": 181,
         "name": "كاماجرا رجالي تركي 100 ملغ",
         "code": "F188",
-        "price": 6000.0,
+        "price": 6000,
         "image_url": "/products/F193.jpg",
-        "category_id": 11
+        "category_id": 11,
+        "description": "Kamagra 100 mg (Turkish) — an erectile-support tablet containing sildenafil.",
+        "benefits": "Contains sildenafil, used for erectile difficulty",
+        "ingredients": "Sildenafil 100 mg (a PDE5 inhibitor / prescription medicine).",
+        "usage": "This is a prescription-strength medicine. Only use under a doctor's guidance. DO NOT take with nitrate heart medicines, or if you have heart disease, low blood pressure or take related drugs. Seek medical advice before use."
       },
       {
         "id": 182,
         "name": "كبسول مقوي روسي 1B – 10P الأصلي",
         "code": "F189",
-        "price": 3150.0,
+        "price": 3150,
         "image_url": "/products/F194.jpg",
-        "category_id": 11
+        "category_id": 11,
+        "description": "Russian potency capsules (1 box, 10 capsules) — a men's vitality supplement.",
+        "benefits": "Marketed to support men's vitality and stamina",
+        "ingredients": "Herbal potency blend.",
+        "usage": "Take as directed on the pack. Not a regulated medicine — consult a doctor first, especially with heart conditions or if taking other medication."
       }
     ]
   },
@@ -1541,121 +2267,181 @@
         "id": 183,
         "name": "ZINC 60 CAP",
         "code": "F162",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F166.jpg",
-        "category_id": 12
+        "category_id": 12,
+        "description": "Zinc capsules (60) — an essential mineral for immunity and skin.",
+        "benefits": "Supports the immune system\nSupports clear, healthy skin\nSupports wound healing",
+        "ingredients": "Zinc.",
+        "usage": "Take 1 capsule daily with food."
       },
       {
         "id": 184,
         "name": "MAGNESIUM 60 CAP",
         "code": "F163",
-        "price": 16000.0,
+        "price": 16000,
         "image_url": "/products/F167.jpg",
-        "category_id": 12
+        "category_id": 12,
+        "description": "Magnesium capsules (60) — for muscles, nerves and relaxation.",
+        "benefits": "Supports muscle and nerve function\nHelps reduce cramps\nSupports relaxation and sleep",
+        "ingredients": "Magnesium.",
+        "usage": "Take 1 capsule daily, preferably in the evening."
       },
       {
         "id": 185,
         "name": "APPLE CIDER VINEGAR 60 CAP",
         "code": "F164",
-        "price": 18000.0,
+        "price": 18000,
         "image_url": "/products/F168.jpg",
-        "category_id": 12
+        "category_id": 12,
+        "description": "Apple cider vinegar capsules (60) — ACV benefits in easy capsule form.",
+        "benefits": "Supports digestion\nSupports metabolism\nNo sour taste",
+        "ingredients": "Apple cider vinegar powder.",
+        "usage": "Take 1–2 capsules daily with water before meals."
       },
       {
         "id": 186,
         "name": "(Glycinate) magnesium 400 mg",
         "code": "F165",
-        "price": 18000.0,
+        "price": 18000,
         "image_url": "/products/F169.jpg",
-        "category_id": 12
+        "category_id": 12,
+        "description": "Magnesium Glycinate 400 mg — a highly absorbable, gentle form of magnesium.",
+        "benefits": "Well-absorbed and gentle on the stomach\nSupports relaxation and sleep\nEases muscle cramps",
+        "ingredients": "Magnesium glycinate 400 mg.",
+        "usage": "Take 1 capsule daily in the evening with food."
       },
       {
         "id": 187,
         "name": "K2+D3",
         "code": "F166",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F170.jpg",
-        "category_id": 12
+        "category_id": 12,
+        "description": "Vitamin K2 + D3 — a pairing for bone and heart health.",
+        "benefits": "Supports strong bones\nHelps direct calcium correctly\nSupports immunity",
+        "ingredients": "Vitamin D3, Vitamin K2 (MK-7).",
+        "usage": "Take 1 capsule/drop daily with a meal containing fat."
       },
       {
         "id": 188,
         "name": "MARY RUTH’S MULTI – VITAMIN",
         "code": "F167",
-        "price": 21000.0,
+        "price": 21000,
         "image_url": "/products/F171.jpg",
-        "category_id": 12
+        "category_id": 12,
+        "description": "Mary Ruth's multivitamin — a comprehensive daily nutrient supplement.",
+        "benefits": "Complete daily nutrition\nSupports energy and immunity\nHigh-quality formula",
+        "ingredients": "Full-spectrum vitamins and minerals.",
+        "usage": "Take as directed on the pack, usually once daily with food."
       },
       {
         "id": 189,
         "name": "MARY RUTH’S HAIR GROWTH",
         "code": "F168",
-        "price": 21000.0,
+        "price": 21000,
         "image_url": "/products/F172.jpg",
-        "category_id": 12
+        "category_id": 12,
+        "description": "Mary Ruth's Hair Growth supplement for stronger, fuller hair.",
+        "benefits": "Supports hair growth and thickness\nStrengthens hair and nails\nNourishes from within",
+        "ingredients": "Biotin, vitamins and hair-support nutrients.",
+        "usage": "Take as directed on the pack daily with food."
       },
       {
         "id": 190,
         "name": "COLLAGEN + C",
         "code": "F178",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F181.jpg",
-        "category_id": 12
+        "category_id": 12,
+        "description": "Collagen + C — collagen with Vitamin C for skin, hair and joints.",
+        "benefits": "Supports skin elasticity\nSupports hair, nails and joints\nVitamin C aids collagen formation",
+        "ingredients": "Hydrolysed collagen, Vitamin C.",
+        "usage": "Take as directed daily with water."
       },
       {
         "id": 191,
         "name": "Marine collagen ( 120 )",
         "code": "F179",
-        "price": 18000.0,
+        "price": 18000,
         "image_url": "/products/F182.jpg",
-        "category_id": 12
+        "category_id": 12,
+        "description": "Marine collagen (120) — highly absorbable collagen from fish sources.",
+        "benefits": "Supports firm, youthful skin\nSupports hair and nails\nEasily absorbed",
+        "ingredients": "Hydrolysed marine collagen peptides.",
+        "usage": "Take as directed on the pack daily."
       },
       {
         "id": 192,
         "name": "You theory collagen (120)",
         "code": "F180",
-        "price": 21000.0,
+        "price": 21000,
         "image_url": "/products/F184.jpg",
-        "category_id": 12
+        "category_id": 12,
+        "description": "Youtheory collagen (120) — a popular collagen supplement with Vitamin C.",
+        "benefits": "Supports skin, hair and nails\nSupports joints\nWith added Vitamin C",
+        "ingredients": "Hydrolysed collagen (types 1, 2 & 3), Vitamin C.",
+        "usage": "Take as directed on the pack, usually a few tablets daily."
       },
       {
         "id": 193,
         "name": "COLLAGE N شراب كولاجين ML 473 العلبة البلاستيكية وارد تركي",
         "code": "F181",
-        "price": 21000.0,
+        "price": 21000,
         "image_url": "/products/F185.jpg",
-        "category_id": 12
+        "category_id": 12,
+        "description": "Collagen drink, 473 mL (Turkish import) — a ready-to-take liquid collagen.",
+        "benefits": "Convenient liquid collagen\nSupports skin, hair and nails\nEasily absorbed",
+        "ingredients": "Hydrolysed collagen, added vitamins.",
+        "usage": "Drink a measured serving daily as directed."
       },
       {
         "id": 194,
         "name": "COLLAGEN + C شراب (الشكل القديم) وارد تركي",
         "code": "F182",
-        "price": 18000.0,
+        "price": 18000,
         "image_url": "/products/F186.jpg",
-        "category_id": 12
+        "category_id": 12,
+        "description": "Collagen + C drink, older-style bottle (Turkish import).",
+        "benefits": "Liquid collagen with Vitamin C\nSupports skin elasticity\nSupports hair and nails",
+        "ingredients": "Hydrolysed collagen, Vitamin C.",
+        "usage": "Drink a measured serving daily."
       },
       {
         "id": 195,
         "name": "HYALURONIC ACID",
         "code": "F183",
-        "price": 15000.0,
+        "price": 15000,
         "image_url": "/products/F187.jpg",
-        "category_id": 12
+        "category_id": 12,
+        "description": "Hyaluronic acid supplement for skin hydration and joint comfort.",
+        "benefits": "Supports skin hydration and plumpness\nSupports joint lubrication\nComplements collagen",
+        "ingredients": "Hyaluronic acid.",
+        "usage": "Take 1 capsule daily with water."
       },
       {
         "id": 196,
         "name": "كبسول جينسينغ الأصلي 60CAP",
         "code": "F184",
-        "price": 16500.0,
+        "price": 16500,
         "image_url": "/products/F188.jpg",
-        "category_id": 12
+        "category_id": 12,
+        "description": "Ginseng capsules (60, genuine) — a traditional energy and vitality tonic.",
+        "benefits": "Supports energy and stamina\nSupports focus\nTraditional adaptogen",
+        "ingredients": "Ginseng root extract.",
+        "usage": "Take 1 capsule daily, preferably earlier in the day."
       },
       {
         "id": 197,
         "name": "OMEGA 3 T&D أوميغا 3 امتياز هندي",
         "code": "F185",
-        "price": 6000.0,
+        "price": 6000,
         "image_url": "/products/F189.jpg",
-        "category_id": 12
+        "category_id": 12,
+        "description": "Omega 3 T&D (Indian) — fish-oil omega-3 for heart, brain and joints.",
+        "benefits": "Supports heart and circulation\nSupports brain and eyes\nSupports joints",
+        "ingredients": "Fish oil providing EPA & DHA omega-3.",
+        "usage": "Take 1 softgel 1–2 times daily with meals."
       }
     ]
   }

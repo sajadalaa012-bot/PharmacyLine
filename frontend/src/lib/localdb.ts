@@ -142,9 +142,63 @@ async function seed(): Promise<void> {
   });
 }
 
+// ── Details backfill (runs once per browser) ────────────────────────
+// Existing visitors were seeded before products carried detail fields.
+// This one-time pass copies description/benefits/ingredients/usage from the
+// bundled catalog onto stored products that don't already have them, without
+// touching prices, admin edits, or orders. Bump the flag key to re-run.
+const DETAILS_FLAG = "detailsBackfilled_v1";
+
+async function backfillDetails(): Promise<void> {
+  const done = await getMeta(DETAILS_FLAG);
+  if (done?.value) return;
+
+  const cats = catalog as SeedCategory[];
+  // Detail fields from the catalog, keyed by product id.
+  const byId = new Map<number, Partial<Product>>();
+  for (const c of cats) {
+    for (const p of c.products) {
+      byId.set(p.id, {
+        description: p.description,
+        benefits: p.benefits,
+        ingredients: p.ingredients,
+        usage: p.usage,
+      });
+    }
+  }
+
+  const stored = await getAll<Product>(STORE.products);
+  const db = await openDB();
+  await new Promise<void>((resolve, reject) => {
+    const t = db.transaction([STORE.products, STORE.meta], "readwrite");
+    t.oncomplete = () => resolve();
+    t.onerror = () => reject(t.error);
+    const pStore = t.objectStore(STORE.products);
+
+    for (const prod of stored) {
+      const details = byId.get(prod.id);
+      if (!details) continue;
+      // Only fill fields that are currently empty — never clobber admin edits.
+      const merged: Product = { ...prod };
+      let changed = false;
+      (["description", "benefits", "ingredients", "usage"] as const).forEach(
+        (k) => {
+          if (!merged[k] && details[k]) {
+            merged[k] = details[k];
+            changed = true;
+          }
+        },
+      );
+      if (changed) pStore.put(merged);
+    }
+
+    t.objectStore(STORE.meta).put({ key: DETAILS_FLAG, value: true });
+  });
+}
+
 /** Ensures the store is seeded before any read/write. Idempotent. */
 export function ensureSeeded(): Promise<void> {
-  if (!initPromise) initPromise = seed();
+  if (!initPromise) initPromise = seed().then(backfillDetails);
   return initPromise;
 }
 
