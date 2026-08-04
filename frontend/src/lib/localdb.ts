@@ -171,8 +171,9 @@ async function seed(): Promise<void> {
 // again before they carried Arabic copy. This one-time pass copies the
 // shopper-facing fields from the bundled catalog onto stored products that
 // don't already have them, without touching prices, admin edits, or orders.
-// Bump the flag key to re-run — v2 added the Arabic twins.
-const DETAILS_FLAG = "detailsBackfilled_v2";
+// Bump the flag key to re-run — v2 added the Arabic twins, v3 filled them in
+// with the actual translated catalog copy.
+const DETAILS_FLAG = "detailsBackfilled_v3";
 
 async function backfillDetails(): Promise<void> {
   const done = await getMeta(DETAILS_FLAG);
