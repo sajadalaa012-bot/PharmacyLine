@@ -4,14 +4,23 @@
 
 import { tt } from "./i18n";
 
-export async function isAuthed(): Promise<boolean> {
+export interface SessionState {
+  authenticated: boolean;
+  /** The host set no admin credentials, so the public fallbacks are in force. */
+  defaultCredentials: boolean;
+}
+
+export async function readSession(): Promise<SessionState> {
   try {
     const res = await fetch("/api/admin/session", { cache: "no-store" });
-    if (!res.ok) return false;
+    if (!res.ok) return { authenticated: false, defaultCredentials: false };
     const data = await res.json();
-    return data.authenticated === true;
+    return {
+      authenticated: data.authenticated === true,
+      defaultCredentials: data.defaultCredentials === true,
+    };
   } catch {
-    return false;
+    return { authenticated: false, defaultCredentials: false };
   }
 }
 

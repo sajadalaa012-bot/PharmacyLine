@@ -213,6 +213,8 @@ const en = {
   "auth.failed": "Login failed.",
   "auth.expired": "Session expired. Please sign in again.",
   "auth.signOut": "Sign out",
+  "auth.defaultCredentials":
+    "No admin credentials are configured on this host, so the built-in defaults are in force — and those are public in the source. Set ADMIN_EMAIL and ADMIN_PASSWORD in your hosting environment.",
 
   // ── Admin shell ──
   "nav.overview": "Overview",
@@ -585,6 +587,8 @@ const ar: Record<MessageKey, string> = {
   "auth.failed": "فشل تسجيل الدخول.",
   "auth.expired": "انتهت الجلسة. يُرجى تسجيل الدخول مرة أخرى.",
   "auth.signOut": "تسجيل الخروج",
+  "auth.defaultCredentials":
+    "لم تُضبط بيانات دخول للمسؤول على هذا الخادم، لذا تعمل البيانات الافتراضية المدمجة — وهي منشورة في الشيفرة المصدرية. اضبط ADMIN_EMAIL و ADMIN_PASSWORD في إعدادات الاستضافة.",
 
   // ── Admin shell ──
   "nav.overview": "نظرة عامة",

@@ -8,11 +8,34 @@ import type { NextRequest } from "next/server";
 export const SESSION_COOKIE = "pl_admin";
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days (seconds)
 
-// Server-only (NOT NEXT_PUBLIC) — never shipped to the browser.
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "pharmacyline@gmail.com")
+// ADMIN_EMAIL / ADMIN_PASSWORD are server-only and are what you should set.
+//
+// The NEXT_PUBLIC_* names are read as a fallback only because earlier versions
+// of this app did client-side auth and told you to configure those; hosts set
+// up back then would otherwise silently fall through to the defaults below.
+// Prefer the server-only names: anything NEXT_PUBLIC_ is build-time public.
+const ADMIN_EMAIL = (
+  process.env.ADMIN_EMAIL ||
+  process.env.NEXT_PUBLIC_ADMIN_EMAIL ||
+  "pharmacyline@gmail.com"
+)
   .trim()
   .toLowerCase();
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "pharmacyline";
+const ADMIN_PASSWORD =
+  process.env.ADMIN_PASSWORD ||
+  process.env.NEXT_PUBLIC_ADMIN_PASSWORD ||
+  "pharmacyline";
+
+/**
+ * True when no admin credentials were configured at all, so the fallbacks in
+ * this file — which are committed to a public repo — are what is guarding the
+ * back office. Surfaced on the login screen so it can't go unnoticed.
+ */
+export const USING_DEFAULT_CREDENTIALS =
+  !process.env.ADMIN_EMAIL &&
+  !process.env.NEXT_PUBLIC_ADMIN_EMAIL &&
+  !process.env.ADMIN_PASSWORD &&
+  !process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
 
 function secret(): string {
   return process.env.AUTH_SECRET || ADMIN_PASSWORD || "dev-insecure-secret";

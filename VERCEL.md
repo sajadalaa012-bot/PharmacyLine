@@ -24,17 +24,29 @@ the frontend:
   **`frontend`**.
 - Framework preset should auto-detect **Next.js**. Leave build settings default.
 
-## Step 3 — Set the admin login
+## Step 3 — Set the admin login ⚠️
 Under **Environment Variables**, add:
 
 | Name | Value |
 |------|-------|
-| `NEXT_PUBLIC_ADMIN_EMAIL` | the email you'll sign in with |
-| `NEXT_PUBLIC_ADMIN_PASSWORD` | a password |
+| `ADMIN_EMAIL` | the email you'll sign in with |
+| `ADMIN_PASSWORD` | a password |
+| `AUTH_SECRET` | *(optional)* a long random string used to sign session tokens |
 
-> These are baked into the site at build time. Because this is a browser-only
-> app, the admin lock is a **convenience gate**, not hard security — anyone
-> technical can read the browser data regardless. Don't put sensitive secrets here.
+> **If you set up this project before orders moved to a database, check these
+> names.** The variables used to be called `NEXT_PUBLIC_ADMIN_EMAIL` and
+> `NEXT_PUBLIC_ADMIN_PASSWORD`. Auth is now enforced on the server, which reads
+> the names above. The old names are still honoured so existing deployments
+> keep working, but **rename them** — anything prefixed `NEXT_PUBLIC_` is
+> compiled into the JavaScript sent to every visitor.
+
+> If neither name is set, the app falls back to credentials hardcoded in
+> `frontend/src/lib/serverAuth.ts` — which are visible to anyone who can see
+> this repository. The login screen shows a warning when that is the case.
+
+Set `AUTH_SECRET` if you want to be able to change the password without
+signing everyone out: session tokens are signed with `AUTH_SECRET` when
+present, and with `ADMIN_PASSWORD` otherwise.
 
 ## Step 4 — Deploy
 - Click **Deploy**. First build takes ~1–2 min.
@@ -42,8 +54,12 @@ Under **Environment Variables**, add:
 
 ## Step 5 — Use it
 - **Storefront:** open the URL — products load instantly (public, no login).
-- **Admin:** go to `/admin` → sign in with your `NEXT_PUBLIC_ADMIN_EMAIL` +
-  `NEXT_PUBLIC_ADMIN_PASSWORD`.
+- **Admin:** go to `/admin` → sign in with your `ADMIN_EMAIL` +
+  `ADMIN_PASSWORD`.
+- **Language:** the storefront and back office are bilingual — use the
+  `العربية` / `EN` button in the header (admin: bottom of the side rail) to
+  switch. The choice is remembered per browser; first-time visitors get Arabic
+  automatically if that is their browser's language.
 
 Every push to GitHub auto-redeploys.
 

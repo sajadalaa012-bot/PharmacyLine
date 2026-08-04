@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { isAuthed, login } from "@/lib/auth";
+import { readSession, login } from "@/lib/auth";
 import { useI18n } from "@/lib/LanguageProvider";
 import LanguageToggle from "./LanguageToggle";
 
@@ -12,12 +12,14 @@ import LanguageToggle from "./LanguageToggle";
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [authed, setAuthed] = useState(false);
+  const [defaultCreds, setDefaultCreds] = useState(false);
 
   useEffect(() => {
     let active = true;
-    isAuthed().then((ok) => {
+    readSession().then((session) => {
       if (active) {
-        setAuthed(ok);
+        setAuthed(session.authenticated);
+        setDefaultCreds(session.defaultCredentials);
         setReady(true);
       }
     });
@@ -26,17 +28,28 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // Avoid a hydration flash: render nothing until we've read localStorage.
+  // Avoid a hydration flash: render nothing until we've read the session.
   if (!ready) return null;
 
   if (!authed) {
-    return <LoginScreen onSuccess={() => setAuthed(true)} />;
+    return (
+      <LoginScreen
+        onSuccess={() => setAuthed(true)}
+        defaultCreds={defaultCreds}
+      />
+    );
   }
 
   return <>{children}</>;
 }
 
-function LoginScreen({ onSuccess }: { onSuccess: () => void }) {
+function LoginScreen({
+  onSuccess,
+  defaultCreds,
+}: {
+  onSuccess: () => void;
+  defaultCreds: boolean;
+}) {
   const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -75,6 +88,12 @@ function LoginScreen({ onSuccess }: { onSuccess: () => void }) {
           {/* Reachable before signing in — the gate is the first screen staff meet. */}
           <LanguageToggle />
         </div>
+
+        {defaultCreds && (
+          <p className="mt-4 rounded-md border border-copper/40 bg-copper/10 p-2.5 text-xs leading-relaxed text-copper">
+            {t("auth.defaultCredentials")}
+          </p>
+        )}
 
         <label className="mt-6 block text-sm font-medium text-ink-2">
           {t("auth.email")}
