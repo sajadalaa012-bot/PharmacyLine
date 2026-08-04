@@ -21,6 +21,7 @@ import LanguageToggle from "@/components/LanguageToggle";
 import AuthGate from "@/components/AuthGate";
 import { logout } from "@/lib/auth";
 import { useI18n } from "@/lib/LanguageProvider";
+import { PharmacyProvider } from "@/lib/PharmacyProvider";
 import type { MessageKey } from "@/lib/i18n";
 
 const NAV: { href: string; label: MessageKey; icon: typeof Package }[] = [
@@ -125,6 +126,8 @@ export default function AdminLayout({
 
   return (
     <AuthGate>
+      {/* Inside AuthGate so the directory is only fetched once signed in. */}
+      <PharmacyProvider>
       <div className="admin flex h-screen w-full overflow-hidden bg-paper text-ink">
         {/* Side rail (desktop) */}
         <aside className="print-hidden hidden w-60 shrink-0 flex-col border-e border-line bg-surface md:flex">
@@ -182,6 +185,7 @@ export default function AdminLayout({
           </main>
         </div>
       </div>
+      </PharmacyProvider>
     </AuthGate>
   );
 }

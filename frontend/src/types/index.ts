@@ -27,6 +27,22 @@ export interface Product {
   benefits_ar?: string;
   ingredients_ar?: string;
   usage_ar?: string;
+  /**
+   * Units on hand. `undefined` means this product's stock isn't being tracked
+   * — it stays purchasable, which is what every product does until someone
+   * sets a number. `0` means genuinely out of stock.
+   */
+  stock?: number;
+}
+
+/** True when a product cannot be added to an order right now. */
+export function isOutOfStock(product: Pick<Product, "stock">): boolean {
+  return typeof product.stock === "number" && product.stock <= 0;
+}
+
+/** True when someone has put this product under stock control. */
+export function isStockTracked(product: Pick<Product, "stock">): boolean {
+  return typeof product.stock === "number";
 }
 
 /** The editable payload for creating or updating a product. */
@@ -45,6 +61,7 @@ export interface ProductInput {
   benefits_ar?: string;
   ingredients_ar?: string;
   usage_ar?: string;
+  stock?: number;
 }
 
 export interface Category {

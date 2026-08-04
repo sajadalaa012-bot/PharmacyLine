@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Category, Product, ProductInput } from "@/types";
+import { Category, Product, ProductInput, isStockTracked } from "@/types";
 import {
   fetchProducts,
   createProduct,
@@ -9,8 +9,9 @@ import {
   deleteProduct,
 } from "@/lib/api";
 import { money } from "@/lib/format";
-import { Search, Plus, Edit3, Trash2, Package } from "lucide-react";
+import { Search, Plus, Edit3, Trash2, Package, PackageX } from "lucide-react";
 import ProductModal from "@/components/admin/ProductModal";
+import StockControl from "@/components/admin/StockControl";
 import Dropdown from "@/components/Dropdown";
 import { useI18n } from "@/lib/LanguageProvider";
 import { localized } from "@/lib/i18n";
@@ -26,6 +27,7 @@ export default function AdminProductsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<number | null>(null);
   const [rowError, setRowError] = useState<string | null>(null);
+  const [lowStockOnly, setLowStockOnly] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -54,6 +56,35 @@ export default function AdminProductsPage() {
   const handleDelete = useCallback(
     async (productId: number) => {
       await deleteProduct(productId);
+      await load();
+    },
+    [load]
+  );
+
+  /** Save just the stock level, leaving every other field as it was. */
+  const handleStockSave = useCallback(
+    async (product: Product, stock: number | undefined) => {
+      // `updateProduct` replaces the whole record, so every field is carried
+      // over explicitly — spreading the product would smuggle `id` into the
+      // input payload.
+      const payload: ProductInput = {
+        name: product.name,
+        code: product.code,
+        price: product.price,
+        image_url: product.image_url,
+        category_id: product.category_id,
+        description: product.description,
+        benefits: product.benefits,
+        ingredients: product.ingredients,
+        usage: product.usage,
+        name_ar: product.name_ar,
+        description_ar: product.description_ar,
+        benefits_ar: product.benefits_ar,
+        ingredients_ar: product.ingredients_ar,
+        usage_ar: product.usage_ar,
+        stock,
+      };
+      await updateProduct(product.id, payload);
       await load();
     },
     [load]
@@ -104,8 +135,14 @@ export default function AdminProductsPage() {
       p.code.toLowerCase().includes(q);
     const matchesCategory =
       categoryFilter === "all" || p.category_id === categoryFilter;
-    return matchesQuery && matchesCategory;
+    const matchesStock =
+      !lowStockOnly || (isStockTracked(p) && (p.stock ?? 0) <= 5);
+    return matchesQuery && matchesCategory && matchesStock;
   });
+
+  const lowStockCount = allProducts.filter(
+    (p) => isStockTracked(p) && (p.stock ?? 0) <= 5
+  ).length;
 
   return (
     <div className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6 sm:py-7">
@@ -146,6 +183,21 @@ export default function AdminProductsPage() {
                        outline-none transition placeholder:text-ink-3 focus:border-brand/50 focus:ring-1 focus:ring-brand/25"
           />
         </div>
+        <button
+          type="button"
+          onClick={() => setLowStockOnly((v) => !v)}
+          className={`label-caps flex h-10 shrink-0 items-center gap-1.5 rounded-md border px-3 transition ${
+            lowStockOnly
+              ? "border-copper bg-copper text-white"
+              : "border-line bg-surface text-ink-2 hover:text-ink"
+          }`}
+        >
+          <PackageX className="h-4 w-4" />
+          {t("stock.lowFilter")}
+          <span className={lowStockOnly ? "opacity-80" : "text-ink-3"}>
+            {lowStockCount}
+          </span>
+        </button>
         <Dropdown
           ariaLabel={t("products.filterByCategory")}
           className="w-56"
@@ -203,9 +255,15 @@ export default function AdminProductsPage() {
                     {p.categoryName}
                   </span>
                 </div>
-                <p className="mt-1 text-sm font-semibold text-ink tabular-nums">
-                  {money(p.price)}
-                </p>
+                <div className="mt-1 flex items-center gap-2">
+                  <p className="text-sm font-semibold text-ink tabular-nums">
+                    {money(p.price)}
+                  </p>
+                  <StockControl
+                    product={p}
+                    onSave={(stock) => handleStockSave(p, stock)}
+                  />
+                </div>
               </div>
               <div className="flex shrink-0 flex-col gap-1.5">
                 <button
@@ -249,13 +307,14 @@ export default function AdminProductsPage() {
               <th className="px-4 py-3 font-bold">{t("products.colProduct")}</th>
               <th className="px-4 py-3 font-bold">{t("products.colCategory")}</th>
               <th className="px-4 py-3 text-end font-bold">{t("products.colPrice")}</th>
+              <th className="px-4 py-3 text-center font-bold">{t("products.colStock")}</th>
               <th className="px-4 py-3 text-center font-bold">{t("products.colActions")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line text-[13px]">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-12 text-center text-xs text-ink-3">
+                <td colSpan={6} className="py-12 text-center text-xs text-ink-3">
                   {t("products.noMatching")}
                 </td>
               </tr>
@@ -291,6 +350,14 @@ export default function AdminProductsPage() {
                   </td>
                   <td className="px-4 py-3 text-end font-semibold text-ink tabular-nums">
                     {money(p.price)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-center">
+                      <StockControl
+                        product={p}
+                        onSave={(stock) => handleStockSave(p, stock)}
+                      />
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-1.5">

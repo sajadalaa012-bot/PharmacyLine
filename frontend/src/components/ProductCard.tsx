@@ -1,6 +1,6 @@
 "use client";
 
-import { Product } from "@/types";
+import { Product, isOutOfStock, isStockTracked } from "@/types";
 import { Package, Plus, Minus, Maximize2 } from "lucide-react";
 import { useI18n } from "@/lib/LanguageProvider";
 import { localized } from "@/lib/i18n";
@@ -31,6 +31,12 @@ export default function ProductCard({
   const { t, lang } = useI18n();
   // The shopper-facing name: Arabic when set, English otherwise.
   const name = localized(product, "name", lang);
+  const soldOut = isOutOfStock(product);
+  // Nudge, not alarm: only worth saying when the number is genuinely small.
+  const runningLow =
+    !soldOut && isStockTracked(product) && (product.stock ?? 0) <= 5;
+  // Never let the basket exceed what is on the shelf.
+  const atStockLimit = isStockTracked(product) && qty >= (product.stock ?? 0);
   // Every item shares the same peach tint (matches the F7 card).
   const tintClass = "tint-2";
 
@@ -40,6 +46,12 @@ export default function ProductCard({
                  transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_-18px_rgba(34,49,42,0.45)]`}
       style={{ animationDelay: `${Math.min(index * 25, 350)}ms` }}
     >
+      {soldOut && (
+        <span className="label-caps absolute start-2 top-2 z-10 rounded-full bg-ink/80 px-2 py-1 text-[10px] text-paper">
+          {t("stock.outOfStock")}
+        </span>
+      )}
+
       {/* Quantity marker */}
       {qty > 0 && (
         <span className="pop absolute end-2 top-2 z-10 flex h-6 min-w-6 items-center justify-center rounded-full bg-brand px-1.5 text-[11px] font-bold text-on-brand shadow-md">
@@ -93,6 +105,12 @@ export default function ProductCard({
           <bdi>{name}</bdi>
         </h3>
 
+        {runningLow && (
+          <p className="text-[11px] font-semibold text-copper">
+            {t("stock.left", { n: product.stock ?? 0 })}
+          </p>
+        )}
+
         <p className="mt-auto font-display text-base font-semibold tracking-tight text-[#211d17] tabular-nums">
           {num(product.price)}
           <span className="ms-1 font-sans text-[10px] font-semibold tracking-[0.08em] text-[#8c8073]">
@@ -105,10 +123,12 @@ export default function ProductCard({
           qty === 0 ? (
             <button
               onClick={() => onAdd(product)}
+              disabled={soldOut}
               className="mt-1.5 h-9 w-full rounded-md bg-brand text-[13px] font-semibold tracking-[0.01em] text-cart
-                         transition-colors duration-200 hover:bg-brand-deep active:scale-[0.98]"
+                         transition-colors duration-200 hover:bg-brand-deep active:scale-[0.98]
+                         disabled:pointer-events-none disabled:bg-line-strong disabled:text-ink-3"
             >
-              {t("product.addToCart")}
+              {soldOut ? t("stock.outOfStock") : t("product.addToCart")}
             </button>
           ) : (
             <div className="mt-1.5 flex h-9 items-center justify-between rounded-md border border-line-strong bg-sunken px-1">
@@ -122,8 +142,9 @@ export default function ProductCard({
               <span className="text-sm font-bold text-ink tabular-nums">{qty}</span>
               <button
                 onClick={() => onAdd(product)}
+                disabled={atStockLimit}
                 aria-label={t("product.addOne", { name })}
-                className="flex h-7 w-8 items-center justify-center rounded text-ink-2 transition hover:bg-brand/10 hover:text-brand active:scale-90"
+                className="flex h-7 w-8 items-center justify-center rounded text-ink-2 transition hover:bg-brand/10 hover:text-brand active:scale-90 disabled:pointer-events-none disabled:opacity-30"
               >
                 <Plus className="h-3.5 w-3.5" />
               </button>
@@ -143,9 +164,11 @@ export default function ProductCard({
             </button>
             <button
               onClick={() => onAdd(product)}
+              disabled={soldOut || atStockLimit}
               aria-label={t("product.addAria", { name })}
               className="flex h-8 w-9 items-center justify-center rounded-md bg-brand text-on-brand
-                         transition hover:bg-brand-deep active:scale-90"
+                         transition hover:bg-brand-deep active:scale-90
+                         disabled:pointer-events-none disabled:opacity-30"
             >
               <Plus className="h-3.5 w-3.5" />
             </button>

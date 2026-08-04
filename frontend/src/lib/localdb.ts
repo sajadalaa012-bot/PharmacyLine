@@ -153,6 +153,10 @@ async function seed(): Promise<void> {
           benefits_ar: p.benefits_ar,
           ingredients_ar: p.ingredients_ar,
           usage_ar: p.usage_ar,
+          // Deliberately absent from the backfill below: stock is a live count
+          // the admin owns, and 0 is a meaningful value that a "fill the empty
+          // fields" pass would happily overwrite.
+          stock: p.stock,
         });
         maxProd = Math.max(maxProd, p.id);
       }

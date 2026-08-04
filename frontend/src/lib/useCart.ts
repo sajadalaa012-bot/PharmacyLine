@@ -1,7 +1,14 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { Product, CartItem, Order, OrderCreate, OrderStatus } from "@/types";
+import { useState, useCallback, useRef } from "react";
+import {
+  Product,
+  CartItem,
+  Order,
+  OrderCreate,
+  OrderStatus,
+  isStockTracked,
+} from "@/types";
 import { createOrder, updateOrder } from "./api";
 import { useI18n } from "./LanguageProvider";
 import { localized } from "./i18n";
@@ -31,12 +38,29 @@ export function useCart(
     [lang],
   );
 
+  // Stock ceilings for whatever is in the basket, remembered as items are
+  // added. Kept here rather than on the cart line because cart lines are sent
+  // to the server verbatim as order items.
+  const limits = useRef(new Map<number, number>());
+
+  /** Largest quantity allowed for a product, or Infinity when untracked. */
+  const limitFor = useCallback(
+    (productId: number) => limits.current.get(productId) ?? Infinity,
+    [],
+  );
+
   const add = useCallback((product: Product) => {
+    if (isStockTracked(product)) limits.current.set(product.id, product.stock ?? 0);
+    const max = isStockTracked(product) ? (product.stock ?? 0) : Infinity;
+    if (max <= 0) return;
     setItems((prev) => {
       const existing = prev.find(
         (ci) => ci.product_id === product.id && !ci.is_free
       );
       if (existing) {
+        // Silently hold at the ceiling rather than letting the order promise
+        // stock that isn't there.
+        if (existing.quantity >= max) return prev;
         return prev.map((ci) =>
           ci === existing
             ? {
@@ -82,11 +106,15 @@ export function useCart(
   }, []);
 
   const addFree = useCallback((product: Product) => {
+    if (isStockTracked(product)) limits.current.set(product.id, product.stock ?? 0);
+    const max = isStockTracked(product) ? (product.stock ?? 0) : Infinity;
+    if (max <= 0) return;
     setItems((prev) => {
       const existing = prev.find(
         (ci) => ci.product_id === product.id && ci.is_free
       );
       if (existing) {
+        if (existing.quantity >= max) return prev;
         return prev.map((ci) =>
           ci === existing ? { ...ci, quantity: ci.quantity + 1, subtotal: 0 } : ci
         );
@@ -106,20 +134,30 @@ export function useCart(
     });
   }, [lineName]);
 
-  const setQty = useCallback((productId: number, isFree: boolean, qty: number) => {
-    setItems((prev) => {
-      if (qty <= 0) {
-        return prev.filter(
-          (ci) => !(ci.product_id === productId && ci.is_free === isFree)
+  const setQty = useCallback(
+    (productId: number, isFree: boolean, qty: number) => {
+      // Typing a quantity by hand goes through here too, so the ceiling has to
+      // be enforced at this level and not only on the +/- buttons.
+      const capped = Math.min(qty, limitFor(productId));
+      setItems((prev) => {
+        if (capped <= 0) {
+          return prev.filter(
+            (ci) => !(ci.product_id === productId && ci.is_free === isFree)
+          );
+        }
+        return prev.map((ci) =>
+          ci.product_id === productId && ci.is_free === isFree
+            ? {
+                ...ci,
+                quantity: capped,
+                subtotal: isFree ? 0 : capped * ci.unit_price,
+              }
+            : ci
         );
-      }
-      return prev.map((ci) =>
-        ci.product_id === productId && ci.is_free === isFree
-          ? { ...ci, quantity: qty, subtotal: isFree ? 0 : qty * ci.unit_price }
-          : ci
-      );
-    });
-  }, []);
+      });
+    },
+    [limitFor]
+  );
 
   const setUnitPrice = useCallback(
     (productId: number, isFree: boolean, price: number) => {

@@ -39,6 +39,8 @@ export default function ProductModal({
   const [benefits, setBenefits] = useState("");
   const [ingredients, setIngredients] = useState("");
   const [usage, setUsage] = useState("");
+  // Blank means "not tracked" — see Product.stock.
+  const [stock, setStock] = useState("");
 
   // Arabic copy. Blank fields fall back to the English above on the storefront,
   // so a product can be listed long before anyone translates it.
@@ -68,6 +70,9 @@ export default function ProductModal({
         setBenefits(product.benefits ?? "");
         setIngredients(product.ingredients ?? "");
         setUsage(product.usage ?? "");
+        setStock(
+          typeof product.stock === "number" ? String(product.stock) : "",
+        );
         setNameAr(product.name_ar ?? "");
         setDescriptionAr(product.description_ar ?? "");
         setBenefitsAr(product.benefits_ar ?? "");
@@ -83,6 +88,7 @@ export default function ProductModal({
         setBenefits("");
         setIngredients("");
         setUsage("");
+        setStock("");
         setNameAr("");
         setDescriptionAr("");
         setBenefitsAr("");
@@ -136,6 +142,7 @@ export default function ProductModal({
         benefits_ar: benefitsAr.trim(),
         ingredients_ar: ingredientsAr.trim(),
         usage_ar: usageAr.trim(),
+        stock: stock.trim() === "" ? undefined : Math.max(0, parseInt(stock, 10)),
       });
       onClose();
     } catch (err) {
@@ -237,6 +244,24 @@ export default function ProductModal({
                   className={inputCls}
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="label-caps mb-1.5 block text-ink-3">
+                {t("stock.label")}
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={stock}
+                onChange={(e) => setStock(e.target.value)}
+                placeholder={t("stock.untracked")}
+                dir="ltr"
+                className={inputCls}
+              />
+              <p className="mt-1 text-[11px] text-ink-3">
+                {t("stock.untrackedHint")}
+              </p>
             </div>
 
             <div>

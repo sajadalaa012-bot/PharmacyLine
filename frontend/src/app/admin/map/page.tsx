@@ -3,15 +3,10 @@
 // Visit map — every pharmacy in the directory on one map, so the round can be
 // planned (and remembered) at a glance.
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { Pharmacy, PharmacyFolder, MappedPharmacy } from "@/types";
-import {
-  fetchPharmacies,
-  fetchPharmacyFolders,
-  locatePharmacy,
-  movePharmacyPin,
-} from "@/lib/api";
+import { Pharmacy, MappedPharmacy } from "@/types";
+import { locatePharmacy, movePharmacyPin } from "@/lib/api";
 import { pinColor, directionsUrl } from "@/lib/geo";
 import PharmacyMap from "@/components/admin/PharmacyMap";
 import {
@@ -23,10 +18,11 @@ import {
   Lock,
   RefreshCw,
   AlertTriangle,
-  Layers,
   Folder,
 } from "lucide-react";
 import { useI18n } from "@/lib/LanguageProvider";
+import { usePharmacies } from "@/lib/PharmacyProvider";
+import Dropdown from "@/components/Dropdown";
 
 const ALL = "all";
 const UNFILED = "unfiled";
@@ -36,9 +32,17 @@ const isMapped = (p: Pharmacy): p is MappedPharmacy =>
 
 export default function AdminMapPage() {
   const { t } = useI18n();
-  const [pharmacies, setPharmacies] = useState<Pharmacy[]>([]);
-  const [folders, setFolders] = useState<PharmacyFolder[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Shared with the directory page — no second fetch, and an edit made there
+  // is already reflected here.
+  const {
+    pharmacies,
+    folders,
+    loading,
+    error: loadError,
+    reload,
+    replacePharmacy,
+    folderName: lookupFolder,
+  } = usePharmacies();
   const [error, setError] = useState<string | null>(null);
 
   const [selected, setSelected] = useState<string | number>(ALL);
@@ -49,31 +53,9 @@ export default function AdminMapPage() {
   // ids currently being geocoded, so each row can show its own spinner
   const [locating, setLocating] = useState<number[]>([]);
 
-  const load = useCallback(async () => {
-    try {
-      const [ph, fo] = await Promise.all([
-        fetchPharmacies(),
-        fetchPharmacyFolders(),
-      ]);
-      setPharmacies(ph);
-      setFolders(fo);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
   const folderName = useCallback(
-    (id: number | null) =>
-      id == null
-        ? t("pharm.unfiled")
-        : folders.find((f) => f.id === id)?.name ?? t("pharm.unfiled"),
-    [folders, t],
+    (id: number | null) => lookupFolder(id, t("pharm.unfiled")),
+    [lookupFolder, t],
   );
 
   const inFolder = useCallback(
@@ -120,9 +102,7 @@ export default function AdminMapPage() {
     setError(null);
     try {
       const updated = await locatePharmacy(p);
-      setPharmacies((cur) =>
-        cur.map((x) => (x.id === updated.id ? updated : x)),
-      );
+      replacePharmacy(updated);
       if (updated.lat == null) {
         setError(
           t("map.locateFailed", {
@@ -137,7 +117,7 @@ export default function AdminMapPage() {
       setLocating((cur) => cur.filter((id) => id !== p.id));
     }
     },
-    [t],
+    [t, replacePharmacy],
   );
 
   /** Resolve every unpinned pharmacy, one at a time (geocoder rate limit). */
@@ -151,17 +131,15 @@ export default function AdminMapPage() {
   /** Persist a pin the admin dragged to a new spot. */
   const handleMove = useCallback(
     async (p: MappedPharmacy, lat: number, lng: number) => {
-      setPharmacies((cur) =>
-        cur.map((x) => (x.id === p.id ? { ...x, lat, lng } : x)),
-      );
+      replacePharmacy({ ...p, lat, lng });
       try {
         await movePharmacyPin(p, lat, lng);
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
-        load(); // roll back to whatever the server has
+        reload(); // roll back to whatever the server has
       }
     },
-    [load],
+    [replacePharmacy, reload],
   );
 
   if (loading) {
@@ -172,36 +150,23 @@ export default function AdminMapPage() {
     );
   }
 
-  const chip = (value: string | number, label: string, count: number) => {
-    const active = selected === value;
-    return (
-      <button
-        key={String(value)}
-        type="button"
-        onClick={() => setSelected(value)}
-        className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition ${
-          active
-            ? "border-brand bg-brand text-on-brand"
-            : "border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink"
-        }`}
-      >
-        {value === ALL ? (
-          <Layers className="h-3.5 w-3.5" />
-        ) : (
-          <span
-            className="h-2.5 w-2.5 rounded-full"
-            style={{
-              background: pinColor(typeof value === "number" ? value : null),
-            }}
-          />
-        )}
-        {label}
-        <span className={active ? "opacity-80" : "text-ink-3"}>{count}</span>
-      </button>
-    );
-  };
-
   const countIn = (fn: (p: Pharmacy) => boolean) => pharmacies.filter(fn).length;
+
+  // Same searchable folder menu as the directory page, so the two screens are
+  // driven the same way.
+  const folderOptions = [
+    { value: ALL, label: t("common.all"), meta: String(pharmacies.length) },
+    {
+      value: UNFILED,
+      label: t("pharm.unfiled"),
+      meta: String(countIn((p) => p.folder_id == null)),
+    },
+    ...folders.map((f) => ({
+      value: String(f.id),
+      label: f.name,
+      meta: String(countIn((p) => p.folder_id === f.id)),
+    })),
+  ];
 
   return (
     <div className="mx-auto flex h-full max-w-7xl flex-col gap-4 px-4 py-6 sm:px-6 sm:py-7">
@@ -248,27 +213,26 @@ export default function AdminMapPage() {
         </div>
       </div>
 
-      {error && (
+      {(error || loadError) && (
         <div className="flex items-start gap-2 rounded-md border border-rose/30 bg-rose/10 p-3 text-xs text-rose">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          <span>{error}</span>
+          <span>{error || loadError}</span>
         </div>
       )}
 
       {/* Filters */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-        <div className="scroll-thin flex gap-2 overflow-x-auto pb-1">
-          {chip(ALL, t("common.all"), pharmacies.length)}
-          {folders.map((f) =>
-            chip(f.id, f.name, countIn((p) => p.folder_id === f.id)),
-          )}
-          {chip(
-            UNFILED,
-            t("pharm.unfiled"),
-            countIn((p) => p.folder_id == null),
-          )}
-        </div>
-        <div className="relative lg:ml-auto lg:w-64">
+        <Dropdown
+          ariaLabel={t("pharm.folder")}
+          className="w-full lg:w-64"
+          searchable
+          value={typeof selected === "number" ? String(selected) : selected}
+          onChange={(v) =>
+            setSelected(v === ALL || v === UNFILED ? v : Number(v))
+          }
+          options={folderOptions}
+        />
+        <div className="relative lg:ms-auto lg:w-64">
           <Search className="pointer-events-none absolute start-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-3" />
           <input
             type="search"

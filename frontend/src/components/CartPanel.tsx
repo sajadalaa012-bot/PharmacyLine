@@ -115,6 +115,13 @@ export default function CartPanel({
                         onQtyChange(item.product_id, item.is_free, val);
                       }
                     }}
+                    onBlur={(e) => {
+                      // A request above the stock ceiling is clamped upstream,
+                      // which leaves the state unchanged — so React has no
+                      // re-render to correct the box with, and it would keep
+                      // showing the rejected number. Put the real quantity back.
+                      e.target.value = String(item.quantity);
+                    }}
                     className="w-14 rounded-md border border-line bg-sunken px-1 py-1 text-center text-xs font-bold text-ink tabular-nums
                                outline-none transition focus:border-brand/50 focus:ring-1 focus:ring-brand/25"
                   />

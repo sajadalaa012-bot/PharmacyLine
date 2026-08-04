@@ -258,7 +258,27 @@ const en = {
   "products.colProduct": "Product",
   "products.colCategory": "Category",
   "products.colPrice": "Price",
+  "products.colStock": "Stock",
   "products.colActions": "Actions",
+
+  // ── Stock ──
+  "stock.label": "Stock",
+  "stock.edit": "Set stock for {name}",
+  "stock.untracked": "Not tracked",
+  "stock.untrackedHint":
+    "This product is always purchasable. Set a number to start counting it.",
+  "stock.inStock": "{n} in stock",
+  "stock.outOfStock": "Out of stock",
+  "stock.left": "Only {n} left",
+  "stock.decrease": "Decrease stock",
+  "stock.increase": "Increase stock",
+  "stock.stopTracking": "Stop tracking",
+  "stock.saveFailed": "Could not save the stock level.",
+  "stock.lowFilter": "Low or out of stock",
+
+  // ── Searchable dropdown ──
+  "dropdown.search": "Search…",
+  "dropdown.noResults": "No matches",
 
   // ── Product modal ──
   "modal.newProduct": "New product",
@@ -632,7 +652,27 @@ const ar: Record<MessageKey, string> = {
   "products.colProduct": "المنتج",
   "products.colCategory": "القسم",
   "products.colPrice": "السعر",
+  "products.colStock": "المخزون",
   "products.colActions": "إجراءات",
+
+  // ── Stock ──
+  "stock.label": "المخزون",
+  "stock.edit": "تحديد مخزون {name}",
+  "stock.untracked": "غير محسوب",
+  "stock.untrackedHint":
+    "هذا المنتج متاح للشراء دائماً. أدخل رقماً لبدء احتساب مخزونه.",
+  "stock.inStock": "{n} متوفرة",
+  "stock.outOfStock": "نفد المخزون",
+  "stock.left": "بقيت {n} فقط",
+  "stock.decrease": "إنقاص المخزون",
+  "stock.increase": "زيادة المخزون",
+  "stock.stopTracking": "إيقاف الاحتساب",
+  "stock.saveFailed": "تعذّر حفظ كمية المخزون.",
+  "stock.lowFilter": "مخزون منخفض أو نافد",
+
+  // ── Searchable dropdown ──
+  "dropdown.search": "بحث…",
+  "dropdown.noResults": "لا توجد نتائج",
 
   // ── Product modal ──
   "modal.newProduct": "منتج جديد",

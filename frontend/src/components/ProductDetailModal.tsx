@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Product } from "@/types";
+import { Product, isOutOfStock, isStockTracked } from "@/types";
 import { useI18n } from "@/lib/LanguageProvider";
 import { localized } from "@/lib/i18n";
 import { num } from "@/lib/format";
@@ -48,6 +48,8 @@ export default function ProductDetailModal({
 
   // Shopper-facing copy, Arabic where the admin has written it.
   const name = localized(product, "name", lang);
+  const soldOut = isOutOfStock(product);
+  const atStockLimit = isStockTracked(product) && qty >= (product.stock ?? 0);
   const description = localized(product, "description", lang);
 
   // Close on Escape (closes the zoom viewer first, then the modal).
@@ -165,6 +167,22 @@ export default function ProductDetailModal({
                 </span>
               </p>
 
+              {isStockTracked(product) && (
+                <p
+                  className={`mt-2 text-xs font-semibold ${
+                    soldOut
+                      ? "text-rose"
+                      : (product.stock ?? 0) <= 5
+                        ? "text-copper"
+                        : "text-ink-3"
+                  }`}
+                >
+                  {soldOut
+                    ? t("stock.outOfStock")
+                    : t("stock.inStock", { n: product.stock ?? 0 })}
+                </p>
+              )}
+
               {description.trim() && (
                 <p className="mt-3 text-[13px] leading-relaxed text-ink-2">
                   {description.trim()}
@@ -176,9 +194,10 @@ export default function ProductDetailModal({
                 {qty === 0 ? (
                   <button
                     onClick={() => onAdd(product)}
-                    className="h-11 w-full rounded-md bg-brand text-sm font-semibold text-on-brand transition-colors hover:bg-brand-deep active:scale-[0.99]"
+                    disabled={soldOut}
+                    className="h-11 w-full rounded-md bg-brand text-sm font-semibold text-on-brand transition-colors hover:bg-brand-deep active:scale-[0.99] disabled:pointer-events-none disabled:bg-line-strong disabled:text-ink-3"
                   >
-                    {t("product.addToCart")}
+                    {soldOut ? t("stock.outOfStock") : t("product.addToCart")}
                   </button>
                 ) : (
                   <div className="flex h-11 items-center justify-between rounded-md border border-line-strong bg-sunken px-1.5">
@@ -194,8 +213,9 @@ export default function ProductDetailModal({
                     </span>
                     <button
                       onClick={() => onAdd(product)}
+                      disabled={atStockLimit}
                       aria-label={t("product.addOne", { name })}
-                      className="flex h-8 w-10 items-center justify-center rounded text-ink-2 transition hover:bg-brand/10 hover:text-brand active:scale-90"
+                      className="flex h-8 w-10 items-center justify-center rounded text-ink-2 transition hover:bg-brand/10 hover:text-brand active:scale-90 disabled:pointer-events-none disabled:opacity-30"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
