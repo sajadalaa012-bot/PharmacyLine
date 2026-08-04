@@ -2,6 +2,8 @@
 // credentials live on the server (see lib/serverAuth.ts + /api/admin/*); the
 // browser only holds an httpOnly cookie it can't read, so auth is real.
 
+import { tt } from "./i18n";
+
 export async function isAuthed(): Promise<boolean> {
   try {
     const res = await fetch("/api/admin/session", { cache: "no-store" });
@@ -22,7 +24,7 @@ export async function login(email: string, password: string): Promise<void> {
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "Login failed.");
+    throw new Error(data.error || tt("auth.failed"));
   }
 }
 

@@ -26,6 +26,7 @@ import {
   Layers,
   Folder,
 } from "lucide-react";
+import { useI18n } from "@/lib/LanguageProvider";
 
 const ALL = "all";
 const UNFILED = "unfiled";
@@ -34,6 +35,7 @@ const isMapped = (p: Pharmacy): p is MappedPharmacy =>
   p.lat != null && p.lng != null;
 
 export default function AdminMapPage() {
+  const { t } = useI18n();
   const [pharmacies, setPharmacies] = useState<Pharmacy[]>([]);
   const [folders, setFolders] = useState<PharmacyFolder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,9 +71,9 @@ export default function AdminMapPage() {
   const folderName = useCallback(
     (id: number | null) =>
       id == null
-        ? "Unfiled"
-        : folders.find((f) => f.id === id)?.name ?? "Unfiled",
-    [folders],
+        ? t("pharm.unfiled")
+        : folders.find((f) => f.id === id)?.name ?? t("pharm.unfiled"),
+    [folders, t],
   );
 
   const inFolder = useCallback(
@@ -112,7 +114,8 @@ export default function AdminMapPage() {
   // ── Actions ──────────────────────────────────────────────────────────
 
   /** Ask the server to resolve a pharmacy's location text into a pin. */
-  const locate = useCallback(async (p: Pharmacy) => {
+  const locate = useCallback(
+    async (p: Pharmacy) => {
     setLocating((cur) => [...cur, p.id]);
     setError(null);
     try {
@@ -122,8 +125,10 @@ export default function AdminMapPage() {
       );
       if (updated.lat == null) {
         setError(
-          `Couldn't place "${p.name}" from "${p.location || "no location"}". ` +
-            "Try pasting a Google Maps link or coordinates on the Pharmacies page.",
+          t("map.locateFailed", {
+            name: p.name,
+            location: p.location || t("pharm.noLocation"),
+          }),
         );
       }
     } catch (err) {
@@ -131,7 +136,9 @@ export default function AdminMapPage() {
     } finally {
       setLocating((cur) => cur.filter((id) => id !== p.id));
     }
-  }, []);
+    },
+    [t],
+  );
 
   /** Resolve every unpinned pharmacy, one at a time (geocoder rate limit). */
   const locateAll = useCallback(async () => {
@@ -202,11 +209,14 @@ export default function AdminMapPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
-            Visit map
+            {t("map.title")}
           </h1>
           <p className="mt-1 text-xs text-ink-3">
-            {totalPinned} of {pharmacies.length} pharmacies pinned
-            {pharmacies.length > totalPinned && " — the rest need a location"}
+            {t("map.pinnedCount", {
+              pinned: totalPinned,
+              total: pharmacies.length,
+            })}
+            {pharmacies.length > totalPinned && t("map.needLocation")}
           </p>
         </div>
 
@@ -214,11 +224,7 @@ export default function AdminMapPage() {
           <button
             type="button"
             onClick={() => setEditPins((v) => !v)}
-            title={
-              editPins
-                ? "Pins are draggable — click to lock"
-                : "Unlock pins to drag them"
-            }
+            title={editPins ? t("map.pinsDraggable") : t("map.pinsUnlock")}
             className={`label-caps flex h-9 items-center gap-1.5 rounded-md border px-3 transition ${
               editPins
                 ? "border-brand bg-brand text-on-brand"
@@ -230,14 +236,14 @@ export default function AdminMapPage() {
             ) : (
               <Lock className="h-3.5 w-3.5" />
             )}
-            {editPins ? "Moving pins" : "Pins locked"}
+            {editPins ? t("map.movingPins") : t("map.pinsLocked")}
           </button>
           <Link
             href="/admin/pharmacies"
             className="label-caps flex h-9 items-center gap-1.5 rounded-md border border-line bg-surface px-3 text-ink-2 transition hover:text-ink"
           >
             <MapPin className="h-3.5 w-3.5" />
-            Directory
+            {t("map.directory")}
           </Link>
         </div>
       </div>
@@ -252,20 +258,24 @@ export default function AdminMapPage() {
       {/* Filters */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
         <div className="scroll-thin flex gap-2 overflow-x-auto pb-1">
-          {chip(ALL, "All", pharmacies.length)}
+          {chip(ALL, t("common.all"), pharmacies.length)}
           {folders.map((f) =>
             chip(f.id, f.name, countIn((p) => p.folder_id === f.id)),
           )}
-          {chip(UNFILED, "Unfiled", countIn((p) => p.folder_id == null))}
+          {chip(
+            UNFILED,
+            t("pharm.unfiled"),
+            countIn((p) => p.folder_id == null),
+          )}
         </div>
         <div className="relative lg:ml-auto lg:w-64">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-3" />
+          <Search className="pointer-events-none absolute start-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-3" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search pharmacies…"
-            className="h-9 w-full rounded-md border border-line bg-surface pl-9 pr-3 text-sm text-ink outline-none transition placeholder:text-ink-3 focus:border-brand/50 focus:ring-1 focus:ring-brand/25"
+            placeholder={t("map.searchPlaceholder")}
+            className="h-9 w-full rounded-md border border-line bg-surface ps-9 pe-3 text-sm text-ink outline-none transition placeholder:text-ink-3 focus:border-brand/50 focus:ring-1 focus:ring-brand/25"
           />
         </div>
       </div>
@@ -277,17 +287,16 @@ export default function AdminMapPage() {
             <div className="flex h-full flex-col items-center justify-center rounded-lg border border-dashed border-line bg-surface px-6 text-center">
               <MapPin className="h-8 w-8 text-ink-3" />
               <p className="mt-3 text-sm font-semibold text-ink">
-                Nothing to show on the map yet
+                {t("map.nothingYet")}
               </p>
               <p className="mt-1 max-w-sm text-xs text-ink-3">
-                Add a location to your pharmacies — an address, GPS coordinates,
-                or a Google Maps link — and they will appear here.
+                {t("map.nothingHint")}
               </p>
               <Link
                 href="/admin/pharmacies"
                 className="label-caps mt-4 flex h-9 items-center rounded-md bg-brand px-4 text-on-brand transition hover:bg-brand-deep"
               >
-                Go to pharmacies
+                {t("map.goToPharmacies")}
               </Link>
             </div>
           ) : (
@@ -308,7 +317,7 @@ export default function AdminMapPage() {
             <div className="rounded-lg border border-copper/30 bg-copper/10 p-3">
               <div className="flex items-center justify-between gap-2">
                 <p className="label-caps text-copper">
-                  {unpinned.length} not pinned
+                  {t("map.notPinned", { n: unpinned.length })}
                 </p>
                 {unpinned.some((p) => p.location) && (
                   <button
@@ -320,7 +329,7 @@ export default function AdminMapPage() {
                     <RefreshCw
                       className={`h-3 w-3 ${locating.length ? "animate-spin" : ""}`}
                     />
-                    Locate all
+                    {t("map.locateAll")}
                   </button>
                 )}
               </div>
@@ -332,10 +341,10 @@ export default function AdminMapPage() {
                   >
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[13px] font-semibold text-ink">
-                        {p.name}
+                        <bdi>{p.name}</bdi>
                       </span>
                       <span className="block truncate text-[11px] text-ink-3">
-                        {p.location || "No location set"}
+                        {p.location || t("pharm.noLocation")}
                       </span>
                     </span>
                     {p.location ? (
@@ -343,7 +352,7 @@ export default function AdminMapPage() {
                         type="button"
                         onClick={() => locate(p)}
                         disabled={locating.includes(p.id)}
-                        title="Find on the map"
+                        title={t("map.findOnMap")}
                         className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-copper transition hover:bg-copper/15 disabled:opacity-40"
                       >
                         <RefreshCw
@@ -355,7 +364,7 @@ export default function AdminMapPage() {
                     ) : (
                       <Link
                         href="/admin/pharmacies"
-                        title="Add a location"
+                        title={t("map.addLocation")}
                         className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-copper transition hover:bg-copper/15"
                       >
                         <MapPin className="h-3.5 w-3.5" />
@@ -384,7 +393,7 @@ export default function AdminMapPage() {
                 />
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-[13px] font-semibold text-ink">
-                    {p.name}
+                    <bdi>{p.name}</bdi>
                   </h3>
                   <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-ink-3">
                     <Folder className="h-3 w-3 shrink-0" />
@@ -393,7 +402,7 @@ export default function AdminMapPage() {
                 </div>
               </div>
 
-              <div className="mt-2 flex items-center gap-3 pl-5">
+              <div className="mt-2 flex items-center gap-3 ps-5">
                 {p.phone && (
                   <a
                     href={`tel:${p.phone.replace(/\s+/g, "")}`}
@@ -401,7 +410,9 @@ export default function AdminMapPage() {
                     className="flex items-center gap-1 text-[11px] text-ink-2 transition hover:text-brand"
                   >
                     <Phone className="h-3 w-3 text-brand" />
-                    <span className="tabular-nums">{p.phone}</span>
+                    <span className="tabular-nums" dir="ltr">
+                      {p.phone}
+                    </span>
                   </a>
                 )}
                 <a
@@ -412,7 +423,7 @@ export default function AdminMapPage() {
                   className="flex items-center gap-1 text-[11px] text-ink-2 transition hover:text-brand"
                 >
                   <Navigation className="h-3 w-3 text-brand" />
-                  Directions
+                  {t("map.directions")}
                 </a>
               </div>
             </article>
@@ -420,7 +431,7 @@ export default function AdminMapPage() {
 
           {visible.length === 0 && (
             <p className="rounded-lg border border-dashed border-line bg-surface px-4 py-8 text-center text-xs text-ink-3">
-              No pharmacies match this filter.
+              {t("map.noMatch")}
             </p>
           )}
         </aside>

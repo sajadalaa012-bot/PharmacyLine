@@ -6,8 +6,10 @@ import { Category, Order } from "@/types";
 import { fetchProducts, fetchOrders } from "@/lib/api";
 import { money, orderNo, shortDate, shortTime } from "@/lib/format";
 import { ChevronRight } from "lucide-react";
+import { useI18n } from "@/lib/LanguageProvider";
 
 export default function AdminOverviewPage() {
+  const { t } = useI18n();
   const [categories, setCategories] = useState<Category[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,25 +61,38 @@ export default function AdminOverviewPage() {
   const maxRevenue = topProducts[0]?.[1] ?? 1;
 
   const stats = [
-    { label: "Total sales", value: money(totalRevenue), context: "approved orders" },
     {
-      label: "Orders",
-      value: String(orders.length),
-      context: pendingCount > 0 ? `${pendingCount} pending approval` : "all approved",
+      label: t("overview.totalSales"),
+      value: money(totalRevenue),
+      context: t("overview.approvedOrders"),
     },
-    { label: "Products", value: String(totalProducts), context: "in catalog" },
-    { label: "Categories", value: String(categories.length), context: "active" },
+    {
+      label: t("nav.orders"),
+      value: String(orders.length),
+      context:
+        pendingCount > 0
+          ? t("overview.pendingApproval", { n: pendingCount })
+          : t("overview.allApproved"),
+    },
+    {
+      label: t("nav.products"),
+      value: String(totalProducts),
+      context: t("overview.inCatalog"),
+    },
+    {
+      label: t("nav.categories"),
+      value: String(categories.length),
+      context: t("overview.active"),
+    },
   ];
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-7">
       <div>
         <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
-          Overview
+          {t("overview.title")}
         </h1>
-        <p className="mt-1 text-xs text-ink-3">
-          Catalog and sales at a glance
-        </p>
+        <p className="mt-1 text-xs text-ink-3">{t("overview.subtitle")}</p>
       </div>
 
       {/* KPI band — one card, hairline-divided */}
@@ -96,17 +111,19 @@ export default function AdminOverviewPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Top products by revenue */}
         <section className="rounded-lg border border-line bg-surface p-5">
-          <h2 className="label-caps text-ink-2">Top products by revenue</h2>
+          <h2 className="label-caps text-ink-2">{t("overview.topProducts")}</h2>
           {topProducts.length === 0 ? (
             <p className="py-10 text-center text-xs text-ink-3">
-              No sales recorded yet
+              {t("overview.noSales")}
             </p>
           ) : (
             <ul className="mt-4 space-y-3.5">
               {topProducts.map(([pname, revenue]) => (
                 <li key={pname}>
                   <div className="mb-1 flex items-baseline justify-between gap-3 text-xs">
-                    <span className="truncate font-medium text-ink">{pname}</span>
+                    <span className="truncate font-medium text-ink">
+                      <bdi>{pname}</bdi>
+                    </span>
                     <span className="shrink-0 font-semibold text-ink-2 tabular-nums">
                       {money(revenue)}
                     </span>
@@ -126,18 +143,18 @@ export default function AdminOverviewPage() {
         {/* Recent orders */}
         <section className="rounded-lg border border-line bg-surface p-5">
           <div className="flex items-center justify-between">
-            <h2 className="label-caps text-ink-2">Recent orders</h2>
+            <h2 className="label-caps text-ink-2">{t("overview.recentOrders")}</h2>
             <Link
               href="/admin/orders"
               className="label-caps flex items-center gap-1 text-brand transition hover:opacity-80"
             >
-              View all
-              <ChevronRight className="h-3 w-3" />
+              {t("overview.viewAll")}
+              <ChevronRight className="h-3 w-3 flip-rtl" />
             </Link>
           </div>
           {orders.length === 0 ? (
             <p className="py-10 text-center text-xs text-ink-3">
-              No orders registered yet
+              {t("overview.noOrders")}
             </p>
           ) : (
             <ul className="mt-3 divide-y divide-line">
@@ -147,20 +164,20 @@ export default function AdminOverviewPage() {
                   className="flex items-center justify-between py-2.5"
                 >
                   <div>
-                    <p className="text-xs font-semibold text-ink">
+                    <p className="text-xs font-semibold text-ink" dir="ltr">
                       {orderNo(order.id)}
                     </p>
                     <p className="mt-0.5 text-[11px] text-ink-3">
                       {shortDate(order.created_at)} · {shortTime(order.created_at)}
                     </p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-end">
                     <p className="text-xs font-bold text-ink tabular-nums">
                       {money(order.grand_total)}
                     </p>
                     {order.discount > 0 && (
                       <p className="mt-0.5 text-[10px] font-medium text-copper tabular-nums">
-                        −{money(order.discount)} discount
+                        −{money(order.discount)} {t("overview.discountSuffix")}
                       </p>
                     )}
                   </div>

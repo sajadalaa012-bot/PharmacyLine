@@ -9,16 +9,21 @@ import {
   deleteCategory,
 } from "@/lib/api";
 import { Plus, Edit3, Trash2, ChevronUp, ChevronDown, Check, X } from "lucide-react";
+import { useI18n } from "@/lib/LanguageProvider";
+import { localized } from "@/lib/i18n";
 
 export default function AdminCategoriesPage() {
+  const { t, lang } = useI18n();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [newName, setNewName] = useState("");
+  const [newNameAr, setNewNameAr] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState("");
+  const [editingNameAr, setEditingNameAr] = useState("");
   const [pendingDelete, setPendingDelete] = useState<number | null>(null);
 
   const load = useCallback(async () => {
@@ -54,19 +59,25 @@ export default function AdminCategoriesPage() {
     const name = newName.trim();
     if (!name) return;
     run(async () => {
-      await createCategory({ name });
+      await createCategory({ name, name_ar: newNameAr.trim() });
       setNewName("");
+      setNewNameAr("");
     });
   };
 
   const handleRename = (cat: Category) => {
     const name = editingName.trim();
-    if (!name || name === cat.name) {
+    const name_ar = editingNameAr.trim();
+    if (!name || (name === cat.name && name_ar === (cat.name_ar ?? ""))) {
       setEditingId(null);
       return;
     }
     run(async () => {
-      await updateCategory(cat.id, { name, display_order: cat.display_order });
+      await updateCategory(cat.id, {
+        name,
+        name_ar,
+        display_order: cat.display_order,
+      });
       setEditingId(null);
     });
   };
@@ -74,7 +85,10 @@ export default function AdminCategoriesPage() {
   const handleDelete = (cat: Category) => {
     if (cat.products.length > 0) {
       setError(
-        `Cannot delete “${cat.name}” — it contains ${cat.products.length} products. Move or delete them first.`
+        t("categories.hasProducts", {
+          name: localized(cat, "name", lang),
+          n: cat.products.length,
+        })
       );
       return;
     }
@@ -101,7 +115,11 @@ export default function AdminCategoriesPage() {
     run(async () => {
       await Promise.all(
         reordered.map((cat) =>
-          updateCategory(cat.id, { name: cat.name, display_order: cat.display_order })
+          updateCategory(cat.id, {
+            name: cat.name,
+            name_ar: cat.name_ar,
+            display_order: cat.display_order,
+          })
         )
       );
     });
@@ -115,15 +133,16 @@ export default function AdminCategoriesPage() {
     );
   }
 
+  const fieldCls =
+    "h-10 flex-1 rounded-md border border-line bg-sunken px-3.5 text-sm text-ink outline-none transition placeholder:text-ink-3 focus:border-brand/50 focus:ring-1 focus:ring-brand/25";
+
   return (
     <div className="mx-auto max-w-3xl space-y-5 px-4 py-6 sm:px-6 sm:py-7">
       <div>
         <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
-          Categories
+          {t("nav.categories")}
         </h1>
-        <p className="mt-1 text-xs text-ink-3">
-          Rename, reorder, and organize the catalog sections
-        </p>
+        <p className="mt-1 text-xs text-ink-3">{t("categories.subtitle")}</p>
       </div>
 
       {error && (
@@ -132,24 +151,33 @@ export default function AdminCategoriesPage() {
         </div>
       )}
 
-      {/* Add form */}
-      <form onSubmit={handleAdd} className="flex gap-3">
+      {/* Add form — English name is required, Arabic optional. */}
+      <form onSubmit={handleAdd} className="flex flex-col gap-3 sm:flex-row">
         <input
           type="text"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
-          placeholder="New category name (e.g. Lip Care)"
+          placeholder={t("categories.newPlaceholder")}
           disabled={busy}
-          className="h-10 flex-1 rounded-md border border-line bg-sunken px-3.5 text-sm text-ink
-                     outline-none transition placeholder:text-ink-3 focus:border-brand/50 focus:ring-1 focus:ring-brand/25"
+          dir="ltr"
+          className={fieldCls}
+        />
+        <input
+          type="text"
+          value={newNameAr}
+          onChange={(e) => setNewNameAr(e.target.value)}
+          placeholder={t("categories.newArPlaceholder")}
+          disabled={busy}
+          dir="rtl"
+          className={fieldCls}
         />
         <button
           type="submit"
           disabled={busy || !newName.trim()}
-          className="label-caps flex h-10 items-center gap-1.5 rounded-md bg-brand px-4 text-on-brand transition hover:bg-brand-deep active:scale-[0.98] disabled:opacity-40"
+          className="label-caps flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-md bg-brand px-4 text-on-brand transition hover:bg-brand-deep active:scale-[0.98] disabled:opacity-40"
         >
           <Plus className="h-4 w-4" />
-          Add
+          {t("common.add")}
         </button>
       </form>
 
@@ -162,7 +190,7 @@ export default function AdminCategoriesPage() {
           >
             <div className="min-w-0 flex-1">
               {editingId === cat.id ? (
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <input
                     type="text"
                     value={editingName}
@@ -172,18 +200,31 @@ export default function AdminCategoriesPage() {
                       if (e.key === "Escape") setEditingId(null);
                     }}
                     autoFocus
-                    className="h-8 flex-1 rounded-md border border-brand/50 bg-sunken px-2.5 text-sm text-ink outline-none"
+                    dir="ltr"
+                    className="h-8 min-w-32 flex-1 rounded-md border border-brand/50 bg-sunken px-2.5 text-sm text-ink outline-none"
+                  />
+                  <input
+                    type="text"
+                    value={editingNameAr}
+                    onChange={(e) => setEditingNameAr(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleRename(cat);
+                      if (e.key === "Escape") setEditingId(null);
+                    }}
+                    placeholder={t("categories.arabicName")}
+                    dir="rtl"
+                    className="h-8 min-w-32 flex-1 rounded-md border border-line bg-sunken px-2.5 text-sm text-ink outline-none placeholder:text-ink-3 focus:border-brand/50"
                   />
                   <button
                     onClick={() => handleRename(cat)}
-                    aria-label="Save name"
+                    aria-label={t("categories.saveName")}
                     className="flex h-8 w-8 items-center justify-center rounded-md bg-brand/15 text-brand transition hover:bg-brand/25"
                   >
                     <Check className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => setEditingId(null)}
-                    aria-label="Cancel rename"
+                    aria-label={t("categories.cancelRename")}
                     className="flex h-8 w-8 items-center justify-center rounded-md text-ink-3 transition hover:bg-sunken"
                   >
                     <X className="h-4 w-4" />
@@ -192,10 +233,10 @@ export default function AdminCategoriesPage() {
               ) : (
                 <div className="flex items-baseline gap-3">
                   <span className="truncate text-sm font-semibold text-ink">
-                    {cat.name}
+                    <bdi>{localized(cat, "name", lang)}</bdi>
                   </span>
                   <span className="label-caps shrink-0 text-ink-3">
-                    {cat.products.length} items
+                    {t("common.itemsCount", { n: cat.products.length })}
                   </span>
                 </div>
               )}
@@ -205,7 +246,7 @@ export default function AdminCategoriesPage() {
               <button
                 onClick={() => handleMove(idx, "up")}
                 disabled={idx === 0 || busy}
-                title="Move up"
+                title={t("categories.moveUp")}
                 className="flex h-8 w-8 items-center justify-center rounded-md text-ink-2 transition hover:bg-sunken hover:text-ink disabled:opacity-20"
               >
                 <ChevronUp className="h-4 w-4" />
@@ -213,7 +254,7 @@ export default function AdminCategoriesPage() {
               <button
                 onClick={() => handleMove(idx, "down")}
                 disabled={idx === categories.length - 1 || busy}
-                title="Move down"
+                title={t("categories.moveDown")}
                 className="flex h-8 w-8 items-center justify-center rounded-md text-ink-2 transition hover:bg-sunken hover:text-ink disabled:opacity-20"
               >
                 <ChevronDown className="h-4 w-4" />
@@ -223,9 +264,10 @@ export default function AdminCategoriesPage() {
                   onClick={() => {
                     setEditingId(cat.id);
                     setEditingName(cat.name);
+                    setEditingNameAr(cat.name_ar ?? "");
                   }}
                   disabled={busy}
-                  title="Rename category"
+                  title={t("categories.rename")}
                   className="flex h-8 w-8 items-center justify-center rounded-md text-ink-2 transition hover:bg-brand/15 hover:text-brand"
                 >
                   <Edit3 className="h-3.5 w-3.5" />
@@ -234,7 +276,11 @@ export default function AdminCategoriesPage() {
               <button
                 onClick={() => handleDelete(cat)}
                 disabled={busy}
-                title={pendingDelete === cat.id ? "Click again to confirm" : "Delete category"}
+                title={
+                  pendingDelete === cat.id
+                    ? t("common.clickAgain")
+                    : t("categories.deleteCategory")
+                }
                 className={`flex h-8 items-center justify-center gap-1 rounded-md transition ${
                   pendingDelete === cat.id
                     ? "label-caps animate-pulse bg-rose px-2 text-white"
@@ -242,7 +288,7 @@ export default function AdminCategoriesPage() {
                 }`}
               >
                 <Trash2 className="h-3.5 w-3.5" />
-                {pendingDelete === cat.id && "Sure?"}
+                {pendingDelete === cat.id && t("common.sure")}
               </button>
             </div>
           </li>

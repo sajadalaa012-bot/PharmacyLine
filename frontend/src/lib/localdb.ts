@@ -3,7 +3,7 @@
 // the bundled catalog. No server is involved.
 
 import catalog from "@/data/catalog.json";
-import { Product } from "@/types";
+import { Category, Product } from "@/types";
 
 const DB_NAME = "pharmacy_pos";
 const DB_VERSION = 2;
@@ -21,9 +21,23 @@ type StoreName = (typeof STORE)[keyof typeof STORE];
 interface SeedCategory {
   id: number;
   name: string;
+  name_ar?: string;
   display_order: number;
   products: Product[];
 }
+
+/** Shopper-facing product copy — the fields that have an Arabic twin. */
+const CONTENT_FIELDS = [
+  "description",
+  "benefits",
+  "ingredients",
+  "usage",
+  "name_ar",
+  "description_ar",
+  "benefits_ar",
+  "ingredients_ar",
+  "usage_ar",
+] as const;
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -115,7 +129,12 @@ async function seed(): Promise<void> {
     let maxProd = 0;
 
     for (const c of cats) {
-      cStore.put({ id: c.id, name: c.name, display_order: c.display_order });
+      cStore.put({
+        id: c.id,
+        name: c.name,
+        name_ar: c.name_ar,
+        display_order: c.display_order,
+      });
       maxCat = Math.max(maxCat, c.id);
       for (const p of c.products) {
         pStore.put({
@@ -129,6 +148,11 @@ async function seed(): Promise<void> {
           benefits: p.benefits,
           ingredients: p.ingredients,
           usage: p.usage,
+          name_ar: p.name_ar,
+          description_ar: p.description_ar,
+          benefits_ar: p.benefits_ar,
+          ingredients_ar: p.ingredients_ar,
+          usage_ar: p.usage_ar,
         });
         maxProd = Math.max(maxProd, p.id);
       }
@@ -143,34 +167,38 @@ async function seed(): Promise<void> {
 }
 
 // ── Details backfill (runs once per browser) ────────────────────────
-// Existing visitors were seeded before products carried detail fields.
-// This one-time pass copies description/benefits/ingredients/usage from the
-// bundled catalog onto stored products that don't already have them, without
-// touching prices, admin edits, or orders. Bump the flag key to re-run.
-const DETAILS_FLAG = "detailsBackfilled_v1";
+// Existing visitors were seeded before products carried detail fields, and
+// again before they carried Arabic copy. This one-time pass copies the
+// shopper-facing fields from the bundled catalog onto stored products that
+// don't already have them, without touching prices, admin edits, or orders.
+// Bump the flag key to re-run — v2 added the Arabic twins.
+const DETAILS_FLAG = "detailsBackfilled_v2";
 
 async function backfillDetails(): Promise<void> {
   const done = await getMeta(DETAILS_FLAG);
   if (done?.value) return;
 
   const cats = catalog as SeedCategory[];
-  // Detail fields from the catalog, keyed by product id.
+  // Content fields from the catalog, keyed by product id.
   const byId = new Map<number, Partial<Product>>();
+  const catNameAr = new Map<number, string | undefined>();
   for (const c of cats) {
+    catNameAr.set(c.id, c.name_ar);
     for (const p of c.products) {
-      byId.set(p.id, {
-        description: p.description,
-        benefits: p.benefits,
-        ingredients: p.ingredients,
-        usage: p.usage,
-      });
+      const fields: Partial<Product> = {};
+      for (const k of CONTENT_FIELDS) fields[k] = p[k];
+      byId.set(p.id, fields);
     }
   }
 
   const stored = await getAll<Product>(STORE.products);
+  const storedCats = await getAll<Omit<Category, "products">>(STORE.categories);
   const db = await openDB();
   await new Promise<void>((resolve, reject) => {
-    const t = db.transaction([STORE.products, STORE.meta], "readwrite");
+    const t = db.transaction(
+      [STORE.products, STORE.categories, STORE.meta],
+      "readwrite",
+    );
     t.oncomplete = () => resolve();
     t.onerror = () => reject(t.error);
     const pStore = t.objectStore(STORE.products);
@@ -181,15 +209,19 @@ async function backfillDetails(): Promise<void> {
       // Only fill fields that are currently empty — never clobber admin edits.
       const merged: Product = { ...prod };
       let changed = false;
-      (["description", "benefits", "ingredients", "usage"] as const).forEach(
-        (k) => {
-          if (!merged[k] && details[k]) {
-            merged[k] = details[k];
-            changed = true;
-          }
-        },
-      );
+      for (const k of CONTENT_FIELDS) {
+        if (!merged[k] && details[k]) {
+          merged[k] = details[k];
+          changed = true;
+        }
+      }
       if (changed) pStore.put(merged);
+    }
+
+    const cStore = t.objectStore(STORE.categories);
+    for (const cat of storedCats) {
+      const nameAr = catNameAr.get(cat.id);
+      if (!cat.name_ar && nameAr) cStore.put({ ...cat, name_ar: nameAr });
     }
 
     t.objectStore(STORE.meta).put({ key: DETAILS_FLAG, value: true });

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { isAuthed, login } from "@/lib/auth";
+import { useI18n } from "@/lib/LanguageProvider";
+import LanguageToggle from "./LanguageToggle";
 
 /**
  * Wraps the admin back office only. The storefront is public; this gate
@@ -35,6 +37,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
 }
 
 function LoginScreen({ onSuccess }: { onSuccess: () => void }) {
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -48,7 +51,7 @@ function LoginScreen({ onSuccess }: { onSuccess: () => void }) {
       await login(email, password);
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed.");
+      setError(err instanceof Error ? err.message : t("auth.failed"));
       setBusy(false);
     }
   }
@@ -62,32 +65,42 @@ function LoginScreen({ onSuccess }: { onSuccess: () => void }) {
         onSubmit={handleSubmit}
         className="w-full max-w-sm rounded-2xl border border-line bg-surface p-8 shadow-sm"
       >
-        <p className="font-display text-2xl font-semibold tracking-tight">
-          Pharmacy Line
-        </p>
-        <p className="mt-1 text-sm text-ink-3">Admin sign in</p>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="font-display text-2xl font-semibold tracking-tight">
+              {t("common.brand")}
+            </p>
+            <p className="mt-1 text-sm text-ink-3">{t("auth.title")}</p>
+          </div>
+          {/* Reachable before signing in — the gate is the first screen staff meet. */}
+          <LanguageToggle />
+        </div>
 
-        <label className="mt-6 block text-sm font-medium text-ink-2">Email</label>
+        <label className="mt-6 block text-sm font-medium text-ink-2">
+          {t("auth.email")}
+        </label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           autoFocus
           autoComplete="username"
+          dir="ltr"
           className={inputClass}
-          placeholder="you@example.com"
+          placeholder={t("auth.emailPlaceholder")}
         />
 
         <label className="mt-4 block text-sm font-medium text-ink-2">
-          Password
+          {t("auth.password")}
         </label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="current-password"
+          dir="ltr"
           className={inputClass}
-          placeholder="Enter password"
+          placeholder={t("auth.passwordPlaceholder")}
         />
 
         {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
@@ -97,7 +110,7 @@ function LoginScreen({ onSuccess }: { onSuccess: () => void }) {
           disabled={busy || !email || !password}
           className="mt-5 w-full rounded-md bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand transition-colors hover:opacity-90 disabled:opacity-50"
         >
-          {busy ? "Signing in…" : "Sign in"}
+          {busy ? t("auth.signingIn") : t("auth.signIn")}
         </button>
       </form>
     </div>

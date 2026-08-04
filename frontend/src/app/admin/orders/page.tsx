@@ -7,8 +7,10 @@ import { fetchOrders, updateOrder, deleteOrder } from "@/lib/api";
 import { money, orderNo, shortDate, shortTime, whatsAppShareUrl } from "@/lib/format";
 import { ChevronRight, Plus, Edit3, Check, MessageCircle, Trash2, ReceiptText } from "lucide-react";
 import Receipt from "@/components/Receipt";
+import { useI18n } from "@/lib/LanguageProvider";
 
 export default function AdminOrdersPage() {
+  const { t } = useI18n();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [openId, setOpenId] = useState<number | null>(null);
@@ -86,7 +88,7 @@ export default function AdminOrdersPage() {
       <Receipt
         order={receiptOrder}
         onBack={() => setReceiptOrder(null)}
-        backLabel="Back to orders"
+        backLabel={t("receipt.backToOrders")}
       />
     );
   }
@@ -103,13 +105,16 @@ export default function AdminOrdersPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
-            Orders
+            {t("nav.orders")}
           </h1>
           <p className="mt-1 text-xs text-ink-3">
-            {orders.length} orders · {money(totalRevenue)} approved sales
+            {t("orders.subtitle", {
+              n: orders.length,
+              money: money(totalRevenue),
+            })}
             {pendingCount > 0 && (
-              <span className="ml-2 font-semibold text-copper">
-                {pendingCount} awaiting approval
+              <span className="ms-2 font-semibold text-copper">
+                {t("orders.awaiting", { n: pendingCount })}
               </span>
             )}
           </p>
@@ -119,7 +124,7 @@ export default function AdminOrdersPage() {
           className="label-caps flex h-10 items-center gap-2 rounded-md bg-brand px-4 text-on-brand transition hover:bg-brand-deep active:scale-[0.98]"
         >
           <Plus className="h-4 w-4" />
-          New sale
+          {t("nav.newSale")}
         </Link>
       </div>
 
@@ -133,7 +138,7 @@ export default function AdminOrdersPage() {
               : "border border-line text-ink-2 hover:bg-sunken"
           }`}
         >
-          All ({orders.length})
+          {t("orders.filterAll", { n: orders.length })}
         </button>
         <button
           onClick={() => setFilter("pending")}
@@ -143,7 +148,7 @@ export default function AdminOrdersPage() {
               : "border border-line text-ink-2 hover:bg-sunken"
           }`}
         >
-          Pending ({pendingCount})
+          {t("orders.filterPending", { n: pendingCount })}
         </button>
       </div>
 
@@ -156,11 +161,9 @@ export default function AdminOrdersPage() {
       {visible.length === 0 ? (
         <div className="rounded-lg border border-line bg-surface py-16 text-center">
           <p className="text-sm font-medium text-ink-2">
-            {filter === "pending" ? "No pending orders" : "No orders yet"}
+            {filter === "pending" ? t("orders.noPending") : t("orders.noOrders")}
           </p>
-          <p className="mt-1 text-xs text-ink-3">
-            Orders placed from the storefront appear here for review
-          </p>
+          <p className="mt-1 text-xs text-ink-3">{t("orders.noOrdersHint")}</p>
         </div>
       ) : (
         <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface">
@@ -171,16 +174,16 @@ export default function AdminOrdersPage() {
               <li key={order.id}>
                 <button
                   onClick={() => setOpenId(open ? null : order.id)}
-                  className="flex w-full items-center gap-4 px-4 py-3.5 text-left transition-colors hover:bg-sunken/40"
+                  className="flex w-full items-center gap-4 px-4 py-3.5 text-start transition-colors hover:bg-sunken/40"
                 >
                   <ChevronRight
-                    className={`h-4 w-4 shrink-0 text-ink-3 transition-transform duration-200 ${
+                    className={`h-4 w-4 shrink-0 text-ink-3 transition-transform duration-200 flip-rtl ${
                       open ? "rotate-90" : ""
                     }`}
                   />
                   <div className="min-w-0 flex-1">
                     <p className="flex items-center gap-2 text-sm font-semibold text-ink">
-                      {orderNo(order.id)}
+                      <span dir="ltr">{orderNo(order.id)}</span>
                       <span
                         className={`label-caps rounded-sm border px-1.5 py-px ${
                           pending
@@ -188,41 +191,42 @@ export default function AdminOrdersPage() {
                             : "border-brand/30 bg-brand/10 text-brand"
                         }`}
                       >
-                        {pending ? "Pending" : "Approved"}
+                        {pending ? t("common.pending") : t("common.approved")}
                       </span>
                     </p>
                     <p className="mt-0.5 text-[11px] text-ink-3">
                       {shortDate(order.created_at)} · {shortTime(order.created_at)} ·{" "}
-                      {order.items.length} {order.items.length === 1 ? "line" : "lines"}
+                      {order.items.length}{" "}
+                      {order.items.length === 1 ? t("orders.line") : t("orders.lines")}
                     </p>
                   </div>
-                  <div className="shrink-0 text-right">
+                  <div className="shrink-0 text-end">
                     <p className="text-sm font-bold text-ink tabular-nums">
                       {money(order.grand_total)}
                     </p>
                     {order.discount > 0 && (
                       <p className="mt-0.5 text-[10px] font-medium text-copper tabular-nums">
-                        −{money(order.discount)} discount
+                        −{money(order.discount)} {t("overview.discountSuffix")}
                       </p>
                     )}
                   </div>
                 </button>
 
                 {open && (
-                  <div className="fade-in border-t border-line bg-sunken/30 px-5 py-4 pl-12">
+                  <div className="fade-in border-t border-line bg-sunken/30 px-5 py-4 ps-12">
                     <ul className="divide-y divide-line/60">
                       {order.items.map((item) => (
                         <li key={item.id} className="py-2">
                           <div className="flex items-start justify-between gap-4">
                             <div className="min-w-0 flex-1">
                               <p className="text-[13px] font-medium leading-snug text-ink">
-                                <span className="mr-1.5 font-mono text-[11px] font-bold text-brand">
+                                <span className="me-1.5 font-mono text-[11px] font-bold text-brand">
                                   {item.product_code}
                                 </span>
                                 <bdi>{item.product_name}</bdi>
                                 {item.is_free && (
-                                  <span className="label-caps ml-1.5 rounded-sm border border-copper/35 bg-copper/[0.08] px-1 py-px text-copper">
-                                    Bonus
+                                  <span className="label-caps ms-1.5 rounded-sm border border-copper/35 bg-copper/[0.08] px-1 py-px text-copper">
+                                    {t("common.bonus")}
                                   </span>
                                 )}
                               </p>
@@ -240,7 +244,7 @@ export default function AdminOrdersPage() {
 
                     {order.notes && (
                       <div className="mt-3 rounded-md border border-line bg-surface p-3">
-                        <p className="label-caps mb-1 text-ink-3">Notes</p>
+                        <p className="label-caps mb-1 text-ink-3">{t("common.notes")}</p>
                         <p className="whitespace-pre-wrap text-xs leading-relaxed text-ink-2">
                           {order.notes}
                         </p>
@@ -256,7 +260,7 @@ export default function AdminOrdersPage() {
                             className="flex h-9 items-center gap-2 rounded-md bg-brand px-3.5 text-[13px] font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98]"
                           >
                             <Edit3 className="h-3.5 w-3.5" />
-                            Review & Edit
+                            {t("orders.reviewEdit")}
                           </Link>
                           <button
                             onClick={() => approve(order)}
@@ -264,7 +268,9 @@ export default function AdminOrdersPage() {
                             className="flex h-9 items-center gap-2 rounded-md border border-brand/40 bg-brand/10 px-3.5 text-[13px] font-semibold text-brand transition hover:bg-brand/20 active:scale-[0.98] disabled:opacity-50"
                           >
                             <Check className="h-3.5 w-3.5" />
-                            {approvingId === order.id ? "Approving…" : "Approve As-Is"}
+                            {approvingId === order.id
+                              ? t("orders.approving")
+                              : t("orders.approveAsIs")}
                           </button>
                         </>
                       ) : (
@@ -274,7 +280,7 @@ export default function AdminOrdersPage() {
                             className="flex h-9 items-center gap-2 rounded-md bg-brand px-3.5 text-[13px] font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98]"
                           >
                             <ReceiptText className="h-3.5 w-3.5" />
-                            Receipt
+                            {t("orders.receipt")}
                           </button>
                           <a
                             href={whatsAppShareUrl(order)}
@@ -283,15 +289,15 @@ export default function AdminOrdersPage() {
                             className="flex h-9 items-center gap-2 rounded-md bg-[#25d366] px-3.5 text-[13px] font-semibold text-[#08301b] transition hover:brightness-95 active:scale-[0.98]"
                           >
                             <MessageCircle className="h-3.5 w-3.5" />
-                            Send via WhatsApp
+                            {t("receipt.whatsapp")}
                           </a>
                         </>
                       )}
 
                       {confirmId === order.id ? (
-                        <div className="ml-auto flex items-center gap-2">
+                        <div className="ms-auto flex items-center gap-2">
                           <span className="text-[13px] font-medium text-ink-2">
-                            Delete permanently?
+                            {t("orders.deletePermanently")}
                           </span>
                           <button
                             onClick={() => remove(order)}
@@ -299,22 +305,24 @@ export default function AdminOrdersPage() {
                             className="flex h-9 items-center gap-2 rounded-md bg-rose px-3.5 text-[13px] font-semibold text-white transition hover:brightness-95 active:scale-[0.98] disabled:opacity-50"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                            {deletingId === order.id ? "Deleting…" : "Yes, delete"}
+                            {deletingId === order.id
+                              ? t("orders.deleting")
+                              : t("orders.yesDelete")}
                           </button>
                           <button
                             onClick={() => setConfirmId(null)}
                             className="flex h-9 items-center rounded-md border border-line px-3.5 text-[13px] font-semibold text-ink-2 transition hover:bg-sunken"
                           >
-                            Cancel
+                            {t("common.cancel")}
                           </button>
                         </div>
                       ) : (
                         <button
                           onClick={() => setConfirmId(order.id)}
-                          className="ml-auto flex h-9 items-center gap-2 rounded-md border border-rose/35 px-3.5 text-[13px] font-semibold text-rose transition hover:bg-rose/10 active:scale-[0.98]"
+                          className="ms-auto flex h-9 items-center gap-2 rounded-md border border-rose/35 px-3.5 text-[13px] font-semibold text-rose transition hover:bg-rose/10 active:scale-[0.98]"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                          Delete
+                          {t("common.delete")}
                         </button>
                       )}
                     </div>

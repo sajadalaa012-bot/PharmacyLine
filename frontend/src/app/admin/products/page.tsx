@@ -12,8 +12,11 @@ import { money } from "@/lib/format";
 import { Search, Plus, Edit3, Trash2, Package } from "lucide-react";
 import ProductModal from "@/components/admin/ProductModal";
 import Dropdown from "@/components/Dropdown";
+import { useI18n } from "@/lib/LanguageProvider";
+import { localized } from "@/lib/i18n";
 
 export default function AdminProductsPage() {
+  const { t, lang } = useI18n();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
@@ -88,11 +91,17 @@ export default function AdminProductsPage() {
 
   const q = query.trim().toLowerCase();
   const allProducts = categories.flatMap((cat) =>
-    cat.products.map((p) => ({ ...p, categoryName: cat.name }))
+    cat.products.map((p) => ({
+      ...p,
+      categoryName: localized(cat, "name", lang),
+    }))
   );
   const filtered = allProducts.filter((p) => {
     const matchesQuery =
-      !q || p.name.toLowerCase().includes(q) || p.code.toLowerCase().includes(q);
+      !q ||
+      p.name.toLowerCase().includes(q) ||
+      (p.name_ar ?? "").toLowerCase().includes(q) ||
+      p.code.toLowerCase().includes(q);
     const matchesCategory =
       categoryFilter === "all" || p.category_id === categoryFilter;
     return matchesQuery && matchesCategory;
@@ -104,10 +113,13 @@ export default function AdminProductsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
-            Products
+            {t("nav.products")}
           </h1>
           <p className="mt-1 text-xs text-ink-3">
-            {allProducts.length} products across {categories.length} categories
+            {t("products.subtitle", {
+              p: allProducts.length,
+              c: categories.length,
+            })}
           </p>
         </div>
         <button
@@ -118,32 +130,32 @@ export default function AdminProductsPage() {
           className="label-caps flex h-10 items-center gap-2 self-start rounded-md bg-brand px-4 text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:self-auto"
         >
           <Plus className="h-4 w-4" />
-          Add product
+          {t("products.addProduct")}
         </button>
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1 sm:max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
+          <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search name or code…"
-            className="h-10 w-full rounded-md border border-line bg-sunken pl-9 pr-3 text-sm text-ink
+            placeholder={t("products.searchPlaceholder")}
+            className="h-10 w-full rounded-md border border-line bg-sunken ps-9 pe-3 text-sm text-ink
                        outline-none transition placeholder:text-ink-3 focus:border-brand/50 focus:ring-1 focus:ring-brand/25"
           />
         </div>
         <Dropdown
-          ariaLabel="Filter by category"
+          ariaLabel={t("products.filterByCategory")}
           className="w-56"
           value={String(categoryFilter)}
           onChange={(v) => setCategoryFilter(v === "all" ? "all" : parseInt(v))}
           options={[
-            { value: "all", label: "All categories" },
+            { value: "all", label: t("products.allCategories") },
             ...categories.map((cat) => ({
               value: String(cat.id),
-              label: cat.name,
+              label: localized(cat, "name", lang),
             })),
           ]}
         />
@@ -159,7 +171,7 @@ export default function AdminProductsPage() {
       <div className="space-y-2.5 sm:hidden">
         {filtered.length === 0 ? (
           <div className="rounded-lg border border-line bg-surface py-12 text-center text-xs text-ink-3">
-            No matching products
+            {t("products.noMatching")}
           </div>
         ) : (
           filtered.map((p) => (
@@ -181,7 +193,7 @@ export default function AdminProductsPage() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-ink">
-                  <bdi>{p.name}</bdi>
+                  <bdi>{localized(p, "name", lang)}</bdi>
                 </p>
                 <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
                   <span className="font-mono text-[11px] font-bold text-brand">
@@ -201,14 +213,18 @@ export default function AdminProductsPage() {
                     setEditingProduct(p);
                     setModalOpen(true);
                   }}
-                  title="Edit product"
+                  title={t("products.editProduct")}
                   className="flex h-9 w-9 items-center justify-center rounded-md border border-line text-ink-2 transition hover:border-brand/40 hover:text-brand"
                 >
                   <Edit3 className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => handleRowDelete(p)}
-                  title={pendingDelete === p.id ? "Tap again to confirm" : "Delete product"}
+                  title={
+                    pendingDelete === p.id
+                      ? t("common.tapAgain")
+                      : t("products.deleteProduct")
+                  }
                   className={`flex h-9 items-center justify-center gap-1 rounded-md border transition ${
                     pendingDelete === p.id
                       ? "label-caps animate-pulse border-rose bg-rose px-2 text-white"
@@ -216,7 +232,7 @@ export default function AdminProductsPage() {
                   }`}
                 >
                   <Trash2 className="h-4 w-4" />
-                  {pendingDelete === p.id && "Sure?"}
+                  {pendingDelete === p.id && t("common.sure")}
                 </button>
               </div>
             </div>
@@ -226,21 +242,21 @@ export default function AdminProductsPage() {
 
       {/* Table (tablet & desktop) */}
       <div className="hidden overflow-x-auto rounded-lg border border-line bg-surface sm:block">
-        <table className="w-full min-w-[640px] border-collapse text-left">
+        <table className="w-full min-w-[640px] border-collapse text-start">
           <thead>
             <tr className="label-caps border-b border-line bg-sunken/60 text-ink-3">
-              <th className="px-4 py-3 font-bold">Code</th>
-              <th className="px-4 py-3 font-bold">Product</th>
-              <th className="px-4 py-3 font-bold">Category</th>
-              <th className="px-4 py-3 text-right font-bold">Price</th>
-              <th className="px-4 py-3 text-center font-bold">Actions</th>
+              <th className="px-4 py-3 font-bold">{t("products.colCode")}</th>
+              <th className="px-4 py-3 font-bold">{t("products.colProduct")}</th>
+              <th className="px-4 py-3 font-bold">{t("products.colCategory")}</th>
+              <th className="px-4 py-3 text-end font-bold">{t("products.colPrice")}</th>
+              <th className="px-4 py-3 text-center font-bold">{t("products.colActions")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line text-[13px]">
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={5} className="py-12 text-center text-xs text-ink-3">
-                  No matching products
+                  {t("products.noMatching")}
                 </td>
               </tr>
             ) : (
@@ -264,7 +280,7 @@ export default function AdminProductsPage() {
                         )}
                       </div>
                       <span className="max-w-[260px] truncate font-medium text-ink">
-                        <bdi>{p.name}</bdi>
+                        <bdi>{localized(p, "name", lang)}</bdi>
                       </span>
                     </div>
                   </td>
@@ -273,7 +289,7 @@ export default function AdminProductsPage() {
                       {p.categoryName}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right font-semibold text-ink tabular-nums">
+                  <td className="px-4 py-3 text-end font-semibold text-ink tabular-nums">
                     {money(p.price)}
                   </td>
                   <td className="px-4 py-3">
@@ -283,14 +299,18 @@ export default function AdminProductsPage() {
                           setEditingProduct(p);
                           setModalOpen(true);
                         }}
-                        title="Edit product"
+                        title={t("products.editProduct")}
                         className="flex h-8 w-8 items-center justify-center rounded-md border border-line text-ink-2 transition hover:border-brand/40 hover:text-brand"
                       >
                         <Edit3 className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => handleRowDelete(p)}
-                        title={pendingDelete === p.id ? "Click again to confirm" : "Delete product"}
+                        title={
+                          pendingDelete === p.id
+                            ? t("common.clickAgain")
+                            : t("products.deleteProduct")
+                        }
                         className={`flex h-8 items-center justify-center gap-1 rounded-md border transition ${
                           pendingDelete === p.id
                             ? "label-caps animate-pulse border-rose bg-rose px-2 text-white"
@@ -298,7 +318,7 @@ export default function AdminProductsPage() {
                         }`}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                        {pendingDelete === p.id && "Sure?"}
+                        {pendingDelete === p.id && t("common.sure")}
                       </button>
                     </div>
                   </td>

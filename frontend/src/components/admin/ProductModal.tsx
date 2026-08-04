@@ -5,6 +5,8 @@ import { Product, Category, ProductInput } from "@/types";
 import { uploadProductImage } from "@/lib/api";
 import { X, Package } from "lucide-react";
 import Dropdown from "@/components/Dropdown";
+import { useI18n } from "@/lib/LanguageProvider";
+import { localized } from "@/lib/i18n";
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -26,6 +28,8 @@ export default function ProductModal({
   onSave,
   onDelete,
 }: ProductModalProps) {
+  const { t, lang } = useI18n();
+
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [price, setPrice] = useState("");
@@ -35,6 +39,14 @@ export default function ProductModal({
   const [benefits, setBenefits] = useState("");
   const [ingredients, setIngredients] = useState("");
   const [usage, setUsage] = useState("");
+
+  // Arabic copy. Blank fields fall back to the English above on the storefront,
+  // so a product can be listed long before anyone translates it.
+  const [nameAr, setNameAr] = useState("");
+  const [descriptionAr, setDescriptionAr] = useState("");
+  const [benefitsAr, setBenefitsAr] = useState("");
+  const [ingredientsAr, setIngredientsAr] = useState("");
+  const [usageAr, setUsageAr] = useState("");
 
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -56,6 +68,11 @@ export default function ProductModal({
         setBenefits(product.benefits ?? "");
         setIngredients(product.ingredients ?? "");
         setUsage(product.usage ?? "");
+        setNameAr(product.name_ar ?? "");
+        setDescriptionAr(product.description_ar ?? "");
+        setBenefitsAr(product.benefits_ar ?? "");
+        setIngredientsAr(product.ingredients_ar ?? "");
+        setUsageAr(product.usage_ar ?? "");
       } else {
         setName("");
         setCode("");
@@ -66,6 +83,11 @@ export default function ProductModal({
         setBenefits("");
         setIngredients("");
         setUsage("");
+        setNameAr("");
+        setDescriptionAr("");
+        setBenefitsAr("");
+        setIngredientsAr("");
+        setUsageAr("");
       }
     }
   }, [isOpen, product, categories, defaultCategoryId]);
@@ -81,7 +103,7 @@ export default function ProductModal({
       const res = await uploadProductImage(file);
       setImageUrl(res.image_url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to upload image");
+      setError(err instanceof Error ? err.message : t("err.uploadFailed"));
     } finally {
       setUploading(false);
     }
@@ -89,12 +111,12 @@ export default function ProductModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return setError("Product name is required.");
-    if (!code.trim()) return setError("Product code is required.");
+    if (!name.trim()) return setError(t("err.nameRequired"));
+    if (!code.trim()) return setError(t("err.codeRequired"));
     const parsedPrice = parseFloat(price);
     if (isNaN(parsedPrice) || parsedPrice < 0)
-      return setError("Price must be a valid positive number.");
-    if (!categoryId) return setError("Please select a category.");
+      return setError(t("err.priceInvalid"));
+    if (!categoryId) return setError(t("err.categoryRequired"));
 
     setIsSubmitting(true);
     setError(null);
@@ -109,12 +131,15 @@ export default function ProductModal({
         benefits: benefits.trim(),
         ingredients: ingredients.trim(),
         usage: usage.trim(),
+        name_ar: nameAr.trim(),
+        description_ar: descriptionAr.trim(),
+        benefits_ar: benefitsAr.trim(),
+        ingredients_ar: ingredientsAr.trim(),
+        usage_ar: usageAr.trim(),
       });
       onClose();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An error occurred while saving."
-      );
+      setError(err instanceof Error ? err.message : t("err.saveGeneric"));
     } finally {
       setIsSubmitting(false);
     }
@@ -131,7 +156,7 @@ export default function ProductModal({
       await onDelete(product.id);
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete product.");
+      setError(err instanceof Error ? err.message : t("err.deleteProduct"));
       setConfirmDelete(false);
     } finally {
       setIsSubmitting(false);
@@ -151,12 +176,12 @@ export default function ProductModal({
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-line px-6 py-4">
           <h2 className="font-display text-lg font-semibold tracking-tight text-ink">
-            {product ? "Edit product" : "New product"}
+            {product ? t("modal.editProduct") : t("modal.newProduct")}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t("common.close")}
             className="flex h-8 w-8 items-center justify-center rounded-md text-ink-3 transition hover:bg-sunken hover:text-ink"
           >
             <X className="h-4 w-4" />
@@ -172,57 +197,68 @@ export default function ProductModal({
 
           <div className="flex flex-col gap-4">
             <div>
-              <label className="label-caps mb-1.5 block text-ink-3">Name</label>
+              <label className="label-caps mb-1.5 block text-ink-3">
+                {t("modal.name")}
+              </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. HAIR SKIN NAILS GUMMIES"
+                placeholder={t("modal.namePlaceholder")}
+                dir="ltr"
                 className={inputCls}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="label-caps mb-1.5 block text-ink-3">Code</label>
+                <label className="label-caps mb-1.5 block text-ink-3">
+                  {t("modal.code")}
+                </label>
                 <input
                   type="text"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
-                  placeholder="e.g. F173"
+                  placeholder={t("modal.codePlaceholder")}
+                  dir="ltr"
                   className={`${inputCls} uppercase`}
                 />
               </div>
               <div>
                 <label className="label-caps mb-1.5 block text-ink-3">
-                  Price (IQD)
+                  {t("modal.priceIqd")}
                 </label>
                 <input
                   type="number"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  placeholder="e.g. 21000"
+                  placeholder={t("modal.pricePlaceholder")}
+                  dir="ltr"
                   className={inputCls}
                 />
               </div>
             </div>
 
             <div>
-              <label className="label-caps mb-1.5 block text-ink-3">Category</label>
+              <label className="label-caps mb-1.5 block text-ink-3">
+                {t("modal.category")}
+              </label>
               <Dropdown
-                ariaLabel="Product category"
+                ariaLabel={t("modal.categoryAria")}
                 value={String(categoryId)}
                 onChange={(v) => setCategoryId(parseInt(v))}
                 options={categories.map((cat) => ({
                   value: String(cat.id),
-                  label: cat.name,
+                  label: localized(cat, "name", lang),
                 }))}
               />
             </div>
 
             {/* Photo */}
             <div>
-              <label className="label-caps mb-1.5 block text-ink-3">Photo</label>
+              <label className="label-caps mb-1.5 block text-ink-3">
+                {t("modal.photo")}
+              </label>
               <div className="flex gap-4">
                 <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-white">
                   {imageUrl ? (
@@ -230,14 +266,14 @@ export default function ProductModal({
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={imageUrl}
-                        alt="Preview"
+                        alt={t("modal.preview")}
                         className="h-full w-full object-contain p-1"
                       />
                       <button
                         type="button"
                         onClick={() => setImageUrl("")}
-                        aria-label="Remove photo"
-                        className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose text-white shadow hover:opacity-90"
+                        aria-label={t("modal.removePhoto")}
+                        className="absolute end-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose text-white shadow hover:opacity-90"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -254,7 +290,7 @@ export default function ProductModal({
                     disabled={uploading}
                     className="label-caps h-9 rounded-md border border-brand/40 bg-brand/10 text-brand transition hover:bg-brand/20 active:scale-[0.98] disabled:opacity-50"
                   >
-                    {uploading ? "Uploading…" : "Upload photo"}
+                    {uploading ? t("modal.uploading") : t("modal.uploadPhoto")}
                   </button>
                   <input
                     type="file"
@@ -268,6 +304,7 @@ export default function ProductModal({
                     value={imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
                     placeholder="/products/filename.jpg"
+                    dir="ltr"
                     className={`${inputCls} py-2 text-xs`}
                   />
                 </div>
@@ -276,56 +313,136 @@ export default function ProductModal({
 
             {/* ── Product details (shown to shoppers on the detail view) ── */}
             <div className="mt-1 border-t border-line pt-4">
-              <p className="label-caps text-ink-3">Details (optional)</p>
+              <p className="label-caps text-ink-3">{t("modal.detailsTitle")}</p>
               <p className="mt-1 text-[11px] text-ink-3">
-                These show when a shopper opens the product.
+                {t("modal.detailsHint")}
               </p>
             </div>
 
             <div>
               <label className="label-caps mb-1.5 block text-ink-3">
-                Description
+                {t("modal.description")}
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="A short overview of the product…"
+                placeholder={t("modal.descriptionPlaceholder")}
+                dir="ltr"
                 className={textareaCls}
               />
             </div>
 
             <div>
               <label className="label-caps mb-1.5 block text-ink-3">
-                Benefits
+                {t("modal.benefits")}
               </label>
               <textarea
                 value={benefits}
                 onChange={(e) => setBenefits(e.target.value)}
-                placeholder="What it helps with — one point per line…"
+                placeholder={t("modal.benefitsPlaceholder")}
+                dir="ltr"
                 className={textareaCls}
               />
             </div>
 
             <div>
               <label className="label-caps mb-1.5 block text-ink-3">
-                Ingredients
+                {t("modal.ingredients")}
               </label>
               <textarea
                 value={ingredients}
                 onChange={(e) => setIngredients(e.target.value)}
-                placeholder="Active ingredients / composition…"
+                placeholder={t("modal.ingredientsPlaceholder")}
+                dir="ltr"
                 className={textareaCls}
               />
             </div>
 
             <div>
               <label className="label-caps mb-1.5 block text-ink-3">
-                How to use
+                {t("modal.howToUse")}
               </label>
               <textarea
                 value={usage}
                 onChange={(e) => setUsage(e.target.value)}
-                placeholder="Directions / dosage…"
+                placeholder={t("modal.usagePlaceholder")}
+                dir="ltr"
+                className={textareaCls}
+              />
+            </div>
+
+            {/* ── Arabic copy ──
+                Always typed right-to-left regardless of the admin's own UI
+                language, so the text reads the way the shopper will see it. */}
+            <div className="mt-1 border-t border-line pt-4">
+              <p className="label-caps text-ink-3">{t("modal.arabicTitle")}</p>
+              <p className="mt-1 text-[11px] text-ink-3">
+                {t("modal.arabicHint")}
+              </p>
+            </div>
+
+            <div>
+              <label className="label-caps mb-1.5 block text-ink-3">
+                {t("modal.nameAr")}
+              </label>
+              <input
+                type="text"
+                value={nameAr}
+                onChange={(e) => setNameAr(e.target.value)}
+                placeholder={t("modal.nameArPlaceholder")}
+                dir="rtl"
+                className={inputCls}
+              />
+            </div>
+
+            <div>
+              <label className="label-caps mb-1.5 block text-ink-3">
+                {t("modal.description")}
+              </label>
+              <textarea
+                value={descriptionAr}
+                onChange={(e) => setDescriptionAr(e.target.value)}
+                placeholder={t("modal.descriptionPlaceholder")}
+                dir="rtl"
+                className={textareaCls}
+              />
+            </div>
+
+            <div>
+              <label className="label-caps mb-1.5 block text-ink-3">
+                {t("modal.benefits")}
+              </label>
+              <textarea
+                value={benefitsAr}
+                onChange={(e) => setBenefitsAr(e.target.value)}
+                placeholder={t("modal.benefitsPlaceholder")}
+                dir="rtl"
+                className={textareaCls}
+              />
+            </div>
+
+            <div>
+              <label className="label-caps mb-1.5 block text-ink-3">
+                {t("modal.ingredients")}
+              </label>
+              <textarea
+                value={ingredientsAr}
+                onChange={(e) => setIngredientsAr(e.target.value)}
+                placeholder={t("modal.ingredientsPlaceholder")}
+                dir="rtl"
+                className={textareaCls}
+              />
+            </div>
+
+            <div>
+              <label className="label-caps mb-1.5 block text-ink-3">
+                {t("modal.howToUse")}
+              </label>
+              <textarea
+                value={usageAr}
+                onChange={(e) => setUsageAr(e.target.value)}
+                placeholder={t("modal.usagePlaceholder")}
+                dir="rtl"
                 className={textareaCls}
               />
             </div>
@@ -344,7 +461,7 @@ export default function ProductModal({
                     : "border-rose/30 bg-rose/10 text-rose hover:bg-rose/20"
                 }`}
               >
-                {confirmDelete ? "Confirm delete" : "Delete"}
+                {confirmDelete ? t("modal.confirmDelete") : t("common.delete")}
               </button>
             ) : (
               <div />
@@ -357,14 +474,18 @@ export default function ProductModal({
                 disabled={isSubmitting}
                 className="label-caps rounded-md border border-line px-4 py-2.5 text-ink-2 transition hover:bg-sunken hover:text-ink"
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting || uploading}
                 className="label-caps rounded-md bg-brand px-5 py-2.5 text-on-brand transition hover:bg-brand-deep disabled:opacity-50"
               >
-                {isSubmitting ? "Saving…" : product ? "Save changes" : "Add product"}
+                {isSubmitting
+                  ? t("common.saving")
+                  : product
+                    ? t("modal.saveChanges")
+                    : t("products.addProduct")}
               </button>
             </div>
           </div>

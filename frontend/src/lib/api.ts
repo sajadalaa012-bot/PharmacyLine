@@ -12,6 +12,7 @@ import {
   Pharmacy,
   PharmacyFolder,
 } from "@/types";
+import { tt } from "./i18n";
 import {
   STORE,
   getAll,
@@ -47,7 +48,7 @@ export async function createProduct(
   await ensureSeeded();
   const existing = await getAll<Product>(STORE.products);
   if (existing.some((p) => p.code === productData.code)) {
-    throw new Error(`Product code '${productData.code}' already exists.`);
+    throw new Error(tt("err.codeExists", { code: productData.code }));
   }
   const product: Product = { id: await nextId("Product"), ...productData };
   await putOne(STORE.products, product);
@@ -60,11 +61,11 @@ export async function updateProduct(
 ): Promise<Product> {
   await ensureSeeded();
   const product = await getOne<Product>(STORE.products, productId);
-  if (!product) throw new Error("Product not found.");
+  if (!product) throw new Error(tt("err.productMissing"));
   if (productData.code !== product.code) {
     const all = await getAll<Product>(STORE.products);
     if (all.some((p) => p.code === productData.code && p.id !== productId)) {
-      throw new Error(`Product code '${productData.code}' is already in use.`);
+      throw new Error(tt("err.codeInUse", { code: productData.code }));
     }
   }
   const updated: Product = { id: productId, ...productData };
@@ -79,12 +80,13 @@ export async function deleteProduct(productId: number): Promise<void> {
 
 export async function createCategory(categoryData: {
   name: string;
+  name_ar?: string;
   display_order?: number;
 }): Promise<Category> {
   await ensureSeeded();
   const cats = await getAll<Omit<Category, "products">>(STORE.categories);
   if (cats.some((c) => c.name === categoryData.name)) {
-    throw new Error(`Category name '${categoryData.name}' already exists.`);
+    throw new Error(tt("err.categoryExists", { name: categoryData.name }));
   }
   let display_order = categoryData.display_order ?? 0;
   if (!display_order) {
@@ -93,6 +95,7 @@ export async function createCategory(categoryData: {
   const category = {
     id: await nextId("Category"),
     name: categoryData.name,
+    name_ar: categoryData.name_ar,
     display_order,
   };
   await putOne(STORE.categories, category);
@@ -101,14 +104,14 @@ export async function createCategory(categoryData: {
 
 export async function updateCategory(
   categoryId: number,
-  categoryData: { name: string; display_order: number },
+  categoryData: { name: string; name_ar?: string; display_order: number },
 ): Promise<Category> {
   await ensureSeeded();
   const category = await getOne<Omit<Category, "products">>(
     STORE.categories,
     categoryId,
   );
-  if (!category) throw new Error("Category not found.");
+  if (!category) throw new Error(tt("err.categoryMissing"));
   const updated = { id: categoryId, ...categoryData };
   await putOne(STORE.categories, updated);
   const products = (await getAll<Product>(STORE.products)).filter(
@@ -121,7 +124,7 @@ export async function deleteCategory(categoryId: number): Promise<void> {
   await ensureSeeded();
   const products = await getAll<Product>(STORE.products);
   if (products.some((p) => p.category_id === categoryId)) {
-    throw new Error("Cannot delete category containing products.");
+    throw new Error(tt("err.categoryHasProducts"));
   }
   await deleteOne(STORE.categories, categoryId);
 }
@@ -172,7 +175,7 @@ export async function fetchPharmacies(): Promise<Pharmacy[]> {
   const res = await fetch("/api/pharmacies");
   bounceIfUnauthorized(res);
   if (!res.ok)
-    throw new Error(await readError(res, "Failed to load pharmacies."));
+    throw new Error(await readError(res, tt("err.loadPharmacies")));
   return res.json();
 }
 
@@ -184,7 +187,7 @@ export async function createPharmacy(data: PharmacyData): Promise<Pharmacy> {
   });
   bounceIfUnauthorized(res);
   if (!res.ok)
-    throw new Error(await readError(res, "Failed to save pharmacy."));
+    throw new Error(await readError(res, tt("err.savePharmacy")));
   return res.json();
 }
 
@@ -199,7 +202,7 @@ export async function updatePharmacy(
   });
   bounceIfUnauthorized(res);
   if (!res.ok)
-    throw new Error(await readError(res, "Failed to update pharmacy."));
+    throw new Error(await readError(res, tt("err.updatePharmacy")));
   return res.json();
 }
 
@@ -209,14 +212,14 @@ export async function deletePharmacy(pharmacyId: number): Promise<void> {
   });
   bounceIfUnauthorized(res);
   if (!res.ok && res.status !== 204)
-    throw new Error(await readError(res, "Failed to delete pharmacy."));
+    throw new Error(await readError(res, tt("err.deletePharmacy")));
 }
 
 export async function fetchPharmacyFolders(): Promise<PharmacyFolder[]> {
   const res = await fetch("/api/pharmacy-folders");
   bounceIfUnauthorized(res);
   if (!res.ok)
-    throw new Error(await readError(res, "Failed to load folders."));
+    throw new Error(await readError(res, tt("err.loadFolders")));
   return res.json();
 }
 
@@ -230,7 +233,7 @@ export async function createPharmacyFolder(
   });
   bounceIfUnauthorized(res);
   if (!res.ok)
-    throw new Error(await readError(res, "Failed to create folder."));
+    throw new Error(await readError(res, tt("err.createFolder")));
   return res.json();
 }
 
@@ -245,7 +248,7 @@ export async function renamePharmacyFolder(
   });
   bounceIfUnauthorized(res);
   if (!res.ok)
-    throw new Error(await readError(res, "Failed to rename folder."));
+    throw new Error(await readError(res, tt("err.renameFolder")));
   return res.json();
 }
 
@@ -255,7 +258,7 @@ export async function deletePharmacyFolder(folderId: number): Promise<void> {
   });
   bounceIfUnauthorized(res);
   if (!res.ok && res.status !== 204)
-    throw new Error(await readError(res, "Failed to delete folder."));
+    throw new Error(await readError(res, tt("err.deleteFolder")));
 }
 
 export async function uploadProductImage(
@@ -281,7 +284,7 @@ async function readError(res: Response, fallback: string): Promise<string> {
 function bounceIfUnauthorized(res: Response) {
   if (res.status === 401 && typeof window !== "undefined") {
     window.location.reload();
-    throw new Error("Session expired. Please sign in again.");
+    throw new Error(tt("auth.expired"));
   }
 }
 
@@ -292,7 +295,7 @@ export async function createOrder(order: OrderCreate): Promise<Order> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(order),
   });
-  if (!res.ok) throw new Error(await readError(res, "Failed to place order."));
+  if (!res.ok) throw new Error(await readError(res, tt("err.placeOrder")));
   const saved = (await res.json()) as Order & { track_token: string };
   saveMyOrder({
     id: saved.id,
@@ -307,7 +310,7 @@ export async function createOrder(order: OrderCreate): Promise<Order> {
 export async function fetchOrders(): Promise<Order[]> {
   const res = await fetch("/api/orders");
   bounceIfUnauthorized(res);
-  if (!res.ok) throw new Error(await readError(res, "Failed to load orders."));
+  if (!res.ok) throw new Error(await readError(res, tt("err.loadOrders")));
   return res.json();
 }
 
@@ -315,7 +318,7 @@ export async function fetchOrders(): Promise<Order[]> {
 export async function fetchOrder(orderId: number): Promise<Order> {
   const res = await fetch(`/api/orders/${orderId}`);
   bounceIfUnauthorized(res);
-  if (!res.ok) throw new Error(await readError(res, "Failed to load order."));
+  if (!res.ok) throw new Error(await readError(res, tt("err.loadOrder")));
   return res.json();
 }
 
@@ -330,7 +333,7 @@ export async function updateOrder(
     body: JSON.stringify(order),
   });
   bounceIfUnauthorized(res);
-  if (!res.ok) throw new Error(await readError(res, "Failed to update order."));
+  if (!res.ok) throw new Error(await readError(res, tt("err.updateOrder")));
   return res.json();
 }
 
@@ -339,7 +342,7 @@ export async function deleteOrder(orderId: number): Promise<void> {
   const res = await fetch(`/api/orders/${orderId}`, { method: "DELETE" });
   bounceIfUnauthorized(res);
   if (!res.ok && res.status !== 204) {
-    throw new Error(await readError(res, "Failed to delete order."));
+    throw new Error(await readError(res, tt("err.deleteOrder")));
   }
 }
 
@@ -351,6 +354,6 @@ export async function trackOrder(
   const params = new URLSearchParams({ id: String(id), token });
   const res = await fetch(`/api/orders/track?${params.toString()}`);
   if (res.status === 404) return null;
-  if (!res.ok) throw new Error(await readError(res, "Lookup failed."));
+  if (!res.ok) throw new Error(await readError(res, tt("err.lookupFailed")));
   return res.json();
 }

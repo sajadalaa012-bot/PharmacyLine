@@ -3,6 +3,8 @@
 import { useState, useCallback } from "react";
 import { Product, CartItem, Order, OrderCreate, OrderStatus } from "@/types";
 import { createOrder, updateOrder } from "./api";
+import { useI18n } from "./LanguageProvider";
+import { localized } from "./i18n";
 
 /** Shared cart state + checkout used by the storefront and the admin sale screen.
  *  `submitStatus` controls what a new order is saved as: customers create
@@ -18,6 +20,16 @@ export function useCart(
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [editingOrderId, setEditingOrderId] = useState<number | null>(null);
+
+  const { t, lang } = useI18n();
+
+  // Order lines keep the product name as the buyer saw it when they added it.
+  // The order is a record of a transaction, so it should not re-translate
+  // itself later when someone opens it in the other language.
+  const lineName = useCallback(
+    (product: Product) => localized(product, "name", lang),
+    [lang],
+  );
 
   const add = useCallback((product: Product) => {
     setItems((prev) => {
@@ -40,7 +52,7 @@ export function useCart(
         {
           product_id: product.id,
           product_code: product.code,
-          product_name: product.name,
+          product_name: lineName(product),
           quantity: 1,
           unit_price: product.price,
           subtotal: product.price,
@@ -48,7 +60,7 @@ export function useCart(
         },
       ];
     });
-  }, []);
+  }, [lineName]);
 
   const remove = useCallback((product: Product) => {
     setItems((prev) => {
@@ -84,7 +96,7 @@ export function useCart(
         {
           product_id: product.id,
           product_code: product.code,
-          product_name: product.name,
+          product_name: lineName(product),
           quantity: 1,
           unit_price: 0,
           subtotal: 0,
@@ -92,7 +104,7 @@ export function useCart(
         },
       ];
     });
-  }, []);
+  }, [lineName]);
 
   const setQty = useCallback((productId: number, isFree: boolean, qty: number) => {
     setItems((prev) => {
@@ -177,13 +189,15 @@ export function useCart(
       onOrderComplete();
     } catch (err) {
       setSubmitError(
-        `Failed to save order: ${err instanceof Error ? err.message : String(err)}`
+        t("err.saveOrder", {
+          reason: err instanceof Error ? err.message : String(err),
+        })
       );
       console.error(err);
     } finally {
       setSubmitting(false);
     }
-  }, [items, notes, discount, submitting, submitStatus, editingOrderId, onOrderComplete]);
+  }, [items, notes, discount, submitting, submitStatus, editingOrderId, onOrderComplete, t]);
 
   const reset = useCallback(() => {
     setOrder(null);

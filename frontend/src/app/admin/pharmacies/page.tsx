@@ -28,6 +28,7 @@ import {
   Layers,
   Map as MapIcon,
 } from "lucide-react";
+import { useI18n } from "@/lib/LanguageProvider";
 
 /** Build a keyless Google Maps embed URL from an address, coordinates, or link. */
 function mapEmbedUrl(location: string): string {
@@ -50,6 +51,7 @@ const ALL = "all";
 const UNFILED = "unfiled";
 
 export default function AdminPharmaciesPage() {
+  const { t } = useI18n();
   const [pharmacies, setPharmacies] = useState<Pharmacy[]>([]);
   const [folders, setFolders] = useState<PharmacyFolder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -110,8 +112,10 @@ export default function AdminPharmaciesPage() {
 
   const folderName = useCallback(
     (id: number | null) =>
-      id == null ? "Unfiled" : folders.find((f) => f.id === id)?.name ?? "Unfiled",
-    [folders],
+      id == null
+        ? t("pharm.unfiled")
+        : folders.find((f) => f.id === id)?.name ?? t("pharm.unfiled"),
+    [folders, t],
   );
 
   const counts = useMemo(() => {
@@ -258,7 +262,7 @@ export default function AdminPharmaciesPage() {
         key={key}
         type="button"
         onClick={() => setSelected(value)}
-        className={`flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-[13px] font-semibold transition-colors ${
+        className={`flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-start text-[13px] font-semibold transition-colors ${
           active
             ? "bg-brand text-on-brand"
             : "text-ink-2 hover:bg-sunken hover:text-ink"
@@ -282,11 +286,9 @@ export default function AdminPharmaciesPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
-            Pharmacies
+            {t("pharm.title")}
           </h1>
-          <p className="mt-1 text-xs text-ink-3">
-            Directory board — saved to your account and synced on every device
-          </p>
+          <p className="mt-1 text-xs text-ink-3">{t("pharm.subtitle")}</p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <Link
@@ -294,7 +296,7 @@ export default function AdminPharmaciesPage() {
             className="label-caps flex h-10 items-center gap-1.5 rounded-md border border-line bg-surface px-3 text-ink-2 transition hover:text-ink"
           >
             <MapIcon className="h-4 w-4" />
-            Visit map
+            {t("pharm.visitMap")}
           </Link>
           {!formOpen && (
             <button
@@ -303,7 +305,7 @@ export default function AdminPharmaciesPage() {
               className="label-caps flex h-10 items-center gap-1.5 rounded-md bg-brand px-4 text-on-brand transition hover:bg-brand-deep active:scale-[0.98]"
             >
               <Plus className="h-4 w-4" />
-              Add pharmacy
+              {t("pharm.addPharmacy")}
             </button>
           )}
         </div>
@@ -319,12 +321,18 @@ export default function AdminPharmaciesPage() {
         {/* Folder rail */}
         <aside className="space-y-2 lg:sticky lg:top-6 lg:self-start">
           <div className="space-y-1 rounded-lg border border-line bg-surface p-2">
-            {railBtn(ALL, ALL, <Layers className="h-4 w-4" />, "All pharmacies", pharmacies.length)}
+            {railBtn(
+              ALL,
+              ALL,
+              <Layers className="h-4 w-4" />,
+              t("pharm.allPharmacies"),
+              pharmacies.length,
+            )}
             {railBtn(
               UNFILED,
               UNFILED,
               <Folder className="h-4 w-4" />,
-              "Unfiled",
+              t("pharm.unfiled"),
               unfiledCount,
             )}
 
@@ -347,7 +355,7 @@ export default function AdminPharmaciesPage() {
                     <button
                       type="submit"
                       disabled={busy || !renameValue.trim()}
-                      aria-label="Save name"
+                      aria-label={t("categories.saveName")}
                       className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-brand hover:bg-brand/15 disabled:opacity-40"
                     >
                       <Check className="h-4 w-4" />
@@ -355,7 +363,7 @@ export default function AdminPharmaciesPage() {
                     <button
                       type="button"
                       onClick={() => setRenamingId(null)}
-                      aria-label="Cancel rename"
+                      aria-label={t("categories.cancelRename")}
                       className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-ink-3 hover:bg-sunken"
                     >
                       <X className="h-4 w-4" />
@@ -376,7 +384,7 @@ export default function AdminPharmaciesPage() {
                       <button
                         type="button"
                         onClick={() => startRename(f)}
-                        title="Rename folder"
+                        title={t("pharm.renameFolder")}
                         disabled={busy}
                         className="flex h-7 w-7 items-center justify-center rounded-md text-ink-3 transition hover:bg-brand/15 hover:text-brand"
                       >
@@ -387,8 +395,8 @@ export default function AdminPharmaciesPage() {
                         onClick={() => handleDeleteFolder(f)}
                         title={
                           pendingFolderDelete === f.id
-                            ? "Click again to confirm"
-                            : "Delete folder"
+                            ? t("common.clickAgain")
+                            : t("pharm.deleteFolder")
                         }
                         disabled={busy}
                         className={`flex h-7 items-center justify-center rounded-md transition ${
@@ -398,7 +406,7 @@ export default function AdminPharmaciesPage() {
                         }`}
                       >
                         {pendingFolderDelete === f.id ? (
-                          "Sure?"
+                          t("common.sure")
                         ) : (
                           <Trash2 className="h-3.5 w-3.5" />
                         )}
@@ -418,7 +426,7 @@ export default function AdminPharmaciesPage() {
                 <input
                   value={newFolderName}
                   onChange={(e) => setNewFolderName(e.target.value)}
-                  placeholder="Folder name"
+                  placeholder={t("pharm.folderName")}
                   autoFocus
                   disabled={busy}
                   className="h-8 w-full rounded-md border border-line bg-sunken px-2 text-[13px] text-ink outline-none placeholder:text-ink-3 focus:border-brand/50"
@@ -426,7 +434,7 @@ export default function AdminPharmaciesPage() {
                 <button
                   type="submit"
                   disabled={busy || !newFolderName.trim()}
-                  aria-label="Create folder"
+                  aria-label={t("pharm.createFolder")}
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-brand hover:bg-brand/15 disabled:opacity-40"
                 >
                   <Check className="h-4 w-4" />
@@ -437,7 +445,7 @@ export default function AdminPharmaciesPage() {
                     setAddingFolder(false);
                     setNewFolderName("");
                   }}
-                  aria-label="Cancel"
+                  aria-label={t("common.cancel")}
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-ink-3 hover:bg-sunken"
                 >
                   <X className="h-4 w-4" />
@@ -447,10 +455,10 @@ export default function AdminPharmaciesPage() {
               <button
                 type="button"
                 onClick={() => setAddingFolder(true)}
-                className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-left text-[13px] font-semibold text-ink-3 transition-colors hover:bg-sunken hover:text-ink"
+                className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-start text-[13px] font-semibold text-ink-3 transition-colors hover:bg-sunken hover:text-ink"
               >
                 <FolderPlus className="h-4 w-4 shrink-0" />
-                New folder
+                {t("pharm.newFolder")}
               </button>
             )}
           </div>
@@ -466,12 +474,14 @@ export default function AdminPharmaciesPage() {
             >
               <div className="flex items-center justify-between">
                 <h2 className="label-caps text-ink-2">
-                  {editingId === null ? "New pharmacy" : "Edit pharmacy"}
+                  {editingId === null
+                    ? t("pharm.newPharmacy")
+                    : t("pharm.editPharmacy")}
                 </h2>
                 <button
                   type="button"
                   onClick={closeForm}
-                  aria-label="Close form"
+                  aria-label={t("pharm.closeForm")}
                   className="flex h-8 w-8 items-center justify-center rounded-md text-ink-3 transition hover:bg-sunken hover:text-ink"
                 >
                   <X className="h-4 w-4" />
@@ -480,12 +490,12 @@ export default function AdminPharmaciesPage() {
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <label className="space-y-1.5">
-                  <span className="label-caps text-ink-3">Pharmacy name</span>
+                  <span className="label-caps text-ink-3">{t("pharm.name")}</span>
                   <input
                     type="text"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    placeholder="e.g. Al-Shifa Pharmacy"
+                    placeholder={t("pharm.namePlaceholder")}
                     autoFocus
                     disabled={busy}
                     className={field}
@@ -493,7 +503,7 @@ export default function AdminPharmaciesPage() {
                 </label>
 
                 <label className="space-y-1.5">
-                  <span className="label-caps text-ink-3">Folder</span>
+                  <span className="label-caps text-ink-3">{t("pharm.folder")}</span>
                   <select
                     value={formFolder ?? ""}
                     onChange={(e) =>
@@ -504,7 +514,7 @@ export default function AdminPharmaciesPage() {
                     disabled={busy}
                     className={field}
                   >
-                    <option value="">Unfiled</option>
+                    <option value="">{t("pharm.unfiled")}</option>
                     {folders.map((f) => (
                       <option key={f.id} value={f.id}>
                         {f.name}
@@ -514,42 +524,42 @@ export default function AdminPharmaciesPage() {
                 </label>
 
                 <label className="space-y-1.5 sm:col-span-2">
-                  <span className="label-caps text-ink-3">Phone number</span>
+                  <span className="label-caps text-ink-3">{t("pharm.phone")}</span>
                   <input
                     type="tel"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    placeholder="e.g. +964 770 000 0000"
+                    placeholder={t("pharm.phonePlaceholder")}
                     disabled={busy}
+                    dir="ltr"
                     className={field}
                   />
                 </label>
               </div>
 
               <label className="block space-y-1.5">
-                <span className="label-caps text-ink-3">Map location</span>
+                <span className="label-caps text-ink-3">{t("pharm.location")}</span>
                 <input
                   type="text"
                   value={form.location}
                   onChange={(e) =>
                     setForm({ ...form, location: e.target.value })
                   }
-                  placeholder="Address, coordinates, or a Google Maps link"
+                  placeholder={t("pharm.locationPlaceholder")}
                   disabled={busy}
                   className={field}
                 />
                 <span className="text-[11px] text-ink-3">
-                  Paste an address, GPS coordinates (e.g. 33.3152, 44.3661), or a
-                  Google Maps link — a map preview appears on the card.
+                  {t("pharm.locationHint")}
                 </span>
               </label>
 
               <label className="block space-y-1.5">
-                <span className="label-caps text-ink-3">Notes</span>
+                <span className="label-caps text-ink-3">{t("common.notes")}</span>
                 <textarea
                   value={form.notes}
                   onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                  placeholder="Opening hours, contact person, delivery notes…"
+                  placeholder={t("pharm.notesPlaceholder")}
                   rows={3}
                   disabled={busy}
                   className="w-full resize-y rounded-md border border-line bg-sunken px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-3 focus:border-brand/50 focus:ring-1 focus:ring-brand/25"
@@ -563,7 +573,7 @@ export default function AdminPharmaciesPage() {
                   disabled={busy}
                   className="label-caps flex h-10 items-center rounded-md px-4 text-ink-2 transition hover:bg-sunken"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button
                   type="submit"
@@ -571,7 +581,9 @@ export default function AdminPharmaciesPage() {
                   className="label-caps flex h-10 items-center gap-1.5 rounded-md bg-brand px-4 text-on-brand transition hover:bg-brand-deep active:scale-[0.98] disabled:opacity-40"
                 >
                   <Check className="h-4 w-4" />
-                  {editingId === null ? "Save pharmacy" : "Save changes"}
+                  {editingId === null
+                    ? t("pharm.savePharmacy")
+                    : t("modal.saveChanges")}
                 </button>
               </div>
             </form>
@@ -583,12 +595,10 @@ export default function AdminPharmaciesPage() {
               <MapPin className="mx-auto h-8 w-8 text-ink-3" />
               <p className="mt-3 text-sm font-semibold text-ink">
                 {pharmacies.length === 0
-                  ? "No pharmacies yet"
-                  : "This folder is empty"}
+                  ? t("pharm.none")
+                  : t("pharm.folderEmpty")}
               </p>
-              <p className="mt-1 text-xs text-ink-3">
-                Add a pharmacy to start building your directory board.
-              </p>
+              <p className="mt-1 text-xs text-ink-3">{t("pharm.emptyHint")}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
@@ -600,7 +610,7 @@ export default function AdminPharmaciesPage() {
                   {/* Map preview */}
                   {p.location ? (
                     <iframe
-                      title={`Map — ${p.name}`}
+                      title={t("pharm.mapTitle", { name: p.name })}
                       src={mapEmbedUrl(p.location)}
                       loading="lazy"
                       className="h-40 w-full border-0"
@@ -609,7 +619,7 @@ export default function AdminPharmaciesPage() {
                   ) : (
                     <div className="flex h-40 w-full items-center justify-center bg-sunken">
                       <span className="label-caps text-ink-3">
-                        No location set
+                        {t("pharm.noLocation")}
                       </span>
                     </div>
                   )}
@@ -618,7 +628,7 @@ export default function AdminPharmaciesPage() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h3 className="truncate font-display text-lg font-semibold tracking-tight text-ink">
-                          {p.name}
+                          <bdi>{p.name}</bdi>
                         </h3>
                         <span className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-ink-3">
                           <Folder className="h-3 w-3" />
@@ -629,7 +639,7 @@ export default function AdminPharmaciesPage() {
                         <button
                           onClick={() => openEdit(p)}
                           disabled={busy}
-                          title="Edit pharmacy"
+                          title={t("pharm.editPharmacy")}
                           className="flex h-8 w-8 items-center justify-center rounded-md text-ink-2 transition hover:bg-brand/15 hover:text-brand"
                         >
                           <Edit3 className="h-3.5 w-3.5" />
@@ -639,8 +649,8 @@ export default function AdminPharmaciesPage() {
                           disabled={busy}
                           title={
                             pendingDelete === p.id
-                              ? "Click again to confirm"
-                              : "Delete pharmacy"
+                              ? t("common.clickAgain")
+                              : t("pharm.deletePharmacy")
                           }
                           className={`flex h-8 items-center justify-center gap-1 rounded-md transition ${
                             pendingDelete === p.id
@@ -649,7 +659,7 @@ export default function AdminPharmaciesPage() {
                           }`}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                          {pendingDelete === p.id && "Sure?"}
+                          {pendingDelete === p.id && t("common.sure")}
                         </button>
                       </div>
                     </div>
@@ -660,7 +670,9 @@ export default function AdminPharmaciesPage() {
                         className="flex items-center gap-2 text-sm font-medium text-ink-2 transition hover:text-brand"
                       >
                         <Phone className="h-3.5 w-3.5 shrink-0 text-brand" />
-                        <span className="truncate tabular-nums">{p.phone}</span>
+                        <span className="truncate tabular-nums" dir="ltr">
+                          {p.phone}
+                        </span>
                       </a>
                     )}
 

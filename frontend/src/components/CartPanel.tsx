@@ -1,8 +1,9 @@
 "use client";
 
 import { CartItem } from "@/types";
-import { money } from "@/lib/format";
+import { money, num } from "@/lib/format";
 import { ShoppingCart, Trash2, X } from "lucide-react";
+import { useI18n } from "@/lib/LanguageProvider";
 
 interface CartPanelProps {
   items: CartItem[];
@@ -36,6 +37,7 @@ export default function CartPanel({
   submitLabel,
   customerMode = false,
 }: CartPanelProps) {
+  const { t } = useI18n();
   const itemsTotal = items.reduce((sum, ci) => sum + ci.subtotal, 0);
   const discountAmount = (itemsTotal * discount) / 100;
   const grandTotal = Math.max(0, itemsTotal - discountAmount);
@@ -47,10 +49,10 @@ export default function CartPanel({
       <div className="flex shrink-0 items-center justify-between border-b border-line px-5 py-4">
         <div>
           <h2 className="font-display text-lg font-semibold tracking-tight text-ink">
-            Order
+            {t("cart.title")}
           </h2>
           <p className="label-caps mt-0.5 text-ink-3">
-            {totalQty} {totalQty === 1 ? "item" : "items"}
+            {totalQty} {totalQty === 1 ? t("common.item") : t("common.items")}
           </p>
         </div>
         {items.length > 0 && (
@@ -59,7 +61,7 @@ export default function CartPanel({
             className="label-caps flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-rose transition hover:bg-rose/10 active:scale-95"
           >
             <Trash2 className="h-3.5 w-3.5" />
-            Clear
+            {t("common.clear")}
           </button>
         )}
       </div>
@@ -71,8 +73,8 @@ export default function CartPanel({
             <div className="flex h-14 w-14 items-center justify-center rounded-full border border-dashed border-line-strong text-ink-3">
               <ShoppingCart className="h-6 w-6" />
             </div>
-            <p className="text-sm font-medium text-ink-2">Nothing here yet</p>
-            <p className="text-xs text-ink-3">Add products to build the order</p>
+            <p className="text-sm font-medium text-ink-2">{t("cart.empty")}</p>
+            <p className="text-xs text-ink-3">{t("cart.emptyHint")}</p>
           </div>
         ) : (
           <ul className="divide-y divide-line">
@@ -83,13 +85,13 @@ export default function CartPanel({
               >
                 <div className="flex items-start justify-between gap-3">
                   <p className="min-w-0 flex-1 text-[13px] font-medium leading-snug text-ink">
-                    <span className="mr-1.5 font-mono text-[11px] font-bold text-brand">
+                    <span className="me-1.5 font-mono text-[11px] font-bold text-brand">
                       {item.product_code}
                     </span>
                     <bdi>{item.product_name}</bdi>
                     {item.is_free && (
-                      <span className="label-caps ml-1.5 rounded-sm border border-copper/35 bg-copper/[0.08] px-1 py-px text-copper">
-                        Bonus
+                      <span className="label-caps ms-1.5 rounded-sm border border-copper/35 bg-copper/[0.08] px-1 py-px text-copper">
+                        {t("common.bonus")}
                       </span>
                     )}
                   </p>
@@ -132,7 +134,9 @@ export default function CartPanel({
                         className="w-24 rounded-md border border-line bg-sunken px-1.5 py-1 text-center text-xs font-semibold text-ink tabular-nums
                                    outline-none transition focus:border-brand/50 focus:ring-1 focus:ring-brand/25"
                       />
-                      <span className="text-[10px] font-medium text-ink-3">IQD</span>
+                      <span className="text-[10px] font-medium text-ink-3">
+                        {t("common.currency")}
+                      </span>
                     </div>
                   ) : (
                     <span className="text-xs text-ink-3 tabular-nums">
@@ -141,8 +145,10 @@ export default function CartPanel({
                   )}
                   <button
                     onClick={() => onQtyChange(item.product_id, item.is_free, 0)}
-                    aria-label={`Remove ${item.product_name} from order`}
-                    className="ml-auto flex h-6 w-6 items-center justify-center rounded text-ink-3 transition hover:bg-rose/10 hover:text-rose"
+                    aria-label={t("cart.removeFromOrder", {
+                      name: item.product_name,
+                    })}
+                    className="ms-auto flex h-6 w-6 items-center justify-center rounded text-ink-3 transition hover:bg-rose/10 hover:text-rose"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -158,7 +164,7 @@ export default function CartPanel({
         {!customerMode && (
           <div>
             <label htmlFor="discount" className="label-caps mb-1.5 block text-ink-3">
-              Discount %
+              {t("cart.discountPercent")}
             </label>
             <div className="relative">
               <input
@@ -175,7 +181,7 @@ export default function CartPanel({
                 className="w-full rounded-md border border-line bg-sunken py-2 pl-3 pr-9 text-sm font-semibold text-ink tabular-nums
                            outline-none transition placeholder:text-ink-3 focus:border-brand/50 focus:ring-1 focus:ring-brand/25"
               />
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-ink-3">
+              <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-xs font-bold text-ink-3">
                 %
               </span>
             </div>
@@ -184,13 +190,13 @@ export default function CartPanel({
 
         <div>
           <label htmlFor="order-notes" className="label-caps mb-1.5 block text-ink-3">
-            Notes
+            {t("common.notes")}
           </label>
           <textarea
             id="order-notes"
             value={notes}
             onChange={(e) => onNotesChange(e.target.value)}
-            placeholder="Special instructions…"
+            placeholder={t("cart.notesPlaceholder")}
             rows={2}
             className="w-full resize-none rounded-md border border-line bg-sunken px-3 py-2 text-sm text-ink
                        outline-none transition placeholder:text-ink-3 focus:border-brand/50 focus:ring-1 focus:ring-brand/25"
@@ -203,14 +209,16 @@ export default function CartPanel({
         {discount > 0 && (
           <>
             <div className="flex items-baseline gap-2 text-xs">
-              <span className="text-ink-3">Subtotal</span>
+              <span className="text-ink-3">{t("common.subtotal")}</span>
               <span className="leader flex-1" />
               <span className="font-semibold text-ink-2 tabular-nums">
                 {money(itemsTotal)}
               </span>
             </div>
             <div className="flex items-baseline gap-2 text-xs">
-              <span className="text-ink-3">Discount ({discount}%)</span>
+              <span className="text-ink-3">
+                {t("cart.discountWith", { n: discount })}
+              </span>
               <span className="leader flex-1" />
               <span className="font-semibold text-brand tabular-nums">
                 −{money(discountAmount)}
@@ -224,11 +232,11 @@ export default function CartPanel({
           </div>
         )}
         <div className="flex items-baseline justify-between pt-1">
-          <span className="label-caps text-ink-2">Total</span>
+          <span className="label-caps text-ink-2">{t("common.total")}</span>
           <span className="font-display text-[26px] font-semibold tracking-tight text-ink tabular-nums">
-            {grandTotal.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-            <span className="ml-1.5 font-sans text-xs font-semibold tracking-[0.08em] text-ink-3">
-              IQD
+            {num(grandTotal)}
+            <span className="ms-1.5 font-sans text-xs font-semibold tracking-[0.08em] text-ink-3">
+              {t("common.currency")}
             </span>
           </span>
         </div>
@@ -241,8 +249,11 @@ export default function CartPanel({
                      disabled:pointer-events-none disabled:opacity-30 disabled:shadow-none"
         >
           {submitting
-            ? "Saving…"
-            : (submitLabel ?? (customerMode ? "Place Order" : "Generate Receipt"))}
+            ? t("common.saving")
+            : (submitLabel ??
+              (customerMode
+                ? t("cart.placeOrder")
+                : t("cart.generateReceipt")))}
         </button>
       </div>
     </div>

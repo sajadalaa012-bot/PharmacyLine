@@ -6,8 +6,10 @@ import { trackOrder } from "@/lib/api";
 import { getMyOrders } from "@/lib/myOrders";
 import { money, orderNo, shortDate, shortTime } from "@/lib/format";
 import { ClipboardList, ChevronRight } from "lucide-react";
+import { useI18n } from "@/lib/LanguageProvider";
 
 function StatusBadge({ status }: { status: "pending" | "approved" }) {
+  const { t } = useI18n();
   const pending = status === "pending";
   return (
     <span
@@ -17,7 +19,7 @@ function StatusBadge({ status }: { status: "pending" | "approved" }) {
           : "border-green-500/50 bg-green-500/15 text-green-700 dark:text-green-300"
       }`}
     >
-      {pending ? "Pending" : "Approved"}
+      {pending ? t("common.pending") : t("common.approved")}
     </span>
   );
 }
@@ -25,6 +27,7 @@ function StatusBadge({ status }: { status: "pending" | "approved" }) {
 /** The customer's own orders (placed from this device), each expandable to
  *  review its full details, with live status from the shared database. */
 export default function OrderHistory() {
+  const { t } = useI18n();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [openId, setOpenId] = useState<number | null>(null);
@@ -61,8 +64,8 @@ export default function OrderHistory() {
         <div className="flex h-14 w-14 items-center justify-center rounded-full border border-dashed border-line-strong text-ink-3">
           <ClipboardList className="h-6 w-6" />
         </div>
-        <p className="text-sm font-medium text-ink-2">No orders yet</p>
-        <p className="text-xs text-ink-3">Orders you place will show up here.</p>
+        <p className="text-sm font-medium text-ink-2">{t("history.empty")}</p>
+        <p className="text-xs text-ink-3">{t("history.emptyHint")}</p>
       </div>
     );
   }
@@ -82,14 +85,17 @@ export default function OrderHistory() {
             >
               <button
                 onClick={() => setOpenId(open ? null : order.id)}
-                className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-sunken/60"
+                className="flex w-full items-center gap-3 px-4 py-3 text-start transition-colors hover:bg-sunken/60"
               >
                 <ChevronRight
-                  className={`h-4 w-4 shrink-0 text-ink-3 transition-transform ${open ? "rotate-90" : ""}`}
+                  className={`h-4 w-4 shrink-0 text-ink-3 transition-transform flip-rtl ${open ? "rotate-90" : ""}`}
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-ink tabular-nums">
+                    <span
+                      className="text-sm font-semibold text-ink tabular-nums"
+                      dir="ltr"
+                    >
                       {orderNo(order.id)}
                     </span>
                     <StatusBadge status={order.status} />
@@ -110,16 +116,16 @@ export default function OrderHistory() {
                       <li key={item.id} className="py-2">
                         <div className="flex items-start justify-between gap-3">
                           <p className="min-w-0 flex-1 text-[13px] text-ink">
-                            <span className="mr-1.5 font-mono text-[11px] font-bold text-brand">
+                            <span className="me-1.5 font-mono text-[11px] font-bold text-brand">
                               {item.product_code}
                             </span>
                             <bdi>{item.product_name}</bdi>
                             {item.is_free && (
-                              <span className="label-caps ml-1.5 rounded-sm border border-copper/35 bg-copper/[0.08] px-1 py-px text-copper">
-                                Bonus
+                              <span className="label-caps ms-1.5 rounded-sm border border-copper/35 bg-copper/[0.08] px-1 py-px text-copper">
+                                {t("common.bonus")}
                               </span>
                             )}
-                            <span className="ml-1.5 text-[11px] text-ink-3 tabular-nums">
+                            <span className="ms-1.5 text-[11px] text-ink-3 tabular-nums" dir="ltr">
                               {item.quantity} × {money(item.unit_price)}
                             </span>
                           </p>
@@ -135,13 +141,13 @@ export default function OrderHistory() {
                     {order.discount > 0 && (
                       <>
                         <div className="flex justify-between text-ink-3">
-                          <span>Subtotal</span>
+                          <span>{t("common.subtotal")}</span>
                           <span className="tabular-nums">
                             {money(itemsSubtotal(order))}
                           </span>
                         </div>
                         <div className="flex justify-between text-brand">
-                          <span>Discount</span>
+                          <span>{t("common.discount")}</span>
                           <span className="tabular-nums">
                             −{money(order.discount)}
                           </span>
@@ -149,14 +155,14 @@ export default function OrderHistory() {
                       </>
                     )}
                     <div className="flex justify-between font-semibold text-ink">
-                      <span>Total</span>
+                      <span>{t("common.total")}</span>
                       <span className="tabular-nums">{money(order.grand_total)}</span>
                     </div>
                   </div>
 
                   {order.notes && (
                     <div className="mt-3 rounded-md border border-line bg-surface p-2.5">
-                      <p className="label-caps mb-1 text-ink-3">Notes</p>
+                      <p className="label-caps mb-1 text-ink-3">{t("common.notes")}</p>
                       <p className="whitespace-pre-wrap text-xs text-ink-2">
                         {order.notes}
                       </p>

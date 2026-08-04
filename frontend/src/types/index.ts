@@ -1,5 +1,10 @@
 // ── Product & Category types ────────────────────────────────────────
 
+// Every piece of shopper-facing copy has an optional `_ar` twin. The base
+// field is the English text and the fallback: when the Arabic one is blank the
+// storefront shows the English, so a half-translated catalog still reads fine.
+// See `localized()` in lib/i18n.ts.
+
 export interface Product {
   id: number;
   name: string;
@@ -16,6 +21,12 @@ export interface Product {
   ingredients?: string;
   /** How to use / directions / dosage. */
   usage?: string;
+  // ── Arabic copy (optional; falls back to the fields above) ──
+  name_ar?: string;
+  description_ar?: string;
+  benefits_ar?: string;
+  ingredients_ar?: string;
+  usage_ar?: string;
 }
 
 /** The editable payload for creating or updating a product. */
@@ -29,11 +40,18 @@ export interface ProductInput {
   benefits?: string;
   ingredients?: string;
   usage?: string;
+  name_ar?: string;
+  description_ar?: string;
+  benefits_ar?: string;
+  ingredients_ar?: string;
+  usage_ar?: string;
 }
 
 export interface Category {
   id: number;
   name: string;
+  /** Arabic section name; falls back to `name` when blank. */
+  name_ar?: string;
   display_order: number;
   products: Product[];
 }

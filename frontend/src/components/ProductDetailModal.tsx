@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Product } from "@/types";
+import { useI18n } from "@/lib/LanguageProvider";
+import { localized } from "@/lib/i18n";
+import { num } from "@/lib/format";
 import {
   X,
   Package,
@@ -40,7 +43,12 @@ export default function ProductDetailModal({
   onAdd,
   onRemove,
 }: ProductDetailModalProps) {
+  const { t, lang } = useI18n();
   const [zoomOpen, setZoomOpen] = useState(false);
+
+  // Shopper-facing copy, Arabic where the admin has written it.
+  const name = localized(product, "name", lang);
+  const description = localized(product, "description", lang);
 
   // Close on Escape (closes the zoom viewer first, then the modal).
   useEffect(() => {
@@ -62,11 +70,11 @@ export default function ProductDetailModal({
     };
   }, []);
 
-  const benefitLines = lines(product.benefits);
-  const ingredientLines = lines(product.ingredients);
-  const usageLines = lines(product.usage);
+  const benefitLines = lines(localized(product, "benefits", lang));
+  const ingredientLines = lines(localized(product, "ingredients", lang));
+  const usageLines = lines(localized(product, "usage", lang));
   const hasDetails =
-    !!product.description?.trim() ||
+    !!description.trim() ||
     benefitLines.length > 0 ||
     ingredientLines.length > 0 ||
     usageLines.length > 0;
@@ -87,7 +95,7 @@ export default function ProductDetailModal({
         </span>
         {title}
       </h4>
-      <div className="pl-8 text-[13px] leading-relaxed text-ink-2">
+      <div className="ps-8 text-[13px] leading-relaxed text-ink-2">
         {children}
       </div>
     </section>
@@ -107,7 +115,7 @@ export default function ProductDetailModal({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t("common.close")}
             className="flex h-8 w-8 items-center justify-center rounded-md text-ink-2 transition hover:bg-sunken hover:text-ink"
           >
             <X className="h-4 w-4" />
@@ -122,7 +130,7 @@ export default function ProductDetailModal({
               type="button"
               onClick={() => product.image_url && setZoomOpen(true)}
               disabled={!product.image_url}
-              aria-label="Magnify product photo"
+              aria-label={t("product.magnifyAria")}
               className="group relative mx-auto flex h-56 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl border border-line bg-white p-4 sm:mx-0 sm:h-64 sm:w-64"
               style={{ cursor: product.image_url ? "zoom-in" : "default" }}
             >
@@ -131,12 +139,12 @@ export default function ProductDetailModal({
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={product.image_url}
-                    alt={product.name}
+                    alt={name}
                     className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
                   />
-                  <span className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-ink/60 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+                  <span className="absolute bottom-2 end-2 flex items-center gap-1 rounded-full bg-ink/60 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
                     <Maximize2 className="h-3 w-3" />
-                    Magnify
+                    {t("product.magnify")}
                   </span>
                 </>
               ) : (
@@ -147,21 +155,19 @@ export default function ProductDetailModal({
             {/* Title / price / cart */}
             <div className="flex min-w-0 flex-1 flex-col">
               <h3 className="font-display text-xl font-semibold leading-snug tracking-tight text-ink">
-                <bdi>{product.name}</bdi>
+                <bdi>{name}</bdi>
               </h3>
 
               <p className="mt-2 font-display text-2xl font-semibold tracking-tight text-ink tabular-nums">
-                {product.price.toLocaleString("en-US", {
-                  maximumFractionDigits: 0,
-                })}
-                <span className="ml-1.5 font-sans text-xs font-semibold tracking-[0.08em] text-ink-3">
-                  IQD
+                {num(product.price)}
+                <span className="ms-1.5 font-sans text-xs font-semibold tracking-[0.08em] text-ink-3">
+                  {t("common.currency")}
                 </span>
               </p>
 
-              {product.description?.trim() && (
+              {description.trim() && (
                 <p className="mt-3 text-[13px] leading-relaxed text-ink-2">
-                  {product.description.trim()}
+                  {description.trim()}
                 </p>
               )}
 
@@ -172,23 +178,23 @@ export default function ProductDetailModal({
                     onClick={() => onAdd(product)}
                     className="h-11 w-full rounded-md bg-brand text-sm font-semibold text-on-brand transition-colors hover:bg-brand-deep active:scale-[0.99]"
                   >
-                    Add to Cart
+                    {t("product.addToCart")}
                   </button>
                 ) : (
                   <div className="flex h-11 items-center justify-between rounded-md border border-line-strong bg-sunken px-1.5">
                     <button
                       onClick={() => onRemove(product)}
-                      aria-label={`Remove one ${product.name}`}
+                      aria-label={t("product.removeOne", { name })}
                       className="flex h-8 w-10 items-center justify-center rounded text-ink-2 transition hover:bg-rose/10 hover:text-rose active:scale-90"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
                     <span className="text-base font-bold text-ink tabular-nums">
-                      {qty} in cart
+                      {t("product.inCart", { n: qty })}
                     </span>
                     <button
                       onClick={() => onAdd(product)}
-                      aria-label={`Add one ${product.name}`}
+                      aria-label={t("product.addOne", { name })}
                       className="flex h-8 w-10 items-center justify-center rounded text-ink-2 transition hover:bg-brand/10 hover:text-brand active:scale-90"
                     >
                       <Plus className="h-4 w-4" />
@@ -202,7 +208,7 @@ export default function ProductDetailModal({
           {/* Detail sections */}
           <div className="space-y-5 border-t border-line px-5 py-5">
             {benefitLines.length > 0 && (
-              <Section icon={Sparkles} title="Benefits">
+              <Section icon={Sparkles} title={t("product.benefits")}>
                 <ul className="space-y-1.5">
                   {benefitLines.map((line, i) => (
                     <li key={i} className="flex gap-2">
@@ -215,7 +221,7 @@ export default function ProductDetailModal({
             )}
 
             {ingredientLines.length > 0 && (
-              <Section icon={FlaskConical} title="Ingredients">
+              <Section icon={FlaskConical} title={t("product.ingredients")}>
                 <p className="whitespace-pre-line">
                   {ingredientLines.join("\n")}
                 </p>
@@ -223,9 +229,9 @@ export default function ProductDetailModal({
             )}
 
             {usageLines.length > 0 && (
-              <Section icon={ClipboardList} title="How to use">
+              <Section icon={ClipboardList} title={t("product.howToUse")}>
                 {usageLines.length > 1 ? (
-                  <ol className="list-decimal space-y-1.5 pl-4 marker:text-ink-3">
+                  <ol className="list-decimal space-y-1.5 ps-4 marker:text-ink-3">
                     {usageLines.map((line, i) => (
                       <li key={i}>{line}</li>
                     ))}
@@ -239,7 +245,7 @@ export default function ProductDetailModal({
             {!hasDetails && (
               <div className="flex items-center gap-2.5 rounded-lg border border-dashed border-line-strong bg-sunken/40 px-4 py-5 text-[13px] text-ink-3">
                 <Info className="h-4 w-4 shrink-0" />
-                No extra details for this product yet.
+                {t("product.noDetails")}
               </div>
             )}
           </div>
@@ -250,7 +256,7 @@ export default function ProductDetailModal({
       {zoomOpen && product.image_url && (
         <ImageZoom
           src={product.image_url}
-          alt={product.name}
+          alt={name}
           onClose={() => setZoomOpen(false)}
         />
       )}
@@ -270,6 +276,7 @@ function ImageZoom({
   alt: string;
   onClose: () => void;
 }) {
+  const { t } = useI18n();
   const [scale, setScale] = useState(1);
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const drag = useRef<{ x: number; y: number; ox: number; oy: number } | null>(
@@ -355,27 +362,27 @@ function ImageZoom({
     >
       {/* Controls */}
       <div
-        className="absolute right-3 top-3 z-10 flex items-center gap-2"
+        className="absolute end-3 top-3 z-10 flex items-center gap-2"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={() => zoomBy(1 / 1.4)}
-          aria-label="Zoom out"
+          aria-label={t("product.zoomOut")}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition hover:bg-white/20"
         >
           <ZoomOut className="h-5 w-5" />
         </button>
         <button
           onClick={() => zoomBy(1.4)}
-          aria-label="Zoom in"
+          aria-label={t("product.zoomIn")}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition hover:bg-white/20"
         >
           <ZoomIn className="h-5 w-5" />
         </button>
         <button
           onClick={onClose}
-          aria-label="Close viewer"
+          aria-label={t("product.closeViewer")}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition hover:bg-white/20"
         >
           <X className="h-5 w-5" />
@@ -383,7 +390,7 @@ function ImageZoom({
       </div>
 
       <p className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 text-center text-[11px] font-medium text-white/60">
-        Scroll or pinch to zoom · drag to pan · double-tap to reset
+        {t("product.zoomHint")}
       </p>
 
       {/* eslint-disable-next-line @next/next/no-img-element */}

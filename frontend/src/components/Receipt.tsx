@@ -2,8 +2,9 @@
 
 import { useRef, useState } from "react";
 import { Order } from "@/types";
-import { money, orderNo, shortDate, shortTime, whatsAppShareUrl } from "@/lib/format";
+import { money, num, orderNo, shortDate, shortTime, whatsAppShareUrl } from "@/lib/format";
 import { Printer, ArrowLeft, MessageCircle, Download } from "lucide-react";
+import { useI18n } from "@/lib/LanguageProvider";
 
 interface ReceiptProps {
   order: Order;
@@ -12,6 +13,7 @@ interface ReceiptProps {
 }
 
 export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
+  const { t } = useI18n();
   const cardRef = useRef<HTMLDivElement>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -31,7 +33,7 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
         backgroundColor:
           getComputedStyle(cardRef.current).backgroundColor || "#ffffff",
       });
-      if (!blob) throw new Error("Could not render the receipt.");
+      if (!blob) throw new Error(t("receipt.renderFailed"));
 
       const fileName = `pharmacy-line-order-${String(order.id).padStart(5, "0")}.png`;
       const file = new File([blob], fileName, { type: "image/png" });
@@ -62,9 +64,7 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
       setTimeout(() => URL.revokeObjectURL(url), 10000);
     } catch (err) {
       console.error("Failed to save receipt image:", err);
-      setSaveError(
-        "Couldn't save the image on this device — please take a screenshot of the receipt instead.",
-      );
+      setSaveError(t("receipt.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -79,19 +79,21 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
         >
           {/* Masthead */}
           <div className="border-b border-line bg-surface px-8 pb-6 pt-8 text-center print:bg-white">
-            <p className="label-caps text-ink-3">Medical · Skincare · Supplements</p>
+            <p className="label-caps text-ink-3">{t("receipt.eyebrow")}</p>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-ink">
-              Pharmacy Line
+              {t("common.brand")}
             </h1>
             <div className="mx-auto mt-4 flex max-w-xs items-center justify-between text-xs text-ink-2">
-              <span className="font-semibold">{orderNo(order.id)}</span>
+              <span className="font-semibold" dir="ltr">
+                {orderNo(order.id)}
+              </span>
               <span>
                 {shortDate(order.created_at)} — {shortTime(order.created_at)}
               </span>
             </div>
             {pending && (
               <p className="label-caps mx-auto mt-3 inline-block rounded-sm border border-copper/40 bg-copper/10 px-2.5 py-1 text-copper">
-                Pending approval — قيد المراجعة
+                {t("receipt.pendingBadge")}
               </p>
             )}
           </div>
@@ -99,8 +101,8 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
           {/* Ledger */}
           <div className="px-8 py-6">
             <div className="label-caps flex justify-between border-b border-line pb-2 text-ink-3">
-              <span>Item</span>
-              <span>Amount</span>
+              <span>{t("receipt.item")}</span>
+              <span>{t("receipt.amount")}</span>
             </div>
 
             <ul className="divide-y divide-line/70">
@@ -111,13 +113,13 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
                       <p className="text-[13px] font-medium leading-snug text-ink">
                         <bdi>{item.product_name}</bdi>
                         {item.is_free && (
-                          <span className="label-caps ml-1.5 rounded-sm border border-copper/35 bg-copper/[0.08] px-1 py-px text-copper">
-                            Bonus
+                          <span className="label-caps ms-1.5 rounded-sm border border-copper/35 bg-copper/[0.08] px-1 py-px text-copper">
+                            {t("common.bonus")}
                           </span>
                         )}
                       </p>
                       <p className="mt-1 text-[11px] text-ink-3 tabular-nums" dir="ltr">
-                        <span className="mr-2 inline-block rounded-sm border border-brand/25 bg-brand/[0.07] px-1.5 py-px font-mono font-bold text-brand">
+                        <span className="me-2 inline-block rounded-sm border border-brand/25 bg-brand/[0.07] px-1.5 py-px font-mono font-bold text-brand">
                           {item.product_code}
                         </span>
                         {item.quantity} × {money(item.unit_price)}
@@ -136,14 +138,16 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
               {order.discount > 0 && (
                 <>
                   <div className="flex items-baseline gap-2 text-xs">
-                    <span className="text-ink-3">Subtotal</span>
+                    <span className="text-ink-3">{t("common.subtotal")}</span>
                     <span className="leader flex-1" />
                     <span className="font-semibold text-ink-2 tabular-nums">
                       {money(itemsSubtotal)}
                     </span>
                   </div>
                   <div className="flex items-baseline gap-2 text-xs">
-                    <span className="text-ink-3">Discount ({discountPercent}%)</span>
+                    <span className="text-ink-3">
+                      {t("cart.discountWith", { n: discountPercent })}
+                    </span>
                     <span className="leader flex-1" />
                     <span className="font-semibold text-brand tabular-nums">
                       −{money(order.discount)}
@@ -152,11 +156,11 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
                 </>
               )}
               <div className="flex items-baseline justify-between pt-2">
-                <span className="label-caps text-ink-2">Grand total</span>
+                <span className="label-caps text-ink-2">{t("receipt.grandTotal")}</span>
                 <span className="font-display text-3xl font-semibold tracking-tight text-ink tabular-nums">
-                  {order.grand_total.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  <span className="ml-1.5 font-sans text-sm font-semibold tracking-[0.08em] text-ink-3">
-                    IQD
+                  {num(order.grand_total)}
+                  <span className="ms-1.5 font-sans text-sm font-semibold tracking-[0.08em] text-ink-3">
+                    {t("common.currency")}
                   </span>
                 </span>
               </div>
@@ -165,7 +169,7 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
             {/* Notes */}
             {order.notes && (
               <div className="mt-5 rounded-md border border-line bg-sunken/60 p-3.5">
-                <p className="label-caps mb-1 text-ink-3">Notes</p>
+                <p className="label-caps mb-1 text-ink-3">{t("common.notes")}</p>
                 <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-ink-2">
                   {order.notes}
                 </p>
@@ -173,9 +177,7 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
             )}
 
             <p className="label-caps mt-6 text-center text-ink-3">
-              {pending
-                ? "— We received your order and will confirm it shortly —"
-                : "— Thank you for your purchase —"}
+              {pending ? t("receipt.pendingFooter") : t("receipt.thanks")}
             </p>
           </div>
         </div>
@@ -194,7 +196,7 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
                        text-sm font-semibold tracking-[0.02em] text-ink transition hover:bg-sunken active:scale-[0.99]"
           >
             <Printer className="h-4 w-4" />
-            Print
+            {t("receipt.print")}
           </button>
           <button
             onClick={saveAsImage}
@@ -203,7 +205,7 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
                        text-sm font-semibold tracking-[0.02em] text-ink transition hover:bg-sunken active:scale-[0.99] disabled:opacity-50"
           >
             <Download className="h-4 w-4" />
-            {saving ? "Saving…" : "Save Image"}
+            {saving ? t("common.saving") : t("receipt.saveImage")}
           </button>
           {!pending && (
             <a
@@ -215,7 +217,7 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
                          shadow-[0_10px_24px_-10px_#25d366] transition hover:brightness-95 active:scale-[0.99]"
             >
               <MessageCircle className="h-4 w-4" />
-              Send via WhatsApp
+              {t("receipt.whatsapp")}
             </a>
           )}
           <button
@@ -224,8 +226,9 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
                        text-sm font-semibold tracking-[0.02em] text-on-brand
                        shadow-[0_10px_24px_-10px_var(--color-brand)] transition hover:bg-brand-deep active:scale-[0.99]"
           >
-            <ArrowLeft className="h-4 w-4" />
-            {backLabel ?? (pending ? "Back to shop" : "New order")}
+            <ArrowLeft className="h-4 w-4 flip-rtl" />
+            {backLabel ??
+              (pending ? t("receipt.backToShop") : t("receipt.newOrder"))}
           </button>
         </div>
       </div>

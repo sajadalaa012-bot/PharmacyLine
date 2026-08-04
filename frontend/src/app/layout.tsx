@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import { cookies, headers } from "next/headers";
 import { Fraunces, Archivo, IBM_Plex_Sans_Arabic } from "next/font/google";
 import PWARegister from "@/components/PWARegister";
 import OrderMigration from "@/components/OrderMigration";
+import { LanguageProvider } from "@/lib/LanguageProvider";
+import { LANG_KEY, dirOf, preferredLang, toLang } from "@/lib/i18n";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -52,22 +55,34 @@ export const viewport: Viewport = {
 /* Applies the saved theme before first paint to avoid a flash. */
 const themeInit = `try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}`;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Resolve the language before rendering a single word, so the markup the
+  // browser receives is already correct — nothing to fix up after hydration
+  // and no flash of the wrong language.
+  //   1. the cookie the toggle writes (an explicit choice always wins), then
+  //   2. the browser's Accept-Language on a first visit.
+  const [cookieStore, headerStore] = await Promise.all([cookies(), headers()]);
+  const lang =
+    toLang(cookieStore.get(LANG_KEY)?.value) ??
+    preferredLang(headerStore.get("accept-language"));
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={lang} dir={dirOf(lang)} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body
         className={`${fraunces.variable} ${archivo.variable} ${plexArabic.variable} font-sans antialiased`}
       >
-        {children}
-        <OrderMigration />
-        <PWARegister />
+        <LanguageProvider initialLang={lang}>
+          {children}
+          <OrderMigration />
+          <PWARegister />
+        </LanguageProvider>
       </body>
     </html>
   );

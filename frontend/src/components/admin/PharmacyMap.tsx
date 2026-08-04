@@ -10,6 +10,7 @@ import "leaflet/dist/leaflet.css";
 import { MappedPharmacy } from "@/types";
 import { pinColor, directionsUrl } from "@/lib/geo";
 import { Crosshair, Maximize2 } from "lucide-react";
+import { useI18n } from "@/lib/LanguageProvider";
 
 interface Props {
   points: MappedPharmacy[];
@@ -23,14 +24,18 @@ interface Props {
   draggable: boolean;
 }
 
-/** Popup body built as DOM so pharmacy text is never parsed as HTML. */
+/** Popup body built as DOM so pharmacy text is never parsed as HTML.
+ *  Leaflet renders outside React, so the labels are handed in already
+ *  translated rather than looked up here. */
 function popupNode(
   p: MappedPharmacy,
   folder: string,
   draggable: boolean,
+  labels: { directions: string; dragHint: string; dir: "rtl" | "ltr" },
 ): HTMLElement {
   const root = document.createElement("div");
   root.className = "map-popup";
+  root.dir = labels.dir;
 
   const title = document.createElement("p");
   title.className = "map-popup-title";
@@ -47,6 +52,7 @@ function popupNode(
     tel.className = "map-popup-link";
     tel.href = `tel:${p.phone.replace(/\s+/g, "")}`;
     tel.textContent = p.phone;
+    tel.dir = "ltr";
     root.appendChild(tel);
   }
 
@@ -55,7 +61,7 @@ function popupNode(
   dir.href = directionsUrl({ lat: p.lat, lng: p.lng });
   dir.target = "_blank";
   dir.rel = "noopener noreferrer";
-  dir.textContent = "Directions ↗";
+  dir.textContent = `${labels.directions} ↗`;
   root.appendChild(dir);
 
   if (p.notes) {
@@ -68,7 +74,7 @@ function popupNode(
   if (draggable) {
     const hint = document.createElement("p");
     hint.className = "map-popup-meta";
-    hint.textContent = "Drag the pin to correct it";
+    hint.textContent = labels.dragHint;
     root.appendChild(hint);
   }
 
@@ -83,6 +89,7 @@ export default function PharmacyMap({
   onMove,
   draggable,
 }: Props) {
+  const { t, dir } = useI18n();
   const holder = useRef<HTMLDivElement>(null);
   const map = useRef<LeafletMap | null>(null);
   const leaflet = useRef<typeof import("leaflet") | null>(null);
@@ -158,7 +165,11 @@ export default function PharmacyMap({
       });
 
       marker.bindPopup(() =>
-        popupNode(p, folderName(p.folder_id), draggable),
+        popupNode(p, folderName(p.folder_id), draggable, {
+          directions: t("map.directions"),
+          dragHint: t("map.dragHint"),
+          dir,
+        }),
       );
       marker.on("click", () => onSelect(p.id));
       if (draggable) {
@@ -179,7 +190,7 @@ export default function PharmacyMap({
       fitAll();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [points, ready, draggable]);
+  }, [points, ready, draggable, dir]);
 
   // ── Fly to the selected pharmacy ─────────────────────────────────────
   useEffect(() => {
@@ -234,11 +245,11 @@ export default function PharmacyMap({
       <div ref={holder} className="h-full w-full" />
 
       {/* Map controls, floating over the canvas */}
-      <div className="absolute right-3 top-3 z-[500] flex flex-col gap-2">
+      <div className="absolute end-3 top-3 z-[500] flex flex-col gap-2">
         <button
           type="button"
           onClick={fitAll}
-          title="Fit all pharmacies"
+          title={t("map.fitAll")}
           className="flex h-9 w-9 items-center justify-center rounded-md border border-line bg-surface text-ink-2 shadow-sm transition hover:bg-sunken hover:text-ink"
         >
           <Maximize2 className="h-4 w-4" />
@@ -246,7 +257,7 @@ export default function PharmacyMap({
         <button
           type="button"
           onClick={locateMe}
-          title="Show my location"
+          title={t("map.myLocation")}
           className="flex h-9 w-9 items-center justify-center rounded-md border border-line bg-surface text-ink-2 shadow-sm transition hover:bg-sunken hover:text-ink"
         >
           <Crosshair className={`h-4 w-4 ${locating ? "animate-spin" : ""}`} />

@@ -8,8 +8,11 @@ import { Search, X, ShoppingCart } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import CartPanel from "@/components/CartPanel";
 import Receipt from "@/components/Receipt";
+import { useI18n } from "@/lib/LanguageProvider";
+import { localized } from "@/lib/i18n";
 
 export default function AdminSellPage() {
+  const { t, lang } = useI18n();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
@@ -61,7 +64,9 @@ export default function AdminSellPage() {
       products: q
         ? cat.products.filter(
             (p) =>
-              p.name.toLowerCase().includes(q) || p.code.toLowerCase().includes(q)
+              p.name.toLowerCase().includes(q) ||
+              (p.name_ar ?? "").toLowerCase().includes(q) ||
+              p.code.toLowerCase().includes(q)
           )
         : cat.products,
     }))
@@ -79,31 +84,31 @@ export default function AdminSellPage() {
         <div className="min-w-0">
           <h1 className="font-display text-lg font-semibold tracking-tight text-ink sm:text-xl">
             {cart.editingOrderId
-              ? `Review order #${String(cart.editingOrderId).padStart(5, "0")}`
-              : "New sale"}
+              ? t("sell.reviewOrder", {
+                  n: String(cart.editingOrderId).padStart(5, "0"),
+                })
+              : t("nav.newSale")}
           </h1>
           <p className="mt-0.5 text-[11px] text-ink-3">
-            {cart.editingOrderId
-              ? "Adjust items, bonuses, and discount — saving approves the order"
-              : "Bonus items, price overrides, and discounts available"}
+            {cart.editingOrderId ? t("sell.reviewHint") : t("sell.newHint")}
           </p>
         </div>
 
         <div className="relative order-last w-full sm:order-none sm:ml-auto sm:w-auto sm:max-w-xs sm:flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
+          <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search name or code…"
-            className="h-9 w-full rounded-md border border-line bg-sunken pl-9 pr-8 text-sm text-ink
+            placeholder={t("products.searchPlaceholder")}
+            className="h-9 w-full rounded-md border border-line bg-sunken ps-9 pe-8 text-sm text-ink
                        outline-none transition placeholder:text-ink-3 focus:border-brand/50 focus:ring-1 focus:ring-brand/25"
           />
           {query && (
             <button
               onClick={() => setQuery("")}
-              aria-label="Clear search"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-ink-3 hover:text-ink"
+              aria-label={t("common.clearSearch")}
+              className="absolute end-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-ink-3 hover:text-ink"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -113,7 +118,7 @@ export default function AdminSellPage() {
         {/* Mobile cart trigger */}
         <button
           onClick={() => setCartOpen(true)}
-          className="relative ml-auto flex h-9 shrink-0 items-center gap-2 rounded-md bg-brand px-3.5 text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:ml-0 lg:hidden"
+          className="relative ms-auto flex h-9 shrink-0 items-center gap-2 rounded-md bg-brand px-3.5 text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:ms-0 lg:hidden"
         >
           <ShoppingCart className="h-4 w-4" />
           {cart.totalQty > 0 && (
@@ -133,17 +138,19 @@ export default function AdminSellPage() {
                 <Search className="h-6 w-6" />
               </div>
               <p className="text-sm font-medium text-ink-2">
-                {q ? `Nothing matches “${query}”` : "No products in the catalog"}
+                {q ? t("shop.noMatch", { q: query }) : t("sell.emptyCatalog")}
               </p>
             </div>
           ) : (
             filtered.map((category) => (
               <section key={category.id} className="mb-7">
                 <div className="mb-3 flex items-baseline gap-3">
-                  <h2 className="label-caps text-brand">{category.name}</h2>
+                  <h2 className="label-caps text-brand">
+                    <bdi>{localized(category, "name", lang)}</bdi>
+                  </h2>
                   <div className="h-px flex-1 bg-line" />
                   <span className="text-[11px] text-ink-3 tabular-nums">
-                    {category.products.length} items
+                    {t("common.itemsCount", { n: category.products.length })}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
@@ -174,7 +181,7 @@ export default function AdminSellPage() {
         </main>
 
         {/* Cart rail (desktop) */}
-        <aside className="hidden w-[380px] shrink-0 border-l border-line lg:block">
+        <aside className="hidden w-[380px] shrink-0 border-s border-line lg:block">
           <CartPanel
             items={cart.items}
             notes={cart.notes}
@@ -187,7 +194,11 @@ export default function AdminSellPage() {
             onClear={cart.clear}
             submitting={cart.submitting}
             submitError={cart.submitError}
-            submitLabel={cart.editingOrderId ? "Approve Order" : "Generate Receipt"}
+            submitLabel={
+              cart.editingOrderId
+                ? t("cart.approveOrder")
+                : t("cart.generateReceipt")
+            }
           />
         </aside>
       </div>
@@ -196,12 +207,12 @@ export default function AdminSellPage() {
       {cartOpen && (
         <div className="fade-in fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-[2px] lg:hidden">
           <div className="flex-1" onClick={() => setCartOpen(false)} />
-          <div className="admin slide-in-right flex h-full w-full max-w-md flex-col border-l border-line bg-surface shadow-2xl">
+          <div className="admin slide-in-right flex h-full w-full max-w-md flex-col border-s border-line bg-surface shadow-2xl">
             <div className="flex items-center justify-between border-b border-line bg-sunken/50 px-5 py-3.5">
-              <span className="label-caps text-ink-2">Checkout</span>
+              <span className="label-caps text-ink-2">{t("cart.checkout")}</span>
               <button
                 onClick={() => setCartOpen(false)}
-                aria-label="Close cart"
+                aria-label={t("shop.closeCart")}
                 className="flex h-8 w-8 items-center justify-center rounded-md text-ink-2 transition hover:bg-sunken hover:text-ink"
               >
                 <X className="h-4 w-4" />
@@ -220,6 +231,11 @@ export default function AdminSellPage() {
                 onClear={cart.clear}
                 submitting={cart.submitting}
                 submitError={cart.submitError}
+                submitLabel={
+                  cart.editingOrderId
+                    ? t("cart.approveOrder")
+                    : t("cart.generateReceipt")
+                }
               />
             </div>
           </div>

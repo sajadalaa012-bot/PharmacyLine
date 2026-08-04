@@ -61,7 +61,7 @@ export default function Dropdown({
                    text-sm font-medium text-ink transition hover:border-line-strong
                    focus-visible:border-brand/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand/25"
       >
-        <span className="truncate">{active?.label ?? "Select…"}</span>
+        <span className="truncate">{active?.label ?? "…"}</span>
         <ChevronDown
           className={`h-4 w-4 shrink-0 text-ink-3 transition-transform duration-200 ${
             open ? "rotate-180" : ""
@@ -73,7 +73,7 @@ export default function Dropdown({
         <ul
           role="listbox"
           aria-label={ariaLabel}
-          className="pop scroll-thin absolute left-0 top-[calc(100%+6px)] z-50 max-h-72 w-full min-w-56 overflow-y-auto
+          className="pop scroll-thin absolute start-0 top-[calc(100%+6px)] z-50 max-h-72 w-full min-w-56 overflow-y-auto
                      rounded-md border border-line bg-surface p-1 shadow-[0_18px_44px_-16px_rgba(0,0,0,0.35)]"
         >
           {options.map((option) => {
@@ -86,7 +86,7 @@ export default function Dropdown({
                     onChange(option.value);
                     setOpen(false);
                   }}
-                  className={`flex w-full items-center justify-between gap-3 rounded px-3 py-2 text-left text-sm transition-colors ${
+                  className={`flex w-full items-center justify-between gap-3 rounded px-3 py-2 text-start text-sm transition-colors ${
                     selected
                       ? "bg-brand/10 font-semibold text-brand"
                       : "text-ink-2 hover:bg-sunken hover:text-ink"

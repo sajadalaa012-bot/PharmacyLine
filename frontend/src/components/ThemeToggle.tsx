@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Sun, Moon } from "lucide-react";
+import { useI18n } from "@/lib/LanguageProvider";
 
 export default function ThemeToggle() {
+  const { t } = useI18n();
   const [dark, setDark] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -22,8 +24,8 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-      title={dark ? "Light mode" : "Dark mode"}
+      aria-label={dark ? t("theme.toLight") : t("theme.toDark")}
+      title={dark ? t("theme.light") : t("theme.dark")}
       className="flex h-10 w-10 items-center justify-center rounded-md text-ink-2 transition hover:bg-sunken hover:text-ink active:scale-90"
     >
       {/* Render a stable icon until mounted to avoid hydration mismatch */}

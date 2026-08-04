@@ -202,6 +202,22 @@ body::after {
   text-transform: uppercase;
 }
 
+/* Arabic has no letter case and the tracking pulls the joins apart, so the
+   caps treatment is dropped while keeping the size/weight rhythm. */
+[dir="rtl"] .label-caps {
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 11.5px;
+}
+
+/* ── Direction ──────────────────────────────────────────────────────── */
+
+/* Arrows and chevrons that mean "forward" / "back" rather than a literal
+   left or right. Mirrored under RTL so they keep pointing the way they read. */
+[dir="rtl"] .flip-rtl {
+  transform: scaleX(-1);
+}
+
 /* ── Dotted ledger leader between item name and value ───────────────── */
 
 .leader {
@@ -270,6 +286,36 @@ body::after {
 }
 .slide-in-left {
   animation: slide-in-left 0.26s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Both drawers are anchored to an *inline* edge (end for the cart, start for
+   the admin menu), so under RTL they enter from the mirrored side. Same class
+   names, mirrored travel. */
+@keyframes slide-in-right-rtl {
+  from {
+    transform: translateX(-28px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes slide-in-left-rtl {
+  from {
+    transform: translateX(100%);
+    opacity: 0.4;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+[dir="rtl"] .slide-in-right {
+  animation-name: slide-in-right-rtl;
+}
+[dir="rtl"] .slide-in-left {
+  animation-name: slide-in-left-rtl;
 }
 
 @keyframes fade-in {

@@ -1,32 +1,54 @@
+import { getActiveLang, tt } from "./i18n";
+
+/** Western digits in both languages — Iraqi price lists are written this way,
+ *  and it keeps `tabular-nums` alignment working across a mixed-language UI. */
+export function num(n: number): string {
+  return n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+}
+
+/** The currency label for the reader's language: IQD / د.ع */
+export function currency(): string {
+  return tt("common.currency");
+}
+
 export function money(n: number): string {
-  return `${n.toLocaleString("en-US", { maximumFractionDigits: 0 })} IQD`;
+  return `${num(n)} ${currency()}`;
 }
 
 export function orderNo(id: number): string {
   return `Nº ${String(id).padStart(5, "0")}`;
 }
 
+/** Gregorian dates with Arabic month names when reading Arabic. */
+function dateLocale(): string {
+  return getActiveLang() === "ar" ? "ar" : "en-US";
+}
+
 export function shortDate(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString("en-US", {
+  return d.toLocaleDateString(dateLocale(), {
     year: "numeric",
     month: "short",
     day: "numeric",
+    numberingSystem: "latn",
   });
 }
 
 export function shortTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString("en-US", {
+  return new Date(iso).toLocaleTimeString(dateLocale(), {
     hour: "2-digit",
     minute: "2-digit",
+    numberingSystem: "latn",
   });
 }
 
 /* ── WhatsApp order message (Arabic) ─────────────────────────────────── */
+// Deliberately Arabic whatever the UI language: it is sent to Iraqi customers
+// and pharmacies, not read back inside the app.
 
 import type { Order } from "@/types";
 
-const iqd = (n: number) => `${n.toLocaleString("en-US", { maximumFractionDigits: 0 })} د.ع`;
+const iqd = (n: number) => `${num(n)} د.ع`;
 
 export function orderToWhatsAppText(order: Order): string {
   const d = new Date(order.created_at);
