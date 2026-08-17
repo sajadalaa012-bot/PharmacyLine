@@ -310,15 +310,24 @@ export default function ShopView() {
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-5 sm:py-4">
-          {/* Logo */}
+          {/* Logo — the wordmark is near-black, so the dark theme gets its
+              own cream cut of the same mark (see scripts/logo-transparent.mjs) */}
           <button
             onClick={() => goTab("home")}
-            className="flex shrink-0 items-center gap-2 text-start"
+            className="flex shrink-0 items-center text-start"
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/icons/almasa-logo.png"
-              alt="AL-MASA"
-              className="h-10 w-auto sm:h-12"
+              alt={t("common.brand")}
+              className="logo-light h-11 w-auto sm:h-14"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/icons/almasa-logo-dark.png"
+              alt=""
+              aria-hidden
+              className="logo-dark h-11 w-auto sm:h-14"
             />
           </button>
 

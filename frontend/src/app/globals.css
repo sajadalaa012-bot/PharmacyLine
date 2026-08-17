@@ -128,6 +128,22 @@
     var(--color-paper);
 }
 
+/* ── Brand mark ───────────────────────────────────────────────────────
+   Two cuts of the same logo: the supplied one for light surfaces, and one
+   whose near-black wordmark has been lifted to cream for the dark theme.
+   Swapped here rather than with Tailwind's `dark:` variant, which follows
+   the OS setting instead of the theme toggle's class. */
+
+.logo-dark {
+  display: none;
+}
+.dark .logo-light {
+  display: none;
+}
+.dark .logo-dark {
+  display: block;
+}
+
 /* Hide scrollbar on the horizontal category strip */
 .no-scrollbar {
   scrollbar-width: none;
