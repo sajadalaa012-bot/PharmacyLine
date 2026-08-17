@@ -132,26 +132,27 @@
 
 @media (max-width: 639px) {
   .home-canvas {
-    --color-paper: #ecdfc9;
-    --color-surface: #fffdf8;
-    --color-sunken: #e3d4b9;
-    --color-line: #dbcbae;
-    --color-line-strong: #c4b092;
-    background-color: #ecdfc9;
+    --color-paper: #fdfbf7;
+    --color-surface: #ffffff;
+    --color-sunken: #f4efe6;
+    --color-line: #eae3d7;
+    --color-line-strong: #d5cbba;
+    background-color: #fdfbf7;
     color: var(--color-ink);
     border-color: transparent;
   }
 
-  /* The hero adds the light. It starts at the bar's flat colour so the two
-     read as one surface with no seam between them. */
+  /* The hero adds the warmth — a breath of brand in the corner, settling
+     into the paper the sheet below is made of. It starts at the bar's flat
+     colour so the two read as one surface with no seam between them. */
   .home-canvas-hero {
     background-image:
       radial-gradient(
-        120% 80% at 88% 25%,
-        color-mix(in oklab, var(--color-brand) 22%, transparent) 0%,
-        transparent 62%
+        115% 75% at 88% 20%,
+        color-mix(in oklab, var(--color-brand) 12%, transparent) 0%,
+        transparent 60%
       ),
-      linear-gradient(180deg, #ecdfc9 0%, #f3ead9 100%);
+      linear-gradient(180deg, #fdfbf7 0%, #f7f3ea 100%);
   }
 
   /* Dark theme: the same room with the lights off. Gold stands in for the
@@ -190,14 +191,18 @@
     display: block;
   }
 
-  /* The sheet the rest of the home screen sits on. */
+  /* The sheet the rest of the home screen sits on. In the light theme the
+     canvas above it is barely darker, so the fold is a hairline and a soft
+     shadow rather than a colour change. */
   .home-sheet {
     border-start-start-radius: 28px;
     border-start-end-radius: 28px;
-    box-shadow: 0 -14px 34px -22px rgb(0 0 0 / 0.25);
+    border-top: 1px solid var(--color-line);
+    box-shadow: 0 -10px 26px -20px rgb(0 0 0 / 0.18);
   }
 
   .dark .home-sheet {
+    border-top-color: transparent;
     box-shadow: 0 -14px 34px -22px rgb(0 0 0 / 0.55);
   }
 }
