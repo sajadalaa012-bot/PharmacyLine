@@ -50,6 +50,27 @@ import type { Order } from "@/types";
 
 const iqd = (n: number) => `${num(n)} د.ع`;
 
+/** Coordinates anywhere in a delivery location, as the cart's "use my
+ *  location" button writes them. */
+const PIN = /(-?\d{1,2}\.\d{3,})\s*,\s*(-?\d{1,3}\.\d{3,})/;
+/** The same pin where that button puts it — at the end, after the address. */
+const PIN_AT_END = /(\s*·)?\s*-?\d{1,2}\.\d{3,}\s*,\s*-?\d{1,3}\.\d{3,}\s*$/;
+
+/**
+ * A Google Maps link for a delivery location: the exact pin when the text
+ * carries coordinates, otherwise a search for the address as written.
+ * Raw coordinates are something to copy and paste; a link is something to
+ * tap, which is what a phone is for.
+ */
+export function mapsLink(location: string): string {
+  const pin = location.match(PIN);
+  return pin
+    ? `https://www.google.com/maps?q=${pin[1]},${pin[2]}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        location.trim(),
+      )}`;
+}
+
 export function orderToWhatsAppText(order: Order): string {
   const d = new Date(order.created_at);
   const lines: string[] = [
@@ -72,7 +93,13 @@ export function orderToWhatsAppText(order: Order): string {
     lines.push("", "*التوصيل:*");
     if (order.customer_name) lines.push(`👤 ${order.customer_name}`);
     if (order.customer_phone) lines.push(`📞 ${order.customer_phone}`);
-    if (order.customer_location) lines.push(`📍 ${order.customer_location}`);
+    if (order.customer_location) {
+      // The address in words, then a tappable map — never the bare numbers,
+      // which are no use to whoever is driving.
+      const address = order.customer_location.replace(PIN_AT_END, "").trim();
+      if (address) lines.push(`📍 ${address}`);
+      lines.push(`🗺️ ${mapsLink(order.customer_location)}`);
+    }
   }
 
   lines.push("");

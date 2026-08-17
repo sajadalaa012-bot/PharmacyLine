@@ -4,7 +4,14 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Order } from "@/types";
 import { fetchOrders, updateOrder, deleteOrder } from "@/lib/api";
-import { money, orderNo, shortDate, shortTime, whatsAppShareUrl } from "@/lib/format";
+import {
+  mapsLink,
+  money,
+  orderNo,
+  shortDate,
+  shortTime,
+  whatsAppShareUrl,
+} from "@/lib/format";
 import {
   ChevronRight,
   Plus,
@@ -267,9 +274,7 @@ export default function AdminOrdersPage() {
                               <p className="whitespace-pre-wrap leading-relaxed">
                                 <bdi>{order.customer_location}</bdi>{" "}
                                 <a
-                                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                                    order.customer_location
-                                  )}`}
+                                  href={mapsLink(order.customer_location)}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="whitespace-nowrap font-semibold text-brand"
