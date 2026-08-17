@@ -118,7 +118,6 @@ const en = {
     "Pharmacy, skincare, and wellness essentials — curated and delivered.",
   "shop.copyright":
     "© 2026 AL-MASA — مكتب الماسة. All rights reserved.",
-  "shop.staffLogin": "Staff login",
   "shop.browseCategories": "Shop by category",
   "shop.featured": "Featured",
   "shop.seeAll": "See all",
@@ -523,7 +522,6 @@ const ar: Record<MessageKey, string> = {
   "shop.footerBlurb":
     "مستحضرات الصيدلية والعناية بالبشرة والعافية — مختارة وموصَّلة إليك.",
   "shop.copyright": "© 2026 AL-MASA — مكتب الماسة. جميع الحقوق محفوظة.",
-  "shop.staffLogin": "دخول الموظفين",
   "shop.browseCategories": "تسوّق حسب القسم",
   "shop.featured": "مختارات",
   "shop.seeAll": "عرض الكل",

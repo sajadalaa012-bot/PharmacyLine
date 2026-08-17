@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import Link from "next/link";
 import { Category, Product, isOutOfStock } from "@/types";
 import { fetchProducts } from "@/lib/api";
 import { useCart } from "@/lib/useCart";
@@ -16,7 +15,6 @@ import {
   Sparkles,
   Home,
   Store,
-  Lock,
   SlidersHorizontal,
   ClipboardList,
   ChevronRight,
@@ -486,17 +484,10 @@ export default function ShopView() {
             </section>
 
             {/* Small print — the app equivalent of the site footer */}
-            <div className="mt-8 flex flex-col items-center gap-3 px-4">
+            <div className="mt-8 px-4">
               <p className="text-center text-[11px] text-ink-3">
                 {t("shop.copyright")}
               </p>
-              <Link
-                href="/admin"
-                className="label-caps flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-[11px] text-ink-3"
-              >
-                <Lock className="h-3 w-3" />
-                {t("shop.staffLogin")}
-              </Link>
             </div>
           </div>
         )}
@@ -765,15 +756,8 @@ export default function ShopView() {
             </div>
           </div>
           <div className="border-t border-line/70">
-            <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-4">
+            <div className="mx-auto max-w-7xl px-5 py-4">
               <p className="text-[11px] text-ink-3">{t("shop.copyright")}</p>
-              <Link
-                href="/admin"
-                className="label-caps flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-[11px] text-ink-3 transition hover:border-brand/40 hover:text-brand"
-              >
-                <Lock className="h-3 w-3" />
-                {t("shop.staffLogin")}
-              </Link>
             </div>
           </div>
         </footer>
