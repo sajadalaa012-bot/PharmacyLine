@@ -120,17 +120,43 @@
 .tint-6 { background-color: var(--tint-6); }
 
 /* ── Home canvas ──────────────────────────────────────────────────────
-   The phone's home tab is its own room: a warm dark canvas carrying the
-   app bar and the hero, with the rest of the screen on a paper sheet that
-   rides up over it. Written as a token scope rather than a set of colours,
-   so the search field, chips, and buttons inside it re-theme themselves
-   without knowing they are on a dark ground. The gold reads where the
-   terracotta brand would go muddy.
+   The phone's home tab is its own room: a canvas carrying the app bar and
+   the hero, with the rest of the screen on a paper sheet that rides up over
+   it. Written as a token scope rather than a set of colours, so the search
+   field, chips, and buttons inside it re-theme themselves without knowing
+   what ground they are standing on.
 
-   Phones only — from `sm` up the storefront keeps its single light page. */
+   It follows the theme rather than overriding it: warm sand in the light
+   theme, the deep room below in the dark one. Phones only — from `sm` up
+   the storefront keeps its single light page. */
 
 @media (max-width: 639px) {
   .home-canvas {
+    --color-paper: #ecdfc9;
+    --color-surface: #fffdf8;
+    --color-sunken: #e3d4b9;
+    --color-line: #dbcbae;
+    --color-line-strong: #c4b092;
+    background-color: #ecdfc9;
+    color: var(--color-ink);
+    border-color: transparent;
+  }
+
+  /* The hero adds the light. It starts at the bar's flat colour so the two
+     read as one surface with no seam between them. */
+  .home-canvas-hero {
+    background-image:
+      radial-gradient(
+        120% 80% at 88% 25%,
+        color-mix(in oklab, var(--color-brand) 22%, transparent) 0%,
+        transparent 62%
+      ),
+      linear-gradient(180deg, #ecdfc9 0%, #f3ead9 100%);
+  }
+
+  /* Dark theme: the same room with the lights off. Gold stands in for the
+     terracotta brand, which goes muddy on a dark ground. */
+  .dark .home-canvas {
     --color-paper: #1a150f;
     --color-surface: #241d15;
     --color-sunken: #120e09;
@@ -144,13 +170,9 @@
     --color-on-brand: #241a11;
     color-scheme: dark;
     background-color: #241c14;
-    color: var(--color-ink);
-    border-color: transparent;
   }
 
-  /* The hero itself adds the light. It starts at the bar's flat colour so
-     the two read as one surface with no seam between them. */
-  .home-canvas-hero {
+  .dark .home-canvas-hero {
     background-image:
       radial-gradient(
         120% 80% at 88% 25%,
@@ -160,12 +182,11 @@
       linear-gradient(180deg, #241c14 0%, #1a150f 100%);
   }
 
-  /* On the dark canvas the wordmark needs its cream cut, whatever the
-     app-wide theme is doing. */
-  .home-canvas .logo-light {
+  /* The wordmark follows the ground under it, not the app-wide theme. */
+  .dark .home-canvas .logo-light {
     display: none;
   }
-  .home-canvas .logo-dark {
+  .dark .home-canvas .logo-dark {
     display: block;
   }
 
@@ -173,6 +194,10 @@
   .home-sheet {
     border-start-start-radius: 28px;
     border-start-end-radius: 28px;
+    box-shadow: 0 -14px 34px -22px rgb(0 0 0 / 0.25);
+  }
+
+  .dark .home-sheet {
     box-shadow: 0 -14px 34px -22px rgb(0 0 0 / 0.55);
   }
 }
