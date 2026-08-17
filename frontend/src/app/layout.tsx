@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { Fraunces, Archivo, IBM_Plex_Sans_Arabic } from "next/font/google";
 import PWARegister from "@/components/PWARegister";
 import OrderMigration from "@/components/OrderMigration";
 import { LanguageProvider } from "@/lib/LanguageProvider";
-import { LANG_KEY, dirOf, preferredLang, toLang } from "@/lib/i18n";
+import { DEFAULT_LANG, LANG_KEY, dirOf, toLang } from "@/lib/i18n";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -46,16 +46,16 @@ export const viewport: Viewport = {
   minimumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  // Matches the storefront's paper, so the status bar reads as part of the
-  // app rather than as browser chrome sitting on top of it.
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f2ec" },
-    { media: "(prefers-color-scheme: dark)", color: "#16130e" },
-  ],
+  // The storefront's paper. The app opens light whatever the OS prefers, so
+  // this is a single colour rather than a pair; ThemeToggle repaints it when
+  // someone switches to dark.
+  themeColor: "#f5f2ec",
 };
 
-/* Applies the saved theme before first paint to avoid a flash. */
-const themeInit = `try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}`;
+/* Applies the saved theme before first paint to avoid a flash. Light is the
+   shop's own look, so only an explicit choice of dark turns the lights down —
+   the OS preference does not decide for the visitor. */
+const themeInit = `try{if(localStorage.getItem("theme")==="dark"){document.documentElement.classList.add("dark")}}catch(e){}`;
 
 export default async function RootLayout({
   children,
@@ -64,13 +64,10 @@ export default async function RootLayout({
 }>) {
   // Resolve the language before rendering a single word, so the markup the
   // browser receives is already correct — nothing to fix up after hydration
-  // and no flash of the wrong language.
-  //   1. the cookie the toggle writes (an explicit choice always wins), then
-  //   2. the browser's Accept-Language on a first visit.
-  const [cookieStore, headerStore] = await Promise.all([cookies(), headers()]);
-  const lang =
-    toLang(cookieStore.get(LANG_KEY)?.value) ??
-    preferredLang(headerStore.get("accept-language"));
+  // and no flash of the wrong language: the cookie the toggle writes if there
+  // is one, otherwise the shop's own language.
+  const cookieStore = await cookies();
+  const lang = toLang(cookieStore.get(LANG_KEY)?.value) ?? DEFAULT_LANG;
 
   return (
     <html lang={lang} dir={dirOf(lang)} suppressHydrationWarning>

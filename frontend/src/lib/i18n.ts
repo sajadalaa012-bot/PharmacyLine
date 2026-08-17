@@ -25,31 +25,11 @@ export function toLang(value: string | null | undefined): Lang | null {
 }
 
 /**
- * Best language for a visitor who has not chosen one yet, read from the
- * request's Accept-Language. Only two languages are on offer, so this asks the
- * narrow question "did they ask for Arabic before they asked for anything
- * else?" rather than running a full locale negotiation.
+ * The shop's own language. Customers here read Arabic, so that is what a
+ * first visit gets — not whatever the browser happens to ask for. English is
+ * one tap away on the toggle, and the choice is remembered from then on.
  */
-export function preferredLang(acceptLanguage: string | null | undefined): Lang {
-  if (!acceptLanguage) return "en";
-  const ranked = acceptLanguage
-    .split(",")
-    .map((part) => {
-      const [tag, ...params] = part.trim().split(";");
-      const q = params
-        .map((p) => /^q=([\d.]+)$/i.exec(p.trim())?.[1])
-        .find(Boolean);
-      return { tag: tag.toLowerCase(), q: q ? Number(q) : 1 };
-    })
-    .filter((entry) => entry.tag && Number.isFinite(entry.q) && entry.q > 0)
-    .sort((a, b) => b.q - a.q);
-
-  for (const { tag } of ranked) {
-    if (tag === "ar" || tag.startsWith("ar-")) return "ar";
-    if (tag === "en" || tag.startsWith("en-")) return "en";
-  }
-  return "en";
-}
+export const DEFAULT_LANG: Lang = "ar";
 
 // ── Dictionaries ────────────────────────────────────────────────────
 
