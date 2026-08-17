@@ -313,14 +313,13 @@ export default function ShopView() {
           {/* Logo */}
           <button
             onClick={() => goTab("home")}
-            className="flex shrink-0 items-baseline gap-0.5 text-start"
+            className="flex shrink-0 items-center gap-2 text-start"
           >
-            <span className="font-display text-[22px] font-semibold leading-none tracking-tight text-ink sm:text-[26px]">
-              {t("common.brand")}
-            </span>
-            <span className="font-display text-[22px] font-semibold leading-none text-brand sm:text-[26px]">
-              .
-            </span>
+            <img
+              src="/icons/almasa-logo.png"
+              alt="AL-MASA"
+              className="h-10 w-auto sm:h-12"
+            />
           </button>
 
           {/* Desktop search — center */}

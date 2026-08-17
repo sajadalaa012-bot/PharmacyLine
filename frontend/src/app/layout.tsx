@@ -24,14 +24,14 @@ const plexArabic = IBM_Plex_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "Pharmacy Line — Pharmacy & Wellness",
+  title: "AL-MASA — مكتب الماسة",
   description:
     "Point of sale and storefront for medical, skincare, and supplement products.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Pharmacy Line",
+    title: "AL-MASA",
   },
   icons: {
     icon: "/icons/icon-192.png",

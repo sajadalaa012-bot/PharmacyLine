@@ -85,7 +85,7 @@ const en = {
   "common.clickAgain": "Click again to confirm",
   "common.tapAgain": "Tap again to confirm",
   "common.clearSearch": "Clear search",
-  "common.brand": "Pharmacy Line",
+  "common.brand": "AL-MASA",
 
   // ── Language toggle ──
   "lang.switchTo": "Switch to Arabic",
@@ -137,7 +137,7 @@ const en = {
   "shop.footerBlurb":
     "Pharmacy, skincare, and wellness essentials — curated and delivered.",
   "shop.copyright":
-    "© 2026 Pharmacy Line — Pharmacy & Wellness. All rights reserved.",
+    "© 2026 AL-MASA — مكتب الماسة. All rights reserved.",
   "shop.staffLogin": "Staff login",
   "shop.browseCategories": "Shop by category",
   "shop.featured": "Featured",
@@ -146,7 +146,7 @@ const en = {
 
   // ── Install to home screen ──
   "app.installTitle": "Install the app",
-  "app.installBody": "Add Pharmacy Line to your home screen — full screen, one tap away.",
+  "app.installBody": "Add AL-MASA to your home screen — full screen, one tap away.",
   "app.installIos": "Tap the Share button, then “Add to Home Screen”.",
   "app.install": "Install",
   "app.notNow": "Not now",
@@ -491,7 +491,7 @@ const ar: Record<MessageKey, string> = {
   "common.clickAgain": "اضغط مرة أخرى للتأكيد",
   "common.tapAgain": "المس مرة أخرى للتأكيد",
   "common.clearSearch": "مسح البحث",
-  "common.brand": "Pharmacy Line",
+  "common.brand": "AL-MASA",
 
   // ── Language toggle ──
   "lang.switchTo": "التبديل إلى الإنكليزية",
@@ -542,7 +542,7 @@ const ar: Record<MessageKey, string> = {
   "shop.addFromAdmin": "أضف منتجات من لوحة التحكم",
   "shop.footerBlurb":
     "مستحضرات الصيدلية والعناية بالبشرة والعافية — مختارة وموصَّلة إليك.",
-  "shop.copyright": "© 2026 Pharmacy Line — صيدلية وعافية. جميع الحقوق محفوظة.",
+  "shop.copyright": "© 2026 AL-MASA — مكتب الماسة. جميع الحقوق محفوظة.",
   "shop.staffLogin": "دخول الموظفين",
   "shop.browseCategories": "تسوّق حسب القسم",
   "shop.featured": "مختارات",
@@ -551,7 +551,7 @@ const ar: Record<MessageKey, string> = {
 
   // ── Install to home screen ──
   "app.installTitle": "ثبّت التطبيق",
-  "app.installBody": "أضف Pharmacy Line إلى شاشتك الرئيسية — بملء الشاشة وبلمسة واحدة.",
+  "app.installBody": "أضف AL-MASA إلى شاشتك الرئيسية — بملء الشاشة وبلمسة واحدة.",
   "app.installIos": "اضغط زر المشاركة، ثم «إضافة إلى الشاشة الرئيسية».",
   "app.install": "تثبيت",
   "app.notNow": "ليس الآن",
