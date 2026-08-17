@@ -11,7 +11,6 @@ import {
   X,
   ArrowRight,
   Truck,
-  ShieldCheck,
   Sparkles,
   Home,
   Store,
@@ -31,7 +30,6 @@ import { num } from "@/lib/format";
 
 const TRUST: { icon: typeof Truck; key: MessageKey }[] = [
   { icon: Truck, key: "shop.trustDelivery" },
-  { icon: ShieldCheck, key: "shop.trustAuthentic" },
   { icon: Sparkles, key: "shop.trustCurated" },
 ];
 
@@ -279,9 +277,12 @@ export default function ShopView() {
   return (
     <div className="shop app-shell bg-paper">
       {/* ── Top app bar ─────────────────────────────────────────────────
-          Fixed furniture on a phone; a sticky site header from `sm` up. */}
+          Fixed furniture on a phone; a sticky site header from `sm` up. On
+          the home tab it joins that tab's dark canvas. */}
       <header
-        className="z-40 shrink-0 border-b border-line bg-paper/90 backdrop-blur-md sm:sticky sm:top-0"
+        className={`z-40 shrink-0 border-b border-line bg-paper/90 backdrop-blur-md sm:sticky sm:top-0 ${
+          tab === "home" ? "home-canvas" : ""
+        }`}
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-5 sm:py-4">
@@ -337,56 +338,53 @@ export default function ShopView() {
       <div ref={bodyRef} className="app-body">
         {/* Home tab — phone only. A front screen, not a landing page. */}
         {tab === "home" && (
-          <div className="tab-in pb-8 sm:hidden">
-            <div className="px-4 pt-4">{renderSearch()}</div>
+          <div className="tab-in sm:hidden">
+            {/* Canvas — search and the shop's opening line, on the same dark
+                ground as the bar above it */}
+            <section className="home-canvas home-canvas-hero px-4 pb-12 pt-4">
+              {renderSearch()}
 
-            {/* Hero card */}
-            <section className="px-4 pt-4">
-              <div className="relative overflow-hidden rounded-3xl bg-brand px-5 py-6 text-on-brand">
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute -end-10 -top-16 h-44 w-44 rounded-full bg-white/10"
-                />
-                <span className="label-caps text-on-brand/75">
-                  {t("shop.eyebrow")}
-                </span>
-                <h1 className="mt-2 font-display text-[28px] font-semibold leading-[1.15] tracking-tight">
-                  {t("shop.headline1")}
-                  <br />
-                  {t("shop.headline2")}
-                </h1>
-                <button
-                  onClick={() => pickCategory("all")}
-                  className="mt-5 flex h-11 items-center gap-2 rounded-full bg-surface px-5 text-sm font-semibold text-brand transition active:scale-[0.97]"
-                >
-                  {t("shop.ctaShop")}
-                  <ArrowRight className="h-4 w-4 flip-rtl" />
-                </button>
+              <span className="label-caps mt-6 block text-brand">
+                {t("shop.eyebrow")}
+              </span>
+              <h1 className="mt-2 font-display text-[30px] font-semibold leading-[1.12] tracking-tight text-ink">
+                {t("shop.headline1")}
+                <br />
+                {t("shop.headline2")}
+              </h1>
+              <button
+                onClick={() => pickCategory("all")}
+                className="mt-5 flex h-11 items-center gap-2 rounded-full bg-brand px-5 text-sm font-semibold text-on-brand transition active:scale-[0.97]"
+              >
+                {t("shop.ctaShop")}
+                <ArrowRight className="h-4 w-4 flip-rtl" />
+              </button>
 
-                <div className="mt-6 flex items-center gap-5 border-t border-white/20 pt-4">
-                  <div>
-                    <p className="font-display text-2xl font-semibold leading-none tabular-nums">
-                      {allProducts.length}
-                    </p>
-                    <p className="mt-1 text-[11px] text-on-brand/75">
-                      {t("shop.productsInStock")}
-                    </p>
-                  </div>
-                  <div className="h-8 w-px bg-white/25" />
-                  <div>
-                    <p className="font-display text-2xl font-semibold leading-none tabular-nums">
-                      {categories.length}
-                    </p>
-                    <p className="mt-1 text-[11px] text-on-brand/75">
-                      {t("shop.categories")}
-                    </p>
-                  </div>
+              <div className="mt-7 flex items-center gap-5">
+                <div>
+                  <p className="font-display text-2xl font-semibold leading-none text-ink tabular-nums">
+                    {allProducts.length}
+                  </p>
+                  <p className="mt-1 text-[11px] text-ink-3">
+                    {t("shop.productsInStock")}
+                  </p>
+                </div>
+                <div className="h-8 w-px bg-line-strong" />
+                <div>
+                  <p className="font-display text-2xl font-semibold leading-none text-ink tabular-nums">
+                    {categories.length}
+                  </p>
+                  <p className="mt-1 text-[11px] text-ink-3">
+                    {t("shop.categories")}
+                  </p>
                 </div>
               </div>
             </section>
 
+            {/* Sheet — the rest of the home screen rides up over the canvas */}
+            <div className="home-sheet relative -mt-7 bg-paper pb-8 pt-6">
             {/* Categories */}
-            <section className="pt-7">
+            <section>
               <div className="flex items-center justify-between px-4 pb-3">
                 <h2 className="font-display text-lg font-semibold tracking-tight text-ink">
                   {t("shop.browseCategories")}
@@ -465,6 +463,7 @@ export default function ShopView() {
               <p className="text-center text-[11px] text-ink-3">
                 {t("shop.copyright")}
               </p>
+            </div>
             </div>
           </div>
         )}

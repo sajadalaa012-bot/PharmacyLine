@@ -10,8 +10,6 @@ import {
   ClipboardList,
   ShoppingBag,
   Monitor,
-  MapPin,
-  Map as MapIcon,
   LogOut,
   Menu,
   X,
@@ -21,7 +19,6 @@ import LanguageToggle from "@/components/LanguageToggle";
 import AuthGate from "@/components/AuthGate";
 import { logout } from "@/lib/auth";
 import { useI18n } from "@/lib/LanguageProvider";
-import { PharmacyProvider } from "@/lib/PharmacyProvider";
 import type { MessageKey } from "@/lib/i18n";
 
 const NAV: { href: string; label: MessageKey; icon: typeof Package }[] = [
@@ -30,8 +27,6 @@ const NAV: { href: string; label: MessageKey; icon: typeof Package }[] = [
   { href: "/admin/products", label: "nav.products", icon: Package },
   { href: "/admin/categories", label: "nav.categories", icon: Folder },
   { href: "/admin/orders", label: "nav.orders", icon: ClipboardList },
-  { href: "/admin/pharmacies", label: "nav.pharmacies", icon: MapPin },
-  { href: "/admin/map", label: "nav.map", icon: MapIcon },
 ];
 
 /** The rail contents — shared by the desktop sidebar and the mobile drawer. */
@@ -126,8 +121,6 @@ export default function AdminLayout({
 
   return (
     <AuthGate>
-      {/* Inside AuthGate so the directory is only fetched once signed in. */}
-      <PharmacyProvider>
       <div className="admin flex h-screen w-full overflow-hidden bg-paper text-ink">
         {/* Side rail (desktop) */}
         <aside className="print-hidden hidden w-60 shrink-0 flex-col border-e border-line bg-surface md:flex">
@@ -185,7 +178,6 @@ export default function AdminLayout({
           </main>
         </div>
       </div>
-      </PharmacyProvider>
     </AuthGate>
   );
 }

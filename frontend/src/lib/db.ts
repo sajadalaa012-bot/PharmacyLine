@@ -82,30 +82,9 @@ async function initSchema(): Promise<void> {
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_phone TEXT NOT NULL DEFAULT '';
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_location TEXT NOT NULL DEFAULT '';
 
-    -- Pharmacy directory, shared across devices. Folders let the admin
-    -- group pharmacies under names they choose; deleting a folder leaves its
-    -- pharmacies in place (folder_id becomes NULL → "Unfiled").
-    CREATE TABLE IF NOT EXISTS pharmacy_folders (
-      id           BIGSERIAL PRIMARY KEY,
-      name         TEXT NOT NULL,
-      created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
-    );
-
-    CREATE TABLE IF NOT EXISTS pharmacies (
-      id           BIGSERIAL PRIMARY KEY,
-      folder_id    BIGINT REFERENCES pharmacy_folders(id) ON DELETE SET NULL,
-      name         TEXT NOT NULL,
-      phone        TEXT NOT NULL DEFAULT '',
-      location     TEXT NOT NULL DEFAULT '',
-      notes        TEXT NOT NULL DEFAULT '',
-      created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_pharmacies_folder_id ON pharmacies (folder_id);
-
-    -- Map pin for the visit map. Resolved from "location" when a pharmacy is
-    -- saved, or set by dragging the pin on /admin/map. NULL = not pinned yet.
-    ALTER TABLE pharmacies ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION;
-    ALTER TABLE pharmacies ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION;
+    -- The pharmacy directory and its visit map were removed from the admin.
+    -- Their tables are deliberately left alone rather than dropped here: a
+    -- schema bootstrap is the wrong place to destroy data someone typed in.
+    -- Drop pharmacies and pharmacy_folders by hand if you want the space.
   `);
 }
