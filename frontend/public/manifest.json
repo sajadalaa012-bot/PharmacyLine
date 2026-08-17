@@ -23,12 +23,6 @@
       "short_name": "Cart",
       "url": "/?tab=cart",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "My Orders",
-      "short_name": "Orders",
-      "url": "/?tab=orders",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ],
   "icons": [

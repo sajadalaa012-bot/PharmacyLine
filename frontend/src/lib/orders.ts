@@ -13,9 +13,20 @@ function num(v: unknown, fallback = 0): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
+/** Longest we store for a name / phone / location — enough for a real one,
+ *  short enough that the column can't be used as a dumping ground. */
+const MAX_FIELD = 300;
+
+function text(v: unknown, max = MAX_FIELD): string {
+  return typeof v === "string" ? v.trim().slice(0, max) : "";
+}
+
 export interface OrderInput {
   notes: string;
   discount: number;
+  customer_name: string;
+  customer_phone: string;
+  customer_location: string;
   items: {
     product_id: number | null;
     product_code: string;
@@ -71,6 +82,12 @@ export function validateOrderInput(body: unknown): OrderInput {
   return {
     notes: typeof b.notes === "string" ? b.notes : "",
     discount: Math.max(0, num(b.discount, 0)),
+    // Not required here: the storefront insists on all three before it will
+    // submit, while a counter sale rung up in the admin has a customer
+    // standing right there and nothing to write down.
+    customer_name: text(b.customer_name),
+    customer_phone: text(b.customer_phone, 40),
+    customer_location: text(b.customer_location, 500),
     items,
     idempotency_key:
       typeof b.idempotency_key === "string" ? b.idempotency_key : undefined,
@@ -106,6 +123,9 @@ function mapOrder(r: Row, items: OrderItem[]): Order {
     discount: num(r.discount),
     grand_total: num(r.grand_total),
     status: String(r.status) as OrderStatus,
+    customer_name: String(r.customer_name ?? ""),
+    customer_phone: String(r.customer_phone ?? ""),
+    customer_location: String(r.customer_location ?? ""),
     items,
   };
 }
@@ -146,6 +166,9 @@ export async function createOrder(
       "discount",
       "grand_total",
       "status",
+      "customer_name",
+      "customer_phone",
+      "customer_location",
     ];
     const vals: unknown[] = [
       input.idempotency_key ?? null,
@@ -154,6 +177,9 @@ export async function createOrder(
       input.discount,
       grand_total,
       status,
+      input.customer_name,
+      input.customer_phone,
+      input.customer_location,
     ];
     if (input.created_at) {
       cols.push("created_at");
@@ -258,9 +284,19 @@ export async function replaceOrder(
   try {
     await client.query("BEGIN");
     const upd = await client.query(
-      `UPDATE orders SET notes = $1, discount = $2, grand_total = $3, status = $4
-       WHERE id = $5 RETURNING id`,
-      [input.notes, input.discount, grand_total, status, id],
+      `UPDATE orders SET notes = $1, discount = $2, grand_total = $3, status = $4,
+              customer_name = $5, customer_phone = $6, customer_location = $7
+       WHERE id = $8 RETURNING id`,
+      [
+        input.notes,
+        input.discount,
+        grand_total,
+        status,
+        input.customer_name,
+        input.customer_phone,
+        input.customer_location,
+        id,
+      ],
     );
     if (!upd.rows[0]) {
       await client.query("ROLLBACK");

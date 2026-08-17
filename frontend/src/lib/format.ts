@@ -66,6 +66,15 @@ export function orderToWhatsAppText(order: Order): string {
     lines.push(`   الكمية: ${it.quantity} × ${iqd(it.unit_price)} = ${iqd(it.subtotal)}`);
   }
 
+  // Delivery block — the driver reads this message, so it goes near the top
+  // of the totals rather than buried under the notes.
+  if (order.customer_name || order.customer_phone || order.customer_location) {
+    lines.push("", "*التوصيل:*");
+    if (order.customer_name) lines.push(`👤 ${order.customer_name}`);
+    if (order.customer_phone) lines.push(`📞 ${order.customer_phone}`);
+    if (order.customer_location) lines.push(`📍 ${order.customer_location}`);
+  }
+
   lines.push("");
   const subtotal = order.items.reduce((sum, it) => sum + it.subtotal, 0);
   if (order.discount > 0) {

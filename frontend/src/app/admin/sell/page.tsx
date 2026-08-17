@@ -186,6 +186,8 @@ export default function AdminSellPage() {
             items={cart.items}
             notes={cart.notes}
             onNotesChange={cart.setNotes}
+            customer={cart.customer}
+            onCustomerChange={cart.setCustomerField}
             discount={cart.discount}
             onDiscountChange={cart.setDiscount}
             onQtyChange={cart.setQty}
@@ -223,6 +225,8 @@ export default function AdminSellPage() {
                 items={cart.items}
                 notes={cart.notes}
                 onNotesChange={cart.setNotes}
+                customer={cart.customer}
+                onCustomerChange={cart.setCustomerField}
                 discount={cart.discount}
                 onDiscountChange={cart.setDiscount}
                 onQtyChange={cart.setQty}

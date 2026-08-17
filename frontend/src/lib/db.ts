@@ -75,6 +75,13 @@ async function initSchema(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders (created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items (order_id);
 
+    -- Who placed the order and where it goes. Added after the first orders
+    -- were taken, so they default to empty rather than being NOT NULL from
+    -- the start; the storefront asks for all three before it will submit.
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_name TEXT NOT NULL DEFAULT '';
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_phone TEXT NOT NULL DEFAULT '';
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_location TEXT NOT NULL DEFAULT '';
+
     -- Pharmacy directory, shared across devices. Folders let the admin
     -- group pharmacies under names they choose; deleting a folder leaves its
     -- pharmacies in place (folder_id becomes NULL → "Unfiled").

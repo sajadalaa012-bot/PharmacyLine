@@ -1,14 +1,17 @@
 "use client";
 
-import { CartItem } from "@/types";
+import { useState } from "react";
+import { CartItem, CustomerDetails, hasCustomerDetails } from "@/types";
 import { money, num } from "@/lib/format";
-import { ShoppingCart, Trash2, X } from "lucide-react";
+import { ShoppingCart, Trash2, X, MapPin, LoaderCircle } from "lucide-react";
 import { useI18n } from "@/lib/LanguageProvider";
 
 interface CartPanelProps {
   items: CartItem[];
   notes: string;
   onNotesChange: (notes: string) => void;
+  customer: CustomerDetails;
+  onCustomerChange: (field: keyof CustomerDetails, value: string) => void;
   discount: number;
   onDiscountChange: (discount: number) => void;
   onQtyChange: (productId: number, isFree: boolean, qty: number) => void;
@@ -26,6 +29,8 @@ export default function CartPanel({
   items,
   notes,
   onNotesChange,
+  customer,
+  onCustomerChange,
   discount,
   onDiscountChange,
   onQtyChange,
@@ -38,10 +43,46 @@ export default function CartPanel({
   customerMode = false,
 }: CartPanelProps) {
   const { t } = useI18n();
+  const [locating, setLocating] = useState(false);
+  const [locateError, setLocateError] = useState<string | null>(null);
   const itemsTotal = items.reduce((sum, ci) => sum + ci.subtotal, 0);
   const discountAmount = (itemsTotal * discount) / 100;
   const grandTotal = Math.max(0, itemsTotal - discountAmount);
   const totalQty = items.reduce((sum, ci) => sum + ci.quantity, 0);
+
+  // A shopper's order has to be deliverable; a sale rung up at the counter
+  // has the customer standing there, so the same fields stay optional.
+  const customerReady = !customerMode || hasCustomerDetails(customer);
+
+  /** Append the phone's coordinates to whatever address is already typed. */
+  const useMyLocation = () => {
+    if (locating || !navigator.geolocation) {
+      if (!navigator.geolocation) setLocateError(t("checkout.locateFailed"));
+      return;
+    }
+    setLocating(true);
+    setLocateError(null);
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const pin = `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`;
+        const existing = customer.customer_location.trim();
+        onCustomerChange(
+          "customer_location",
+          existing ? `${existing}\n${t("checkout.gps")}: ${pin}` : pin,
+        );
+        setLocating(false);
+      },
+      () => {
+        setLocateError(t("checkout.locateFailed"));
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000 },
+    );
+  };
+
+  const field =
+    "w-full rounded-md border border-line bg-sunken px-3 py-2 text-sm text-ink " +
+    "outline-none transition placeholder:text-ink-3 focus:border-brand/50 focus:ring-1 focus:ring-brand/25";
 
   return (
     <div className="flex h-full flex-col bg-surface">
@@ -164,6 +205,80 @@ export default function CartPanel({
             ))}
           </ul>
         )}
+
+        {/* Who it's for and where it goes. Inside the scroller, not a fixed
+            panel of its own: on a phone the cart would otherwise be three
+            stacked boxes with no room left to read the order. */}
+        <div className="mt-4 space-y-2.5 border-t border-line pt-4">
+          <p className="label-caps text-ink-3">{t("checkout.details")}</p>
+
+          <div>
+            <label htmlFor="customer-name" className="sr-only">
+              {t("checkout.name")}
+            </label>
+            <input
+              id="customer-name"
+              type="text"
+              autoComplete="name"
+              value={customer.customer_name}
+              onChange={(e) => onCustomerChange("customer_name", e.target.value)}
+              placeholder={t("checkout.namePlaceholder")}
+              className={field}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="customer-phone" className="sr-only">
+              {t("checkout.phone")}
+            </label>
+            <input
+              id="customer-phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              dir="ltr"
+              value={customer.customer_phone}
+              onChange={(e) =>
+                onCustomerChange("customer_phone", e.target.value)
+              }
+              placeholder={t("checkout.phonePlaceholder")}
+              className={`${field} text-start tabular-nums`}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="customer-location" className="sr-only">
+              {t("checkout.location")}
+            </label>
+            <textarea
+              id="customer-location"
+              rows={2}
+              value={customer.customer_location}
+              onChange={(e) =>
+                onCustomerChange("customer_location", e.target.value)
+              }
+              placeholder={t("checkout.locationPlaceholder")}
+              className={`${field} resize-none`}
+            />
+            <button
+              type="button"
+              onClick={useMyLocation}
+              disabled={locating}
+              className="mt-1.5 flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-[11px] font-semibold text-ink-2
+                         transition hover:border-brand/40 hover:text-brand active:scale-95 disabled:opacity-60"
+            >
+              {locating ? (
+                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <MapPin className="h-3.5 w-3.5" />
+              )}
+              {locating ? t("checkout.locating") : t("checkout.useMyLocation")}
+            </button>
+            {locateError && (
+              <p className="mt-1 text-[11px] text-rose">{locateError}</p>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Adjustments */}
@@ -247,9 +362,14 @@ export default function CartPanel({
             </span>
           </span>
         </div>
+        {items.length > 0 && !customerReady && (
+          <p className="pt-1 text-[11px] leading-relaxed text-ink-3">
+            {t("checkout.required")}
+          </p>
+        )}
         <button
           onClick={onSubmit}
-          disabled={items.length === 0 || submitting}
+          disabled={items.length === 0 || submitting || !customerReady}
           className="mt-1 h-11 w-full rounded-md bg-brand text-sm font-semibold tracking-[0.01em] text-cart
                      shadow-[0_10px_24px_-10px_var(--color-brand)] transition-all duration-200
                      hover:bg-brand-deep active:scale-[0.99]

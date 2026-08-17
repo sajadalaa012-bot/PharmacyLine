@@ -37,7 +37,6 @@ const en = {
   // ── Shared vocabulary ──
   "common.cart": "Cart",
   "common.orders": "Orders",
-  "common.myOrders": "My Orders",
   "common.item": "item",
   "common.items": "items",
   "common.itemsCount": "{n} items",
@@ -159,19 +158,35 @@ const en = {
   "cart.notesPlaceholder": "Special instructions…",
   "cart.discountWith": "Discount ({n}%)",
   "cart.placeOrder": "Place Order",
+  // ── Checkout details ──
+  "checkout.details": "Delivery details",
+  "checkout.name": "Full name",
+  "checkout.namePlaceholder": "Full name",
+  "checkout.phone": "Phone number",
+  "checkout.phonePlaceholder": "Phone number — 07XX XXX XXXX",
+  "checkout.location": "Delivery location",
+  "checkout.locationPlaceholder":
+    "Delivery location — area, street, nearest landmark…",
+  "checkout.useMyLocation": "Use my location",
+  "checkout.locating": "Locating…",
+  "checkout.locateFailed":
+    "Couldn't read your location — please type the address instead.",
+  "checkout.gps": "GPS",
+  "checkout.required": "Add your name, phone, and delivery location to place the order.",
+  "checkout.customer": "Customer",
+  "checkout.noDetails": "No delivery details on this order",
+  "checkout.openInMaps": "Open in Maps",
   "cart.generateReceipt": "Generate Receipt",
   "cart.approveOrder": "Approve Order",
   "cart.checkout": "Checkout",
 
-  // ── Order confirmation & history ──
+  // ── Order confirmation ──
   "confirm.title": "Order received",
   "confirm.subtitle": "We have received your order — we will confirm it shortly",
   "confirm.order": "Order",
   "confirm.items": "Items",
   "confirm.note": "The pharmacy will review your order and confirm it shortly.",
   "confirm.continue": "Continue Shopping",
-  "history.empty": "No orders yet",
-  "history.emptyHint": "Orders you place will show up here.",
 
   // ── Receipt ──
   "receipt.eyebrow": "Medical · Skincare · Supplements",
@@ -442,7 +457,6 @@ const ar: Record<MessageKey, string> = {
   // ── Shared vocabulary ──
   "common.cart": "السلة",
   "common.orders": "الطلبات",
-  "common.myOrders": "طلباتي",
   "common.item": "منتج",
   "common.items": "منتجات",
   "common.itemsCount": "{n} منتج",
@@ -564,19 +578,34 @@ const ar: Record<MessageKey, string> = {
   "cart.notesPlaceholder": "تعليمات خاصة…",
   "cart.discountWith": "الخصم ({n}%)",
   "cart.placeOrder": "إتمام الطلب",
+  // ── Checkout details ──
+  "checkout.details": "معلومات التوصيل",
+  "checkout.name": "الاسم الكامل",
+  "checkout.namePlaceholder": "الاسم الكامل",
+  "checkout.phone": "رقم الهاتف",
+  "checkout.phonePlaceholder": "رقم الهاتف — 07XX XXX XXXX",
+  "checkout.location": "موقع التوصيل",
+  "checkout.locationPlaceholder":
+    "موقع التوصيل — المنطقة، الشارع، أقرب نقطة دالة…",
+  "checkout.useMyLocation": "استخدام موقعي",
+  "checkout.locating": "جارٍ تحديد الموقع…",
+  "checkout.locateFailed": "تعذّر تحديد موقعك — يُرجى كتابة العنوان بدلاً من ذلك.",
+  "checkout.gps": "الإحداثيات",
+  "checkout.required": "أضف اسمك ورقم هاتفك وموقع التوصيل لإتمام الطلب.",
+  "checkout.customer": "الزبون",
+  "checkout.noDetails": "لا توجد معلومات توصيل لهذا الطلب",
+  "checkout.openInMaps": "فتح في الخرائط",
   "cart.generateReceipt": "إصدار الفاتورة",
   "cart.approveOrder": "تأكيد الطلب",
   "cart.checkout": "الدفع",
 
-  // ── Order confirmation & history ──
+  // ── Order confirmation ──
   "confirm.title": "تم استلام الطلب",
   "confirm.subtitle": "تم استلام طلبك — سنؤكده قريباً",
   "confirm.order": "الطلب",
   "confirm.items": "المنتجات",
   "confirm.note": "ستراجع الصيدلية طلبك وتؤكده قريباً.",
   "confirm.continue": "متابعة التسوّق",
-  "history.empty": "لا توجد طلبات بعد",
-  "history.emptyHint": "ستظهر الطلبات التي تنشئها هنا.",
 
   // ── Receipt ──
   "receipt.eyebrow": "طبي · العناية بالبشرة · المكمّلات",

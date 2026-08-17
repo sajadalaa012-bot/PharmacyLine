@@ -100,6 +100,32 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
 
           {/* Ledger */}
           <div className="px-8 py-6">
+            {/* Delivery details, when the order came from the storefront */}
+            {(order.customer_name ||
+              order.customer_phone ||
+              order.customer_location) && (
+              <div className="mb-5 rounded-md border border-line bg-sunken/60 p-3.5">
+                <p className="label-caps mb-1 text-ink-3">
+                  {t("checkout.customer")}
+                </p>
+                {order.customer_name && (
+                  <p className="text-[13px] font-semibold text-ink">
+                    <bdi>{order.customer_name}</bdi>
+                  </p>
+                )}
+                {order.customer_phone && (
+                  <p className="text-[13px] text-ink-2 tabular-nums" dir="ltr">
+                    {order.customer_phone}
+                  </p>
+                )}
+                {order.customer_location && (
+                  <p className="mt-0.5 whitespace-pre-wrap text-[12px] leading-relaxed text-ink-2">
+                    <bdi>{order.customer_location}</bdi>
+                  </p>
+                )}
+              </div>
+            )}
+
             <div className="label-caps flex justify-between border-b border-line pb-2 text-ink-3">
               <span>{t("receipt.item")}</span>
               <span>{t("receipt.amount")}</span>

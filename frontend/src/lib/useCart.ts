@@ -4,6 +4,8 @@ import { useState, useCallback, useRef } from "react";
 import {
   Product,
   CartItem,
+  CustomerDetails,
+  EMPTY_CUSTOMER,
   Order,
   OrderCreate,
   OrderStatus,
@@ -22,6 +24,7 @@ export function useCart(
 ) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [notes, setNotes] = useState("");
+  const [customer, setCustomer] = useState<CustomerDetails>(EMPTY_CUSTOMER);
   const [discount, setDiscount] = useState<number>(0);
   const [order, setOrder] = useState<Order | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -176,9 +179,17 @@ export function useCart(
     []
   );
 
+  /** Update one checkout field — name, phone, or delivery location. */
+  const setCustomerField = useCallback(
+    (field: keyof CustomerDetails, value: string) =>
+      setCustomer((prev) => ({ ...prev, [field]: value })),
+    [],
+  );
+
   const clear = useCallback(() => {
     setItems([]);
     setNotes("");
+    setCustomer(EMPTY_CUSTOMER);
     setDiscount(0);
   }, []);
 
@@ -196,6 +207,13 @@ export function useCart(
       }))
     );
     setNotes(existing.notes);
+    // Carried through the admin's review so approving an order doesn't lose
+    // the customer it belongs to.
+    setCustomer({
+      customer_name: existing.customer_name,
+      customer_phone: existing.customer_phone,
+      customer_location: existing.customer_location,
+    });
     const subtotal = existing.items.reduce((sum, it) => sum + it.subtotal, 0);
     setDiscount(subtotal > 0 ? Math.round((existing.discount / subtotal) * 100) : 0);
     setEditingOrderId(existing.id);
@@ -212,6 +230,7 @@ export function useCart(
     const discountAmount = (itemsTotal * discount) / 100;
     const payload: OrderCreate = {
       notes,
+      ...customer,
       discount: discountAmount,
       grand_total: Math.max(0, itemsTotal - discountAmount),
       status: submitStatus,
@@ -235,12 +254,23 @@ export function useCart(
     } finally {
       setSubmitting(false);
     }
-  }, [items, notes, discount, submitting, submitStatus, editingOrderId, onOrderComplete, t]);
+  }, [
+    items,
+    notes,
+    customer,
+    discount,
+    submitting,
+    submitStatus,
+    editingOrderId,
+    onOrderComplete,
+    t,
+  ]);
 
   const reset = useCallback(() => {
     setOrder(null);
     setItems([]);
     setNotes("");
+    setCustomer(EMPTY_CUSTOMER);
     setDiscount(0);
     setEditingOrderId(null);
     setSubmitError(null);
@@ -252,6 +282,8 @@ export function useCart(
     items,
     notes,
     setNotes,
+    customer,
+    setCustomerField,
     discount,
     setDiscount,
     order,

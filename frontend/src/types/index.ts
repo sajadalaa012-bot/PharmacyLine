@@ -122,7 +122,32 @@ export interface OrderItemCreate {
 
 export type OrderStatus = "pending" | "approved";
 
-export interface OrderCreate {
+/** Who the order is for and where it goes — asked at checkout. */
+export interface CustomerDetails {
+  customer_name: string;
+  customer_phone: string;
+  /** Free text: a neighbourhood and landmark, coordinates, or both. */
+  customer_location: string;
+}
+
+export const EMPTY_CUSTOMER: CustomerDetails = {
+  customer_name: "",
+  customer_phone: "",
+  customer_location: "",
+};
+
+/** True once an order carries enough for the shop to deliver it. */
+export function hasCustomerDetails(c: CustomerDetails): boolean {
+  return (
+    c.customer_name.trim() !== "" &&
+    // Iraqi mobile numbers are 11 digits; anything shorter than 7 is a typo,
+    // not a phone number someone can be reached on.
+    (c.customer_phone.match(/\d/g)?.length ?? 0) >= 7 &&
+    c.customer_location.trim() !== ""
+  );
+}
+
+export interface OrderCreate extends Partial<CustomerDetails> {
   notes: string;
   discount?: number;
   grand_total: number;
@@ -141,7 +166,7 @@ export interface OrderItem {
   is_free: boolean;
 }
 
-export interface Order {
+export interface Order extends CustomerDetails {
   id: number;
   created_at: string;
   notes: string;

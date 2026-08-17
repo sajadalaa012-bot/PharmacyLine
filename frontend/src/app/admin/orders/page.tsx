@@ -5,7 +5,17 @@ import Link from "next/link";
 import { Order } from "@/types";
 import { fetchOrders, updateOrder, deleteOrder } from "@/lib/api";
 import { money, orderNo, shortDate, shortTime, whatsAppShareUrl } from "@/lib/format";
-import { ChevronRight, Plus, Edit3, Check, MessageCircle, Trash2, ReceiptText } from "lucide-react";
+import {
+  ChevronRight,
+  Plus,
+  Edit3,
+  Check,
+  MessageCircle,
+  Trash2,
+  ReceiptText,
+  Phone,
+  MapPin,
+} from "lucide-react";
 import Receipt from "@/components/Receipt";
 import { useI18n } from "@/lib/LanguageProvider";
 
@@ -42,6 +52,9 @@ export default function AdminOrdersPage() {
       try {
         await updateOrder(order.id, {
           notes: order.notes,
+          customer_name: order.customer_name,
+          customer_phone: order.customer_phone,
+          customer_location: order.customer_location,
           discount: order.discount,
           grand_total: order.grand_total,
           status: "approved",
@@ -199,6 +212,16 @@ export default function AdminOrdersPage() {
                       {order.items.length}{" "}
                       {order.items.length === 1 ? t("orders.line") : t("orders.lines")}
                     </p>
+                    {order.customer_name && (
+                      <p className="mt-0.5 truncate text-[11px] font-medium text-ink-2">
+                        <bdi>{order.customer_name}</bdi>
+                        {order.customer_phone && (
+                          <span className="ms-2 tabular-nums text-ink-3" dir="ltr">
+                            {order.customer_phone}
+                          </span>
+                        )}
+                      </p>
+                    )}
                   </div>
                   <div className="shrink-0 text-end">
                     <p className="text-sm font-bold text-ink tabular-nums">
@@ -214,6 +237,56 @@ export default function AdminOrdersPage() {
 
                 {open && (
                   <div className="fade-in border-t border-line bg-sunken/30 px-5 py-4 ps-12">
+                    {/* Who to deliver to — the first thing staff need here */}
+                    <div className="mb-3 rounded-md border border-line bg-surface p-3">
+                      <p className="label-caps mb-1.5 text-ink-3">
+                        {t("checkout.customer")}
+                      </p>
+                      {order.customer_name ||
+                      order.customer_phone ||
+                      order.customer_location ? (
+                        <div className="space-y-1 text-xs text-ink-2">
+                          {order.customer_name && (
+                            <p className="font-semibold text-ink">
+                              <bdi>{order.customer_name}</bdi>
+                            </p>
+                          )}
+                          {order.customer_phone && (
+                            <a
+                              href={`tel:${order.customer_phone.replace(/\s+/g, "")}`}
+                              className="flex items-center gap-1.5 font-medium text-brand tabular-nums"
+                              dir="ltr"
+                            >
+                              <Phone className="h-3 w-3 shrink-0" />
+                              {order.customer_phone}
+                            </a>
+                          )}
+                          {order.customer_location && (
+                            <div className="flex items-start gap-1.5">
+                              <MapPin className="mt-0.5 h-3 w-3 shrink-0 text-ink-3" />
+                              <p className="whitespace-pre-wrap leading-relaxed">
+                                <bdi>{order.customer_location}</bdi>{" "}
+                                <a
+                                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                    order.customer_location
+                                  )}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="whitespace-nowrap font-semibold text-brand"
+                                >
+                                  {t("checkout.openInMaps")}
+                                </a>
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-ink-3">
+                          {t("checkout.noDetails")}
+                        </p>
+                      )}
+                    </div>
+
                     <ul className="divide-y divide-line/60">
                       {order.items.map((item) => (
                         <li key={item.id} className="py-2">

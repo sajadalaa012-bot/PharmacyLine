@@ -16,14 +16,12 @@ import {
   Home,
   Store,
   SlidersHorizontal,
-  ClipboardList,
   ChevronRight,
 } from "lucide-react";
 import ProductCard from "./ProductCard";
 import ProductDetailModal from "./ProductDetailModal";
 import CartPanel from "./CartPanel";
 import OrderConfirmation from "./OrderConfirmation";
-import OrderHistory from "./OrderHistory";
 import InstallPrompt from "./InstallPrompt";
 import ThemeToggle from "./ThemeToggle";
 import LanguageToggle from "./LanguageToggle";
@@ -37,14 +35,13 @@ const TRUST: { icon: typeof Truck; key: MessageKey }[] = [
   { icon: Sparkles, key: "shop.trustCurated" },
 ];
 
-/** The four destinations of the phone tab bar. */
-type Tab = "home" | "store" | "cart" | "orders";
+/** The destinations of the phone tab bar. */
+type Tab = "home" | "store" | "cart";
 
 const TABS: { id: Tab; icon: typeof Home; key: MessageKey }[] = [
   { id: "home", icon: Home, key: "shop.home" },
   { id: "store", icon: Store, key: "shop.store" },
   { id: "cart", icon: ShoppingCart, key: "common.cart" },
-  { id: "orders", icon: ClipboardList, key: "common.orders" },
 ];
 
 /** Products worth putting on the front screen: in stock, newest first. */
@@ -60,7 +57,6 @@ export default function ShopView() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [cartOpen, setCartOpen] = useState(false);
-  const [cartTab, setCartTab] = useState<"cart" | "orders">("cart");
   const [tab, setTab] = useState<Tab>("home");
   const [detailProduct, setDetailProduct] = useState<Product | null>(null);
   // The phone shell scrolls this element, not the document, so every tab
@@ -86,7 +82,7 @@ export default function ShopView() {
   // a tab: /?tab=store, /?tab=cart.
   useEffect(() => {
     const wanted = new URLSearchParams(window.location.search).get("tab");
-    if (wanted === "store" || wanted === "cart" || wanted === "orders") {
+    if (wanted === "store" || wanted === "cart") {
       // Read after mount, not during render: the server has no URL search to
       // read from, and picking the tab while rendering would break hydration.
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -221,6 +217,8 @@ export default function ShopView() {
       items={cart.items}
       notes={cart.notes}
       onNotesChange={cart.setNotes}
+      customer={cart.customer}
+      onCustomerChange={cart.setCustomerField}
       discount={cart.discount}
       onDiscountChange={cart.setDiscount}
       onQtyChange={cart.setQty}
@@ -231,27 +229,6 @@ export default function ShopView() {
       customerMode
     />
   );
-
-  // Cart drawer tabs (desktop): the live cart vs. this device's order history.
-  const cartTabs = (
-    <div className="flex items-center gap-1">
-      {(["cart", "orders"] as const).map((pane) => (
-        <button
-          key={pane}
-          onClick={() => setCartTab(pane)}
-          className={`label-caps rounded-md px-3 py-1.5 transition ${
-            cartTab === pane
-              ? "bg-brand text-on-brand"
-              : "text-ink-2 hover:bg-sunken"
-          }`}
-        >
-          {pane === "cart" ? t("common.cart") : t("common.myOrders")}
-        </button>
-      ))}
-    </div>
-  );
-
-  const drawerBody = cartTab === "cart" ? cartPanel : <OrderHistory />;
 
   const renderSearch = (className = "") => (
     <div className={`relative ${className}`}>
@@ -492,28 +469,9 @@ export default function ShopView() {
           </div>
         )}
 
-        {/* Cart & Orders tabs — phone only; the desktop uses the drawer. */}
-        {(tab === "cart" || tab === "orders") && (
-          <div className="tab-in flex h-full flex-col sm:hidden">
-            <div className="flex shrink-0 items-center gap-1 border-b border-line bg-sunken/40 px-4 py-2.5">
-              {(["cart", "orders"] as const).map((pane) => (
-                <button
-                  key={pane}
-                  onClick={() => goTab(pane)}
-                  className={`label-caps rounded-full px-3.5 py-1.5 transition active:scale-95 ${
-                    tab === pane
-                      ? "bg-brand text-on-brand"
-                      : "text-ink-2"
-                  }`}
-                >
-                  {pane === "cart" ? t("common.cart") : t("common.myOrders")}
-                </button>
-              ))}
-            </div>
-            <div className="min-h-0 flex-1 overflow-hidden">
-              {tab === "cart" ? cartPanel : <OrderHistory />}
-            </div>
-          </div>
+        {/* Cart tab — phone only; the desktop uses the drawer. */}
+        {tab === "cart" && (
+          <div className="tab-in h-full sm:hidden">{cartPanel}</div>
         )}
 
         {/* Hero — desktop only; the phone has its home tab instead. */}
@@ -771,7 +729,7 @@ export default function ShopView() {
         className="z-40 shrink-0 border-t border-line bg-surface/95 backdrop-blur-md sm:hidden"
         style={{ paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))" }}
       >
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-3">
           {TABS.map(({ id, icon: Icon, key }) => {
             const active = tab === id;
             return (
@@ -816,7 +774,7 @@ export default function ShopView() {
           <div className="flex-1" onClick={() => setCartOpen(false)} />
           <div className="slide-in-right flex h-full w-full max-w-md flex-col border-s border-line bg-surface shadow-2xl">
             <div className="flex items-center justify-between border-b border-line bg-sunken/50 px-5 py-3.5">
-              {cartTabs}
+              <span className="label-caps text-ink-2">{t("cart.checkout")}</span>
               <button
                 onClick={() => setCartOpen(false)}
                 aria-label={t("shop.closeCart")}
@@ -825,7 +783,7 @@ export default function ShopView() {
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="flex-1 overflow-hidden">{drawerBody}</div>
+            <div className="flex-1 overflow-hidden">{cartPanel}</div>
           </div>
         </div>
       )}
