@@ -139,6 +139,17 @@ const en = {
   "shop.copyright":
     "© 2026 Pharmacy Line — Pharmacy & Wellness. All rights reserved.",
   "shop.staffLogin": "Staff login",
+  "shop.browseCategories": "Shop by category",
+  "shop.featured": "Featured",
+  "shop.seeAll": "See all",
+  "shop.goodToSeeYou": "Welcome back",
+
+  // ── Install to home screen ──
+  "app.installTitle": "Install the app",
+  "app.installBody": "Add Pharmacy Line to your home screen — full screen, one tap away.",
+  "app.installIos": "Tap the Share button, then “Add to Home Screen”.",
+  "app.install": "Install",
+  "app.notNow": "Not now",
 
   // ── Product card & detail ──
   "product.addToCart": "Add to Cart",
@@ -533,6 +544,17 @@ const ar: Record<MessageKey, string> = {
     "مستحضرات الصيدلية والعناية بالبشرة والعافية — مختارة وموصَّلة إليك.",
   "shop.copyright": "© 2026 Pharmacy Line — صيدلية وعافية. جميع الحقوق محفوظة.",
   "shop.staffLogin": "دخول الموظفين",
+  "shop.browseCategories": "تسوّق حسب القسم",
+  "shop.featured": "مختارات",
+  "shop.seeAll": "عرض الكل",
+  "shop.goodToSeeYou": "أهلاً بعودتك",
+
+  // ── Install to home screen ──
+  "app.installTitle": "ثبّت التطبيق",
+  "app.installBody": "أضف Pharmacy Line إلى شاشتك الرئيسية — بملء الشاشة وبلمسة واحدة.",
+  "app.installIos": "اضغط زر المشاركة، ثم «إضافة إلى الشاشة الرئيسية».",
+  "app.install": "تثبيت",
+  "app.notNow": "ليس الآن",
 
   // ── Product card & detail ──
   "product.addToCart": "أضف إلى السلة",

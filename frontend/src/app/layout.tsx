@@ -46,9 +46,11 @@ export const viewport: Viewport = {
   minimumScale: 1,
   userScalable: false,
   viewportFit: "cover",
+  // Matches the storefront's paper, so the status bar reads as part of the
+  // app rather than as browser chrome sitting on top of it.
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f4f6f2" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f1f18" },
+    { media: "(prefers-color-scheme: light)", color: "#f5f2ec" },
+    { media: "(prefers-color-scheme: dark)", color: "#16130e" },
   ],
 };
 

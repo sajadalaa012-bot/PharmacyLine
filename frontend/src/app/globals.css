@@ -156,6 +156,61 @@ body {
   touch-action: manipulation;
 }
 
+/* ── App feel ─────────────────────────────────────────────────────────
+   The small things that separate a web page from an application: no blue
+   flash under a tap, no caret or selection dragged out of a button, and no
+   rubber-band of the page behind a scrolling panel. */
+
+html,
+body {
+  overscroll-behavior-y: none;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+nav,
+[role="button"],
+.label-caps {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ── App shell ────────────────────────────────────────────────────────
+   On a phone the storefront is furniture, not a document: the top bar and
+   the tab strip are fixed, and only the middle region moves. From `sm` up
+   it falls back to ordinary document flow, which is what a desktop visitor
+   expects from a shop. */
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+@media (max-width: 639px) {
+  .app-shell {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .app-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .app-body::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Native controls (selects, inputs) inherit the theme instead of OS chrome.
    Kept in @layer base so explicit text-* utilities still win over it. */
 @layer base {
@@ -330,6 +385,21 @@ body::after {
   animation: fade-in 0.2s ease-out forwards;
 }
 
+/* Switching tabs on the phone shell — a short lift, like a native pager. */
+@keyframes tab-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.tab-in {
+  animation: tab-in 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @keyframes pop {
   from {
     opacity: 0;
@@ -349,6 +419,7 @@ body::after {
   .slide-in-right,
   .slide-in-left,
   .fade-in,
+  .tab-in,
   .pop {
     animation-duration: 0.01ms;
   }

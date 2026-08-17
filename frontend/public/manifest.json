@@ -6,9 +6,31 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
-  "background_color": "#f4f6f2",
-  "theme_color": "#11734f",
+  "background_color": "#f5f2ec",
+  "theme_color": "#f5f2ec",
+  "categories": ["shopping", "medical", "health"],
+  "shortcuts": [
+    {
+      "name": "Store",
+      "short_name": "Store",
+      "url": "/?tab=store",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Cart",
+      "short_name": "Cart",
+      "url": "/?tab=cart",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "My Orders",
+      "short_name": "Orders",
+      "url": "/?tab=orders",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
   "icons": [
     {
       "src": "/icons/icon-192.png",
