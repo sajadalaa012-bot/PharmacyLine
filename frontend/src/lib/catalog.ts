@@ -111,6 +111,22 @@ function productValues(p: ProductInput): unknown[] {
 
 // ── Validation ──────────────────────────────────────────────────────
 
+/**
+ * An uploaded image is a base64 data URL living in the product row. Slicing an
+ * over-long one to fit — the way every other field is handled — would store a
+ * truncated, unreadable image, so this refuses instead of trimming.
+ */
+function imageUrl(v: unknown): string {
+  if (typeof v !== "string") return "";
+  const s = v.trim();
+  if (s.length > MAX_IMAGE_URL)
+    throw new CatalogError(
+      "That image is too large. Pick a smaller one and try again.",
+      413,
+    );
+  return s;
+}
+
 export function validateProduct(body: unknown): ProductInput {
   if (!body || typeof body !== "object")
     throw new CatalogError("Invalid request body.");
@@ -137,7 +153,7 @@ export function validateProduct(body: unknown): ProductInput {
     name,
     code,
     price,
-    image_url: text(b.image_url, MAX_IMAGE_URL),
+    image_url: imageUrl(b.image_url),
     category_id,
     description: text(b.description),
     benefits: text(b.benefits),

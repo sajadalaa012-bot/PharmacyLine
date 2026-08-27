@@ -134,11 +134,15 @@ export async function uploadProductImage(
     reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(file);
   });
-  return { image_url: await downscale(dataUrl) };
+  return { image_url: await downscaleImage(dataUrl) };
 }
 
-/** Best effort: anything the browser can't decode is passed through as-is. */
-async function downscale(dataUrl: string): Promise<string> {
+/**
+ * Shrinks a data URL to something worth sending to every shopper. Best effort:
+ * anything the browser can't decode is passed through as-is. Exported because
+ * catalog recovery re-shrinks photos the browser-only build stored full size.
+ */
+export async function downscaleImage(dataUrl: string): Promise<string> {
   try {
     const img = await new Promise<HTMLImageElement>((resolve, reject) => {
       const el = new Image();

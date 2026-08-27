@@ -2,9 +2,10 @@
 //
 // Products, categories and orders all used to live here, which meant an
 // admin's edits never left the browser that made them. They now live in the
-// shared database behind /api (see lib/api.ts and lib/catalog.ts). All that
-// remains of this store is the old orders, which migrateLocalOrders uploads
-// once so nothing placed before the move is lost.
+// shared database behind /api (see lib/api.ts and lib/catalog.ts). What is
+// left in this store is whatever the last browser-only build wrote, and two
+// recovery paths read it so that work isn't lost: migrateLocalOrders for
+// orders, and lib/recoverLocalCatalog for catalog edits.
 
 const DB_NAME = "pharmacy_pos";
 const DB_VERSION = 2;

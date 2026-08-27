@@ -385,6 +385,33 @@ const en = {
   "err.saveProduct": "Failed to save product.",
   "err.saveCategory": "Failed to save category.",
   "err.deleteCategory": "Failed to delete category.",
+
+  // ── Recovering catalog edits stranded in this browser ──
+  "nav.recover": "Publish device edits",
+  "recover.title": "Publish edits made on this device",
+  "recover.lede":
+    "The shop used to save products inside this browser instead of on the server, so edits made then are invisible to everyone else. This compares what this browser still holds against the live shop, and publishes the difference.",
+  "recover.noLocal": "Nothing stored on this device",
+  "recover.noLocalHint":
+    "This browser has no saved catalog, so there is nothing to publish. If you made the edits on another phone or computer, open this page there.",
+  "recover.inSync": "Already published",
+  "recover.inSyncHint":
+    "All {n} products on this device match the live shop. Nothing to do.",
+  "recover.toAdd": "To add",
+  "recover.toUpdate": "To update",
+  "recover.toDelete": "To remove",
+  "recover.skipped": "Skipped",
+  "recover.skippedNote": "its category is not in the live shop",
+  "recover.categoriesKept":
+    "Categories are left exactly as they are in the live shop. Only product details, photos and removals are published — so this cannot undo the brand grouping.",
+  "recover.drastic":
+    "This would remove {deletions} of the {local} products in the live shop. That is what an out-of-date device looks like — check the list below carefully before publishing.",
+  "recover.confirm":
+    "I have read the lists above. Make the live shop match this device, including the removals.",
+  "recover.publish": "Publish to the live shop",
+  "recover.done": "Published.",
+  "recover.doneDetail": "{created} added, {updated} updated, {deleted} removed.",
+  "recover.partial": "{n} could not be saved:",
 } as const;
 
 /** Every translatable string in the app. */
@@ -736,6 +763,33 @@ const ar: Record<MessageKey, string> = {
   "err.saveProduct": "تعذّر حفظ المنتج.",
   "err.saveCategory": "تعذّر حفظ القسم.",
   "err.deleteCategory": "تعذّر حذف القسم.",
+
+  // ── Recovering catalog edits stranded in this browser ──
+  "nav.recover": "نشر تعديلات الجهاز",
+  "recover.title": "نشر التعديلات التي أُجريت على هذا الجهاز",
+  "recover.lede":
+    "كان المتجر يحفظ المنتجات داخل هذا المتصفح بدل الخادم، لذلك التعديلات التي أُجريت آنذاك لا يراها أحد غيرك. هنا نقارن ما يحتفظ به هذا المتصفح مع المتجر المنشور، ثم ننشر الفرق.",
+  "recover.noLocal": "لا يوجد شيء محفوظ على هذا الجهاز",
+  "recover.noLocalHint":
+    "لا يحتوي هذا المتصفح على كتالوج محفوظ، فليس هناك ما يُنشر. إذا أجريت التعديلات على هاتف أو حاسوب آخر، افتح هذه الصفحة هناك.",
+  "recover.inSync": "منشور بالفعل",
+  "recover.inSyncHint":
+    "جميع المنتجات على هذا الجهاز ({n}) مطابقة للمتجر المنشور. لا حاجة لأي إجراء.",
+  "recover.toAdd": "ستُضاف",
+  "recover.toUpdate": "ستُحدَّث",
+  "recover.toDelete": "ستُحذف",
+  "recover.skipped": "مُتخطّى",
+  "recover.skippedNote": "قسمه غير موجود في المتجر المنشور",
+  "recover.categoriesKept":
+    "تبقى الأقسام كما هي في المتجر المنشور تماماً. لا يُنشر سوى تفاصيل المنتجات وصورها وعمليات الحذف، لذلك لا يمكن لهذه العملية أن تُلغي التصنيف حسب الماركة.",
+  "recover.drastic":
+    "سيؤدي هذا إلى حذف {deletions} من أصل {local} منتجاً في المتجر المنشور، وهذا ما يبدو عليه جهاز قديم غير محدَّث. راجع القوائم أدناه بعناية قبل النشر.",
+  "recover.confirm":
+    "قرأتُ القوائم أعلاه. اجعل المتجر المنشور مطابقاً لهذا الجهاز، بما في ذلك عمليات الحذف.",
+  "recover.publish": "النشر إلى المتجر",
+  "recover.done": "تم النشر.",
+  "recover.doneDetail": "أُضيف {created}، وحُدِّث {updated}، وحُذف {deleted}.",
+  "recover.partial": "تعذّر حفظ {n}:",
 };
 
 const MESSAGES: Record<Lang, Record<MessageKey, string>> = { en, ar };
