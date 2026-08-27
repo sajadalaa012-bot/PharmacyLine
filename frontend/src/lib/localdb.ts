@@ -109,7 +109,9 @@ function getMeta(key: string): Promise<MetaRow | undefined> {
 
 let initPromise: Promise<void> | null = null;
 
-const SEED_FLAG = "al_masa_catalog_v1";
+// v2 re-cut the catalog into one category per brand, so every browser has to
+// re-seed to pick up the new grouping.
+const SEED_FLAG = "al_masa_catalog_v2";
 
 async function seed(): Promise<void> {
   const seeded = await getMeta(SEED_FLAG);

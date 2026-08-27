@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Category, Product, isOutOfStock } from "@/types";
+import { Category, Product } from "@/types";
 import { fetchProducts } from "@/lib/api";
 import { useCart } from "@/lib/useCart";
 import {
@@ -41,9 +41,6 @@ const TABS: { id: Tab; icon: typeof Home; key: MessageKey }[] = [
   { id: "store", icon: Store, key: "shop.store" },
   { id: "cart", icon: ShoppingCart, key: "common.cart" },
 ];
-
-/** Products worth putting on the front screen: in stock, newest first. */
-const FEATURED_COUNT = 10;
 
 export default function ShopView() {
   const { t, lang } = useI18n();
@@ -133,10 +130,6 @@ export default function ShopView() {
     setMinPrice("");
     setMaxPrice("");
   };
-
-  const featured = allProducts
-    .filter((p) => !isOutOfStock(p))
-    .slice(0, FEATURED_COUNT);
 
   const activeCat = categories.find((c) => c.id === activeCategory);
   const activeName =
@@ -399,47 +392,6 @@ export default function ShopView() {
               </div>
               <div className="px-4">{categoryStrip}</div>
             </section>
-
-            {/* Featured rail */}
-            {featured.length > 0 && (
-              <section className="pt-7">
-                <div className="flex items-center justify-between px-4 pb-3">
-                  <h2 className="font-display text-lg font-semibold tracking-tight text-ink">
-                    {t("shop.featured")}
-                  </h2>
-                  <button
-                    onClick={() => pickCategory("all")}
-                    className="flex items-center gap-0.5 text-xs font-semibold text-brand active:scale-95"
-                  >
-                    {t("shop.seeAll")}
-                    <ChevronRight className="h-3.5 w-3.5 flip-rtl" />
-                  </button>
-                </div>
-                <div className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1">
-                  {featured.map((product, i) => {
-                    const item = cart.items.find(
-                      (ci) => ci.product_id === product.id && !ci.is_free
-                    );
-                    return (
-                      <div
-                        key={product.id}
-                        className="w-[9.5rem] shrink-0 snap-start"
-                      >
-                        <ProductCard
-                          product={product}
-                          qty={item?.quantity ?? 0}
-                          mode="shop"
-                          onAdd={cart.add}
-                          onRemove={cart.remove}
-                          onOpenDetail={setDetailProduct}
-                          index={i}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-            )}
 
             {/* Promises */}
             <section className="px-4 pt-7">
