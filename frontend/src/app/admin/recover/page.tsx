@@ -180,11 +180,16 @@ export default function RecoverPage() {
 
             <Section
               title={t("recover.toUpdate")}
-              rows={plan.updateProducts.map(({ local, changed }) => ({
+              rows={plan.updateProducts.map(({ local, server, changed }) => ({
                 key: `u${local.id}`,
                 code: local.code,
                 name: local.name,
                 note: changed.join(", "),
+                // The whole point of the recovery is usually the photo, so
+                // show it rather than just naming the field.
+                photo: changed.includes("image_url")
+                  ? { before: server.image_url, after: local.image_url }
+                  : undefined,
               }))}
             />
             <Section
@@ -279,6 +284,15 @@ function Stat({
   );
 }
 
+interface Row {
+  key: string;
+  code: string;
+  name: string;
+  note?: string;
+  /** Shown side by side when the recovery would replace the photo. */
+  photo?: { before: string; after: string };
+}
+
 function Section({
   title,
   rows,
@@ -286,8 +300,9 @@ function Section({
 }: {
   title: string;
   danger?: boolean;
-  rows: { key: string; code: string; name: string; note?: string }[];
+  rows: Row[];
 }) {
+  const { t } = useI18n();
   if (rows.length === 0) return null;
   return (
     <section className="rounded-lg border border-line bg-surface">
@@ -298,21 +313,40 @@ function Section({
       >
         {title} · {rows.length}
       </h2>
-      <ul className="scroll-thin max-h-64 divide-y divide-line overflow-y-auto">
+      <ul className="scroll-thin max-h-80 divide-y divide-line overflow-y-auto">
         {rows.map((r) => (
-          <li key={r.key} className="flex items-baseline gap-3 px-4 py-2.5">
-            <span className="shrink-0 font-mono text-[11px] text-ink-3">
-              {r.code}
-            </span>
-            <span className="truncate text-sm text-ink">{r.name}</span>
-            {r.note && (
-              <span className="ms-auto shrink-0 text-[11px] text-ink-3">
-                {r.note}
+          <li key={r.key} className="flex items-center gap-3 px-4 py-2.5">
+            {r.photo && (
+              <span className="flex shrink-0 items-center gap-1.5">
+                <Thumb src={r.photo.before} label={t("recover.now")} />
+                <span className="text-ink-3">→</span>
+                <Thumb src={r.photo.after} label={t("recover.yours")} />
               </span>
+            )}
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm text-ink">{r.name}</span>
+              <span className="font-mono text-[11px] text-ink-3">{r.code}</span>
+            </span>
+            {r.note && (
+              <span className="shrink-0 text-[11px] text-ink-3">{r.note}</span>
             )}
           </li>
         ))}
       </ul>
     </section>
+  );
+}
+
+function Thumb({ src, label }: { src: string; label: string }) {
+  return (
+    <span className="flex flex-col items-center gap-0.5">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={label}
+        className="h-10 w-10 rounded border border-line object-cover"
+      />
+      <span className="text-[9px] text-ink-3">{label}</span>
+    </span>
   );
 }

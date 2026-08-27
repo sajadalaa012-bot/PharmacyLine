@@ -400,6 +400,8 @@ const en = {
   "recover.toAdd": "To add",
   "recover.toUpdate": "To update",
   "recover.toDelete": "To remove",
+  "recover.now": "live",
+  "recover.yours": "yours",
   "recover.skipped": "Skipped",
   "recover.skippedNote": "its category is not in the live shop",
   "recover.categoriesKept":
@@ -778,6 +780,8 @@ const ar: Record<MessageKey, string> = {
   "recover.toAdd": "ستُضاف",
   "recover.toUpdate": "ستُحدَّث",
   "recover.toDelete": "ستُحذف",
+  "recover.now": "المنشور",
+  "recover.yours": "لديك",
   "recover.skipped": "مُتخطّى",
   "recover.skippedNote": "قسمه غير موجود في المتجر المنشور",
   "recover.categoriesKept":
