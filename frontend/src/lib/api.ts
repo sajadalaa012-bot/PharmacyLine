@@ -1,139 +1,12 @@
-// Data layer.
-//   • Products & categories: browser-local (IndexedDB) — unchanged.
-//   • Orders: the shared Postgres database via the /api routes, so orders
-//     appear in the admin on every device.
+// Data layer. Everything lives in the shared Postgres database behind the
+// /api routes: products, categories and orders alike. That is the point —
+// what an admin edits on one device is what every visitor sees on theirs.
 
 import { Category, Product, ProductInput, Order, OrderCreate } from "@/types";
 import { tt } from "./i18n";
-import {
-  STORE,
-  getAll,
-  getOne,
-  putOne,
-  deleteOne,
-  nextId,
-  ensureSeeded,
-} from "./localdb";
 import { saveMyOrder } from "./myOrders";
 
-// ── Products & Categories (local) ───────────────────────────────────
-
-export async function fetchProducts(): Promise<Category[]> {
-  await ensureSeeded();
-  const [cats, products] = await Promise.all([
-    getAll<Omit<Category, "products">>(STORE.categories),
-    getAll<Product>(STORE.products),
-  ]);
-  return cats
-    .sort((a, b) => a.display_order - b.display_order)
-    .map((c) => ({
-      ...c,
-      products: products
-        .filter((p) => p.category_id === c.id)
-        .sort((a, b) => a.id - b.id),
-    }));
-}
-
-export async function createProduct(
-  productData: ProductInput,
-): Promise<Product> {
-  await ensureSeeded();
-  const existing = await getAll<Product>(STORE.products);
-  if (existing.some((p) => p.code === productData.code)) {
-    throw new Error(tt("err.codeExists", { code: productData.code }));
-  }
-  const product: Product = { id: await nextId("Product"), ...productData };
-  await putOne(STORE.products, product);
-  return product;
-}
-
-export async function updateProduct(
-  productId: number,
-  productData: ProductInput,
-): Promise<Product> {
-  await ensureSeeded();
-  const product = await getOne<Product>(STORE.products, productId);
-  if (!product) throw new Error(tt("err.productMissing"));
-  if (productData.code !== product.code) {
-    const all = await getAll<Product>(STORE.products);
-    if (all.some((p) => p.code === productData.code && p.id !== productId)) {
-      throw new Error(tt("err.codeInUse", { code: productData.code }));
-    }
-  }
-  const updated: Product = { id: productId, ...productData };
-  await putOne(STORE.products, updated);
-  return updated;
-}
-
-export async function deleteProduct(productId: number): Promise<void> {
-  await ensureSeeded();
-  await deleteOne(STORE.products, productId);
-}
-
-export async function createCategory(categoryData: {
-  name: string;
-  name_ar?: string;
-  display_order?: number;
-}): Promise<Category> {
-  await ensureSeeded();
-  const cats = await getAll<Omit<Category, "products">>(STORE.categories);
-  if (cats.some((c) => c.name === categoryData.name)) {
-    throw new Error(tt("err.categoryExists", { name: categoryData.name }));
-  }
-  let display_order = categoryData.display_order ?? 0;
-  if (!display_order) {
-    display_order = cats.reduce((m, c) => Math.max(m, c.display_order), 0) + 1;
-  }
-  const category = {
-    id: await nextId("Category"),
-    name: categoryData.name,
-    name_ar: categoryData.name_ar,
-    display_order,
-  };
-  await putOne(STORE.categories, category);
-  return { ...category, products: [] };
-}
-
-export async function updateCategory(
-  categoryId: number,
-  categoryData: { name: string; name_ar?: string; display_order: number },
-): Promise<Category> {
-  await ensureSeeded();
-  const category = await getOne<Omit<Category, "products">>(
-    STORE.categories,
-    categoryId,
-  );
-  if (!category) throw new Error(tt("err.categoryMissing"));
-  const updated = { id: categoryId, ...categoryData };
-  await putOne(STORE.categories, updated);
-  const products = (await getAll<Product>(STORE.products)).filter(
-    (p) => p.category_id === categoryId,
-  );
-  return { ...updated, products };
-}
-
-export async function deleteCategory(categoryId: number): Promise<void> {
-  await ensureSeeded();
-  const products = await getAll<Product>(STORE.products);
-  if (products.some((p) => p.category_id === categoryId)) {
-    throw new Error(tt("err.categoryHasProducts"));
-  }
-  await deleteOne(STORE.categories, categoryId);
-}
-
-export async function uploadProductImage(
-  file: File,
-): Promise<{ image_url: string }> {
-  const image_url = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
-  return { image_url };
-}
-
-// ── Orders (shared database via /api) ───────────────────────────────
+// ── Shared request helpers ──────────────────────────────────────────
 
 async function readError(res: Response, fallback: string): Promise<string> {
   const data = await res.json().catch(() => ({}));
@@ -147,6 +20,149 @@ function bounceIfUnauthorized(res: Response) {
     throw new Error(tt("auth.expired"));
   }
 }
+
+/** A write from the admin: JSON in, JSON out, session-aware. */
+async function adminWrite<T>(
+  path: string,
+  method: "POST" | "PUT" | "DELETE",
+  fallback: string,
+  body?: unknown,
+): Promise<T> {
+  const res = await fetch(path, {
+    method,
+    headers:
+      body === undefined ? undefined : { "Content-Type": "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  bounceIfUnauthorized(res);
+  if (!res.ok && res.status !== 204) {
+    throw new Error(await readError(res, fallback));
+  }
+  return res.status === 204 ? (undefined as T) : ((await res.json()) as T);
+}
+
+// ── Products & Categories (shared database) ─────────────────────────
+
+/** The whole shop. Public — the storefront calls this on every load. */
+export async function fetchProducts(): Promise<Category[]> {
+  const res = await fetch("/api/catalog", { cache: "no-store" });
+  if (!res.ok) throw new Error(await readError(res, tt("err.loadProducts")));
+  return res.json();
+}
+
+export async function createProduct(
+  productData: ProductInput,
+): Promise<Product> {
+  return adminWrite<Product>(
+    "/api/products",
+    "POST",
+    tt("err.saveProduct"),
+    productData,
+  );
+}
+
+export async function updateProduct(
+  productId: number,
+  productData: ProductInput,
+): Promise<Product> {
+  return adminWrite<Product>(
+    `/api/products/${productId}`,
+    "PUT",
+    tt("err.saveProduct"),
+    productData,
+  );
+}
+
+export async function deleteProduct(productId: number): Promise<void> {
+  await adminWrite<void>(
+    `/api/products/${productId}`,
+    "DELETE",
+    tt("err.deleteProduct"),
+  );
+}
+
+export async function createCategory(categoryData: {
+  name: string;
+  name_ar?: string;
+  display_order?: number;
+}): Promise<Category> {
+  return adminWrite<Category>(
+    "/api/categories",
+    "POST",
+    tt("err.saveCategory"),
+    categoryData,
+  );
+}
+
+export async function updateCategory(
+  categoryId: number,
+  categoryData: { name: string; name_ar?: string; display_order: number },
+): Promise<Category> {
+  return adminWrite<Category>(
+    `/api/categories/${categoryId}`,
+    "PUT",
+    tt("err.saveCategory"),
+    categoryData,
+  );
+}
+
+export async function deleteCategory(categoryId: number): Promise<void> {
+  await adminWrite<void>(
+    `/api/categories/${categoryId}`,
+    "DELETE",
+    tt("err.deleteCategory"),
+  );
+}
+
+// ── Product images ──────────────────────────────────────────────────
+// A picked file becomes the data URL stored on the product row. That row
+// travels out to every shopper, so the image is downscaled first: a phone
+// photo is several megabytes, which would blow past the request limit going
+// in and make the storefront crawl coming out.
+
+const MAX_IMAGE_EDGE = 900;
+const IMAGE_QUALITY = 0.82;
+/** Below this, a correctly-sized image isn't worth re-encoding. */
+const REENCODE_THRESHOLD = 400_000;
+
+export async function uploadProductImage(
+  file: File,
+): Promise<{ image_url: string }> {
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+  return { image_url: await downscale(dataUrl) };
+}
+
+/** Best effort: anything the browser can't decode is passed through as-is. */
+async function downscale(dataUrl: string): Promise<string> {
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error("decode failed"));
+      el.src = dataUrl;
+    });
+    const scale = Math.min(1, MAX_IMAGE_EDGE / Math.max(img.width, img.height));
+    if (scale === 1 && dataUrl.length < REENCODE_THRESHOLD) return dataUrl;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(img.width * scale);
+    canvas.height = Math.round(img.height * scale);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return dataUrl;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const out = canvas.toDataURL("image/jpeg", IMAGE_QUALITY);
+    return out.length < dataUrl.length ? out : dataUrl;
+  } catch {
+    return dataUrl;
+  }
+}
+
+// ── Orders (shared database via /api) ───────────────────────────────
 
 /** Place an order (public). Also remembers it on this device for "My Orders". */
 export async function createOrder(order: OrderCreate): Promise<Order> {

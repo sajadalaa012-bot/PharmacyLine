@@ -381,6 +381,10 @@ const en = {
   "err.uploadFailed": "Failed to upload image",
   "err.saveGeneric": "An error occurred while saving.",
   "err.deleteProduct": "Failed to delete product.",
+  "err.loadProducts": "Failed to load products.",
+  "err.saveProduct": "Failed to save product.",
+  "err.saveCategory": "Failed to save category.",
+  "err.deleteCategory": "Failed to delete category.",
 } as const;
 
 /** Every translatable string in the app. */
@@ -728,6 +732,10 @@ const ar: Record<MessageKey, string> = {
   "err.uploadFailed": "تعذّر رفع الصورة",
   "err.saveGeneric": "حدث خطأ أثناء الحفظ.",
   "err.deleteProduct": "تعذّر حذف المنتج.",
+  "err.loadProducts": "تعذّر تحميل المنتجات.",
+  "err.saveProduct": "تعذّر حفظ المنتج.",
+  "err.saveCategory": "تعذّر حفظ القسم.",
+  "err.deleteCategory": "تعذّر حذف القسم.",
 };
 
 const MESSAGES: Record<Lang, Record<MessageKey, string>> = { en, ar };
