@@ -109,8 +109,10 @@ function getMeta(key: string): Promise<MetaRow | undefined> {
 
 let initPromise: Promise<void> | null = null;
 
+const SEED_FLAG = "al_masa_catalog_v1";
+
 async function seed(): Promise<void> {
-  const seeded = await getMeta("seeded");
+  const seeded = await getMeta(SEED_FLAG);
   if (seeded?.value) return;
 
   const cats = catalog as SeedCategory[];
@@ -125,6 +127,11 @@ async function seed(): Promise<void> {
 
     const cStore = t.objectStore(STORE.categories);
     const pStore = t.objectStore(STORE.products);
+    
+    // Clear out old items completely
+    cStore.clear();
+    pStore.clear();
+
     let maxCat = 0;
     let maxProd = 0;
 
@@ -153,9 +160,6 @@ async function seed(): Promise<void> {
           benefits_ar: p.benefits_ar,
           ingredients_ar: p.ingredients_ar,
           usage_ar: p.usage_ar,
-          // Deliberately absent from the backfill below: stock is a live count
-          // the admin owns, and 0 is a meaningful value that a "fill the empty
-          // fields" pass would happily overwrite.
           stock: p.stock,
         });
         maxProd = Math.max(maxProd, p.id);
@@ -166,6 +170,7 @@ async function seed(): Promise<void> {
     mStore.put({ key: "nextCategoryId", value: maxCat + 1 });
     mStore.put({ key: "nextProductId", value: maxProd + 1 });
     mStore.put({ key: "nextOrderId", value: 1 });
+    mStore.put({ key: SEED_FLAG, value: true });
     mStore.put({ key: "seeded", value: true });
   });
 }
