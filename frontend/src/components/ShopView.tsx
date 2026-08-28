@@ -14,6 +14,7 @@ import {
   Store,
   SlidersHorizontal,
   Check,
+  ChevronDown,
 } from "lucide-react";
 import ProductCard from "./ProductCard";
 import ProductDetailModal from "./ProductDetailModal";
@@ -25,6 +26,44 @@ import LanguageToggle from "./LanguageToggle";
 import { useI18n } from "@/lib/LanguageProvider";
 import { localized, MessageKey } from "@/lib/i18n";
 import { num } from "@/lib/format";
+
+/** The tappable heading that opens or shuts one filter section. */
+function FilterHeader({
+  label,
+  selection,
+  open,
+  onToggle,
+}: {
+  label: string;
+  selection: string | null;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={open}
+      className="flex w-full items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-3.5 text-start transition hover:bg-sunken"
+    >
+      <span className="label-caps text-ink-3">{label}</span>
+      <span className="flex min-w-0 items-center gap-2.5">
+        <span
+          className={`truncate text-[13px] ${
+            selection ? "font-semibold text-brand" : "text-ink-3"
+          }`}
+        >
+          <bdi>{selection ?? ""}</bdi>
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-ink-3 transition-transform duration-200 ${
+            open ? "rotate-180" : ""
+          }`}
+        />
+      </span>
+    </button>
+  );
+}
 
 /**
  * One dimension of the Browse page, as a list.
@@ -95,6 +134,11 @@ export default function ShopView() {
   // The two filters stack: brand AND category, each cleared on its own.
   const [activeCategory, setActiveCategory] = useState<number | "all">("all");
   const [activeType, setActiveType] = useState<number | "all">("all");
+  // Browse opens with both lists shut: two headings you can take in at a
+  // glance, rather than forty rows to scroll past. Each opens on its own —
+  // opening one does not shut the other.
+  const [openCategory, setOpenCategory] = useState(false);
+  const [openBrand, setOpenBrand] = useState(false);
   const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
   const [query, setQuery] = useState("");
   const [minPrice, setMinPrice] = useState("");
@@ -472,29 +516,55 @@ export default function ShopView() {
             </div>
 
             <section className="mt-6">
-              <h2 className="label-caps mb-3 text-ink-3">
-                {t("browse.category")}
-              </h2>
-              {productCategories.length > 0 ? (
-                <FilterList
-                  options={typeOptions}
-                  active={activeType}
-                  onPick={pickType}
-                />
-              ) : (
-                <p className="rounded-lg border border-dashed border-line-strong bg-sunken/40 px-4 py-4 text-[13px] text-ink-3">
-                  {t("browse.noCategories")}
-                </p>
-              )}
+              <FilterHeader
+                label={t("browse.category")}
+                // What is chosen shows on the closed heading, so nothing has
+                // to be opened just to see where you are.
+                selection={
+                  activeTypeCat ? localized(activeTypeCat, "name", lang) : null
+                }
+                open={openCategory}
+                onToggle={() => setOpenCategory((v) => !v)}
+              />
+              <div className="collapse" data-open={openCategory}>
+                {/* inert while shut: a collapsed list is still in the DOM, and
+                    without this you could tab into rows nobody can see. */}
+                <div inert={!openCategory}>
+                  <div className="pt-3">
+                    {productCategories.length > 0 ? (
+                      <FilterList
+                        options={typeOptions}
+                        active={activeType}
+                        onPick={pickType}
+                      />
+                    ) : (
+                      <p className="rounded-lg border border-dashed border-line-strong bg-sunken/40 px-4 py-4 text-[13px] text-ink-3">
+                        {t("browse.noCategories")}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
             </section>
 
-            <section className="mt-8">
-              <h2 className="label-caps mb-3 text-ink-3">{t("browse.brand")}</h2>
-              <FilterList
-                options={brandOptions}
-                active={activeCategory}
-                onPick={pickCategory}
+            <section className="mt-4">
+              <FilterHeader
+                label={t("browse.brand")}
+                selection={activeCat ? localized(activeCat, "name", lang) : null}
+                open={openBrand}
+                onToggle={() => setOpenBrand((v) => !v)}
               />
+              <div className="collapse" data-open={openBrand}>
+                <div inert={!openBrand}>
+                  <div className="pt-3">
+                    <FilterList
+                      options={brandOptions}
+                      active={activeCategory}
+                      onPick={pickCategory}
+                    />
+                  </div>
+                </div>
+              </div>
             </section>
 
             {/* What the two filters currently add up to. */}

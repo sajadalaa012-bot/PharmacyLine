@@ -518,6 +518,26 @@ body::after {
   animation: pop 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
+/* ── Collapsible ────────────────────────────────────────────────────── */
+/* The Browse page's filter sections, which start closed.
+ *
+ * The row goes 0fr → 1fr rather than animating a guessed max-height, so a
+ * section slides open to exactly its own size — whether it holds eight
+ * categories or thirty-one brands — and closes without the dead pause a
+ * too-large max-height leaves behind. */
+.collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.collapse[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+.collapse > * {
+  overflow: hidden;
+  min-height: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rise,
   .slide-in-right,
@@ -526,6 +546,9 @@ body::after {
   .tab-in,
   .pop {
     animation-duration: 0.01ms;
+  }
+  .collapse {
+    transition-duration: 0.01ms;
   }
 }
 
