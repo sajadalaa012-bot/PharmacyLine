@@ -13,6 +13,7 @@ import {
   Home,
   Store,
   SlidersHorizontal,
+  Check,
 } from "lucide-react";
 import ProductCard from "./ProductCard";
 import ProductDetailModal from "./ProductDetailModal";
@@ -25,31 +26,47 @@ import { useI18n } from "@/lib/LanguageProvider";
 import { localized, MessageKey } from "@/lib/i18n";
 import { num } from "@/lib/format";
 
-/** One row of filter chips — a dimension of the Browse page. */
-function FilterChips({
+/**
+ * One dimension of the Browse page, as a list.
+ *
+ * A list rather than a row of chips because there are 31 brands: as chips
+ * they wrap into a wall you have to read across, where rows can be scanned
+ * down. It also leaves room for the count beside each one.
+ */
+function FilterList({
   options,
   active,
   onPick,
 }: {
-  options: { id: number | "all"; name: string }[];
+  options: { id: number | "all"; name: string; count: number }[];
   active: number | "all";
   onPick: (id: number | "all") => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-2">
-      {options.map((opt) => {
+    <div className="overflow-hidden rounded-xl border border-line">
+      {options.map((opt, i) => {
         const on = active === opt.id;
         return (
           <button
             key={String(opt.id)}
             onClick={() => onPick(opt.id)}
-            className={`rounded-full border px-3.5 py-2 text-[13px] font-medium transition ${
+            className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-start text-sm transition ${
+              i > 0 ? "border-t border-line" : ""
+            } ${
               on
-                ? "border-brand bg-brand text-white"
-                : "border-line-strong bg-surface text-ink hover:border-brand hover:text-brand"
+                ? "bg-brand/10 font-semibold text-brand"
+                : "bg-surface text-ink hover:bg-sunken"
             }`}
           >
-            <bdi>{opt.name}</bdi>
+            <bdi className="min-w-0 truncate">{opt.name}</bdi>
+            <span className="flex shrink-0 items-center gap-2.5">
+              <span
+                className={`text-xs tabular-nums ${on ? "text-brand/70" : "text-ink-3"}`}
+              >
+                {opt.count}
+              </span>
+              {on && <Check className="h-4 w-4" />}
+            </span>
           </button>
         );
       })}
@@ -57,12 +74,15 @@ function FilterChips({
   );
 }
 
-/** The destinations of the phone tab bar. */
+/**
+ * The views. "browse" is deliberately absent from TABS below: it is the
+ * filter page, opened from the store rather than lived in, so it does not
+ * earn a permanent seat on a four-item phone bar.
+ */
 type Tab = "home" | "browse" | "store" | "cart";
 
 const TABS: { id: Tab; icon: typeof Home; key: MessageKey }[] = [
   { id: "home", icon: Home, key: "shop.home" },
-  { id: "browse", icon: SlidersHorizontal, key: "browse.title" },
   { id: "store", icon: Store, key: "shop.store" },
   { id: "cart", icon: ShoppingCart, key: "common.cart" },
 ];
@@ -187,11 +207,6 @@ export default function ShopView() {
   const filtersOn =
     (activeCategory === "all" ? 0 : 1) + (activeType === "all" ? 0 : 1);
 
-  const chips = [
-    { id: "all" as const, name: t("common.all") },
-    ...categories.map((c) => ({ id: c.id, name: localized(c, "name", lang) })),
-  ];
-
   const goTab = (next: Tab) => {
     setTab(next);
     bodyRef.current?.scrollTo({ top: 0 });
@@ -304,11 +319,26 @@ export default function ShopView() {
     </div>
   );
 
-  const typeChips = [
-    { id: "all" as const, name: t("browse.all") },
+  const byType =
+    activeType === "all"
+      ? allProducts
+      : allProducts.filter((p) => p.product_category_id === activeType);
+
+  const typeOptions = [
+    { id: "all" as const, name: t("browse.all"), count: byBrand.length },
     ...productCategories.map((c) => ({
       id: c.id,
       name: localized(c, "name", lang),
+      count: byBrand.filter((p) => p.product_category_id === c.id).length,
+    })),
+  ];
+
+  const brandOptions = [
+    { id: "all" as const, name: t("browse.all"), count: byType.length },
+    ...categories.map((c) => ({
+      id: c.id,
+      name: localized(c, "name", lang),
+      count: byType.filter((p) => p.category_id === c.id).length,
     })),
   ];
 
@@ -421,15 +451,24 @@ export default function ShopView() {
               <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
                 {t("browse.title")}
               </h1>
-              {filtersOn > 0 && (
+              <div className="flex items-center gap-3">
+                {filtersOn > 0 && (
+                  <button
+                    onClick={clearFilters}
+                    className="text-xs font-semibold text-brand active:scale-95"
+                  >
+                    {t("browse.clearAll")}
+                  </button>
+                )}
+                {/* Browse is no longer a tab, so it needs its own way out. */}
                 <button
-                  onClick={clearFilters}
-                  className="flex items-center gap-1 text-xs font-semibold text-brand active:scale-95"
+                  onClick={() => goTab("store")}
+                  aria-label={t("common.close")}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-2 transition hover:bg-sunken hover:text-ink"
                 >
-                  <X className="h-3.5 w-3.5" />
-                  {t("browse.clearAll")}
+                  <X className="h-4 w-4" />
                 </button>
-              )}
+              </div>
             </div>
 
             <section className="mt-6">
@@ -437,8 +476,8 @@ export default function ShopView() {
                 {t("browse.category")}
               </h2>
               {productCategories.length > 0 ? (
-                <FilterChips
-                  options={typeChips}
+                <FilterList
+                  options={typeOptions}
                   active={activeType}
                   onPick={pickType}
                 />
@@ -451,8 +490,8 @@ export default function ShopView() {
 
             <section className="mt-8">
               <h2 className="label-caps mb-3 text-ink-3">{t("browse.brand")}</h2>
-              <FilterChips
-                options={chips}
+              <FilterList
+                options={brandOptions}
                 active={activeCategory}
                 onPick={pickCategory}
               />
@@ -687,7 +726,7 @@ export default function ShopView() {
         className="z-40 shrink-0 border-t border-line bg-surface/95 backdrop-blur-md sm:hidden"
         style={{ paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))" }}
       >
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-3">
           {TABS.map(({ id, icon: Icon, key }) => {
             const active = tab === id;
             return (
