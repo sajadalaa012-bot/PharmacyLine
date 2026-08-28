@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Category, Product, ProductCategory, priceRange } from "@/types";
+import {
+  Category,
+  Product,
+  ProductCategory,
+  priceRange,
+  isDiscounted,
+} from "@/types";
 import { fetchProducts, fetchProductCategories } from "@/lib/api";
 import { useCart } from "@/lib/useCart";
 import {
@@ -20,6 +26,7 @@ import ProductDetailModal from "./ProductDetailModal";
 import CartPanel from "./CartPanel";
 import OrderConfirmation from "./OrderConfirmation";
 import InstallPrompt from "./InstallPrompt";
+import OfferPopup from "./OfferPopup";
 import ThemeToggle from "./ThemeToggle";
 import LanguageToggle from "./LanguageToggle";
 import { useI18n } from "@/lib/LanguageProvider";
@@ -135,6 +142,8 @@ export default function ShopView() {
   // opening one does not shut the other.
   const [openCategory, setOpenCategory] = useState(false);
   const [openBrand, setOpenBrand] = useState(false);
+  // Set by the discount ad, and cleared like any other filter.
+  const [offersOnly, setOffersOnly] = useState(false);
   const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
   const [query, setQuery] = useState("");
   const [minPrice, setMinPrice] = useState("");
@@ -187,10 +196,11 @@ export default function ShopView() {
     activeCategory === "all"
       ? allProducts
       : allProducts.filter((p) => p.category_id === activeCategory);
-  const byCategory =
+  const byCategory = (
     activeType === "all"
       ? byBrand
-      : byBrand.filter((p) => p.product_category_id === activeType);
+      : byBrand.filter((p) => p.product_category_id === activeType)
+  ).filter((p) => !offersOnly || isDiscounted(p));
   const q = query.trim().toLowerCase();
   // Match either name, so an Arabic query still finds a product whose card
   // shows the English name and vice versa.
@@ -245,7 +255,11 @@ export default function ShopView() {
       .filter(Boolean)
       .join(" · ") || t("shop.allProducts");
   const filtersOn =
-    (activeCategory === "all" ? 0 : 1) + (activeType === "all" ? 0 : 1);
+    (activeCategory === "all" ? 0 : 1) +
+    (activeType === "all" ? 0 : 1) +
+    (offersOnly ? 1 : 0);
+  /** Anything actually discounted? The ad only runs when there is. */
+  const hasOffers = allProducts.some(isDiscounted);
 
   const goTab = (next: Tab) => {
     setTab(next);
@@ -273,6 +287,7 @@ export default function ShopView() {
   const clearFilters = () => {
     setActiveCategory("all");
     setActiveType("all");
+    setOffersOnly(false);
   };
 
   if (loading) {
@@ -522,7 +537,7 @@ export default function ShopView() {
                 open={openCategory}
                 onToggle={() => setOpenCategory((v) => !v)}
               />
-              <div className="collapse" data-open={openCategory}>
+              <div className="reveal" data-open={openCategory}>
                 {/* inert while shut: a collapsed list is still in the DOM, and
                     without this you could tab into rows nobody can see. */}
                 <div inert={!openCategory}>
@@ -550,7 +565,7 @@ export default function ShopView() {
                 open={openBrand}
                 onToggle={() => setOpenBrand((v) => !v)}
               />
-              <div className="collapse" data-open={openBrand}>
+              <div className="reveal" data-open={openBrand}>
                 <div inert={!openBrand}>
                   <div className="pt-3">
                     <FilterBar
@@ -642,6 +657,15 @@ export default function ShopView() {
                 {t("browse.title")}
               </button>
 
+              {offersOnly && (
+                <button
+                  onClick={() => setOffersOnly(false)}
+                  className="flex h-9 items-center gap-1.5 rounded-full border border-rose bg-rose px-3.5 text-[13px] font-medium text-white"
+                >
+                  {t("promo.onOffer")}
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
               {activeTypeCat && (
                 <button
                   onClick={() => setActiveType("all")}
@@ -786,6 +810,20 @@ export default function ShopView() {
 
       {/* Add-to-home-screen invitation, docked above the tab bar */}
       <InstallPrompt />
+
+      {/* The discount ad. Only over the home screen, and only when there is
+          something to advertise — an ad for offers that do not exist is
+          worse than no ad. */}
+      {tab === "home" && hasOffers && (
+        <OfferPopup
+          onShop={() => {
+            setOffersOnly(true);
+            setActiveCategory("all");
+            setActiveType("all");
+            goToCatalog();
+          }}
+        />
+      )}
 
       {/* ── Tab bar — phone only ────────────────────────────────────── */}
       <nav

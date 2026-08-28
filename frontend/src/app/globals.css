@@ -518,22 +518,27 @@ body::after {
   animation: pop 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* ── Collapsible ────────────────────────────────────────────────────── */
+/* ── Reveal (collapsible) ──────────────────────────────────────────── */
 /* The Browse page's filter sections, which start closed.
+ *
+ * NOT named .collapse: Tailwind already ships that as visibility:collapse,
+ * which behaves like visibility:hidden. Defining our own rule of the same
+ * name loses — the visibility declaration is never overridden — and the
+ * section stays invisible however far it is opened.
  *
  * The row goes 0fr → 1fr rather than animating a guessed max-height, so a
  * section slides open to exactly its own size — whether it holds eight
  * categories or thirty-one brands — and closes without the dead pause a
  * too-large max-height leaves behind. */
-.collapse {
+.reveal {
   display: grid;
   grid-template-rows: 0fr;
   transition: grid-template-rows 0.26s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.collapse[data-open="true"] {
+.reveal[data-open="true"] {
   grid-template-rows: 1fr;
 }
-.collapse > * {
+.reveal > * {
   overflow: hidden;
   min-height: 0;
 }
@@ -547,7 +552,7 @@ body::after {
   .pop {
     animation-duration: 0.01ms;
   }
-  .collapse {
+  .reveal {
     transition-duration: 0.01ms;
   }
 }

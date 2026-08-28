@@ -323,6 +323,15 @@ const en = {
   "variants.chooseLabel": "Choose an option",
   "variants.chooseAria": "Choose an option for {name}",
 
+  // ── The discount ad ──
+  "promo.eyebrow": "Off selected items",
+  "promo.title": "Discounts up to {n}%!",
+  "promo.body":
+    "Selected products are on offer right now — while stocks last.",
+  "promo.cta": "Shop the offers",
+  "promo.later": "Maybe later",
+  "promo.onOffer": "On offer",
+
   // ── Browse (the filter page: category + brand) ──
   "browse.title": "Browse",
   "browse.category": "Category",
@@ -331,8 +340,7 @@ const en = {
   "browse.clearAll": "Clear all",
   "browse.showResults": "Show {n} products",
   "browse.showResultsOne": "Show 1 product",
-  "browse.noCategories":
-    "No categories yet. Add them in the admin, under Products.",
+  "browse.noCategories": "No categories yet.",
   "browse.filtersActive": "{n} filters",
   "browse.uncategorised": "Uncategorised",
 
@@ -785,6 +793,14 @@ const ar: Record<MessageKey, string> = {
   "variants.chooseLabel": "اختر الخيار",
   "variants.chooseAria": "اختر خياراً لـ {name}",
 
+  // ── إعلان الخصومات ──
+  "promo.eyebrow": "على منتجات مختارة",
+  "promo.title": "خصومات تصل إلى {n}%!",
+  "promo.body": "منتجات مختارة عليها عروض الآن — ما دامت الكمية متوفرة.",
+  "promo.cta": "تسوّق العروض",
+  "promo.later": "ربما لاحقاً",
+  "promo.onOffer": "العروض",
+
   // ── التصفّح (صفحة الفلترة: الفئة + الماركة) ──
   "browse.title": "تصفّح",
   "browse.category": "الفئة",
@@ -793,7 +809,7 @@ const ar: Record<MessageKey, string> = {
   "browse.clearAll": "مسح الكل",
   "browse.showResults": "عرض {n} منتجاً",
   "browse.showResultsOne": "عرض منتج واحد",
-  "browse.noCategories": "لا توجد فئات بعد. أضفها من لوحة التحكم، في المنتجات.",
+  "browse.noCategories": "لا توجد فئات بعد.",
   "browse.filtersActive": "{n} فلاتر",
   "browse.uncategorised": "بدون فئة",
 
