@@ -293,14 +293,14 @@ export default function ShopView() {
             <img
               src="/icons/almasa-logo.png"
               alt={t("common.brand")}
-              className="logo-light h-10 w-auto sm:h-12"
+              className="logo-light h-11 w-auto sm:h-14"
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/icons/almasa-logo-dark.png"
               alt=""
               aria-hidden
-              className="logo-dark h-10 w-auto sm:h-12"
+              className="logo-dark h-11 w-auto sm:h-14"
             />
           </button>
 
