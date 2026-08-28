@@ -323,6 +323,19 @@ const en = {
   "variants.chooseLabel": "Choose an option",
   "variants.chooseAria": "Choose an option for {name}",
 
+  // ── Browse (the filter page: category + brand) ──
+  "browse.title": "Browse",
+  "browse.category": "Category",
+  "browse.brand": "Brand",
+  "browse.all": "All",
+  "browse.clearAll": "Clear all",
+  "browse.showResults": "Show {n} products",
+  "browse.showResultsOne": "Show 1 product",
+  "browse.noCategories":
+    "No categories yet. Add them in the admin, under Products.",
+  "browse.filtersActive": "{n} filters",
+  "browse.uncategorised": "Uncategorised",
+
   // ── Offers (a product with an old price above its current one) ──
   "offer.percentOff": "−{n}%",
   "offer.youSave": "You save {n} {currency}",
@@ -345,8 +358,13 @@ const en = {
     "Leave blank for one price. Enter what it used to cost and shoppers see that struck through beside the price above.",
   "modal.offerPreview":
     "Shoppers see {old} struck through, then {price} {currency} — {n}% off.",
-  "modal.category": "Category",
-  "modal.categoryAria": "Product category",
+  "modal.brand": "Brand",
+  "modal.brandAria": "Product brand",
+  "modal.productCategory": "Category",
+  "modal.productCategoryAria": "Product category",
+  "modal.noCategory": "No category",
+  "modal.productCategoryHint":
+    "What kind of product this is. Shoppers filter by it alongside the brand.",
   "modal.photo": "Photo",
   "modal.preview": "Preview",
   "modal.removePhoto": "Remove photo",
@@ -767,6 +785,18 @@ const ar: Record<MessageKey, string> = {
   "variants.chooseLabel": "اختر الخيار",
   "variants.chooseAria": "اختر خياراً لـ {name}",
 
+  // ── التصفّح (صفحة الفلترة: الفئة + الماركة) ──
+  "browse.title": "تصفّح",
+  "browse.category": "الفئة",
+  "browse.brand": "الماركة",
+  "browse.all": "الكل",
+  "browse.clearAll": "مسح الكل",
+  "browse.showResults": "عرض {n} منتجاً",
+  "browse.showResultsOne": "عرض منتج واحد",
+  "browse.noCategories": "لا توجد فئات بعد. أضفها من لوحة التحكم، في المنتجات.",
+  "browse.filtersActive": "{n} فلاتر",
+  "browse.uncategorised": "بدون فئة",
+
   // ── Offers ──
   "offer.percentOff": "−{n}%",
   "offer.youSave": "توفّر {n} {currency}",
@@ -789,8 +819,13 @@ const ar: Record<MessageKey, string> = {
     "اتركه فارغاً لعرض سعر واحد. أدخل السعر السابق ليظهر للمتسوّقين مشطوباً بجانب السعر الحالي.",
   "modal.offerPreview":
     "سيرى المتسوّقون {old} مشطوباً ثم {price} {currency} — خصم {n}%.",
-  "modal.category": "القسم",
-  "modal.categoryAria": "قسم المنتج",
+  "modal.brand": "الماركة",
+  "modal.brandAria": "ماركة المنتج",
+  "modal.productCategory": "الفئة",
+  "modal.productCategoryAria": "فئة المنتج",
+  "modal.noCategory": "بدون فئة",
+  "modal.productCategoryHint":
+    "نوع المنتج. يستخدمه المتسوّقون للتصفية إلى جانب الماركة.",
   "modal.photo": "الصورة",
   "modal.preview": "معاينة",
   "modal.removePhoto": "إزالة الصورة",

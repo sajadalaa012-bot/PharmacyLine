@@ -33,6 +33,26 @@ export interface ProductVariant {
   stock?: number;
 }
 
+/**
+ * A product type — Serum, Cleanser, Sunscreen. The second way to narrow the
+ * catalogue, and independent of the brand: a shopper can ask for COSRX, for
+ * serums, or for COSRX serums.
+ *
+ * A note on names, because they are genuinely confusing here. The `Category`
+ * interface below, the `categories` table and `Product.category_id` all
+ * predate this and hold the shop's *brands* — that is what the catalogue was
+ * originally grouped by. This is the actual category, and it is stored
+ * separately. The storefront and the admin both label them "Brand" and
+ * "Category", which is what matters to anyone using the shop.
+ */
+export interface ProductCategory {
+  id: number;
+  name: string;
+  /** Arabic name; falls back to `name`. */
+  name_ar?: string;
+  display_order: number;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -69,6 +89,12 @@ export interface Product {
   stock?: number;
   /** Buyable options. Empty / absent = the product is sold as itself. */
   variants?: ProductVariant[];
+  /**
+   * Which product type this is. `undefined` means nobody has said yet — the
+   * product still sells, it just doesn't answer to a category filter.
+   * Distinct from `category_id`, which is the brand. See ProductCategory.
+   */
+  product_category_id?: number;
 }
 
 /** True when a product cannot be added to an order right now. */
@@ -199,8 +225,15 @@ export interface ProductInput {
   usage_ar?: string;
   stock?: number;
   variants?: ProductVariant[];
+  product_category_id?: number;
 }
 
+/**
+ * The catalogue's top-level grouping, which is the shop's **brands** —
+ * Vichy, COSRX, La Roche-Posay. Named "Category" since before the shop was
+ * grouped this way; the UI calls it Brand. For the product type, see
+ * ProductCategory above.
+ */
 export interface Category {
   id: number;
   name: string;

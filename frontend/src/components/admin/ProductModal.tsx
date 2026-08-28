@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Product, Category, ProductInput, ProductVariant } from "@/types";
+import {
+  Product,
+  Category,
+  ProductInput,
+  ProductVariant,
+  ProductCategory,
+} from "@/types";
 import { uploadProductImage } from "@/lib/api";
 import { X, Package } from "lucide-react";
 import Dropdown from "@/components/Dropdown";
@@ -15,7 +21,10 @@ interface ProductModalProps {
   onClose: () => void;
   /** null/undefined = create mode */
   product?: Product | null;
+  /** The shop's brands — what the catalogue is grouped by. */
   categories: Category[];
+  /** The product types: Serum, Cleanser, … Optional on a product. */
+  productCategories: ProductCategory[];
   defaultCategoryId?: number;
   onSave: (productData: ProductInput) => Promise<void>;
   onDelete?: (productId: number) => Promise<void>;
@@ -26,6 +35,7 @@ export default function ProductModal({
   onClose,
   product,
   categories,
+  productCategories,
   defaultCategoryId,
   onSave,
   onDelete,
@@ -38,6 +48,9 @@ export default function ProductModal({
   // The "was" price of an offer. Blank means the product isn't on offer.
   const [oldPrice, setOldPrice] = useState("");
   const [categoryId, setCategoryId] = useState<number>(0);
+  // 0 = no category. A product sells perfectly well without one; it just
+  // won't answer to the storefront's category filter.
+  const [productCategoryId, setProductCategoryId] = useState<number>(0);
   const [imageUrl, setImageUrl] = useState("");
   const [description, setDescription] = useState("");
   const [benefits, setBenefits] = useState("");
@@ -76,6 +89,7 @@ export default function ProductModal({
             : "",
         );
         setCategoryId(product.category_id);
+        setProductCategoryId(product.product_category_id ?? 0);
         setImageUrl(product.image_url);
         setDescription(product.description ?? "");
         setBenefits(product.benefits ?? "");
@@ -98,6 +112,7 @@ export default function ProductModal({
         setPrice("");
         setOldPrice("");
         setCategoryId(defaultCategoryId || categories[0]?.id || 0);
+        setProductCategoryId(0);
         setImageUrl("");
         setDescription("");
         setBenefits("");
@@ -186,6 +201,7 @@ export default function ProductModal({
         old_price: parsedOldPrice,
         image_url: imageUrl.trim(),
         category_id: categoryId,
+        product_category_id: productCategoryId || undefined,
         description: description.trim(),
         benefits: benefits.trim(),
         ingredients: ingredients.trim(),
@@ -388,17 +404,39 @@ export default function ProductModal({
 
             <div>
               <label className="label-caps mb-1.5 block text-ink-3">
-                {t("modal.category")}
+                {t("modal.brand")}
               </label>
               <Dropdown
-                ariaLabel={t("modal.categoryAria")}
+                ariaLabel={t("modal.brandAria")}
                 value={String(categoryId)}
                 onChange={(v) => setCategoryId(parseInt(v))}
+                searchable={categories.length > 12}
                 options={categories.map((cat) => ({
                   value: String(cat.id),
                   label: localized(cat, "name", lang),
                 }))}
               />
+            </div>
+
+            <div>
+              <label className="label-caps mb-1.5 block text-ink-3">
+                {t("modal.productCategory")}
+              </label>
+              <Dropdown
+                ariaLabel={t("modal.productCategoryAria")}
+                value={String(productCategoryId)}
+                onChange={(v) => setProductCategoryId(parseInt(v))}
+                options={[
+                  { value: "0", label: t("modal.noCategory") },
+                  ...productCategories.map((c) => ({
+                    value: String(c.id),
+                    label: localized(c, "name", lang),
+                  })),
+                ]}
+              />
+              <p className="mt-1 text-[11px] text-ink-3">
+                {t("modal.productCategoryHint")}
+              </p>
             </div>
 
             {/* Photo */}

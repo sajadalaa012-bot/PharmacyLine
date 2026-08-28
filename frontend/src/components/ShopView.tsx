@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Category, Product, priceRange } from "@/types";
-import { fetchProducts } from "@/lib/api";
+import { Category, Product, ProductCategory, priceRange } from "@/types";
+import { fetchProducts, fetchProductCategories } from "@/lib/api";
 import { useCart } from "@/lib/useCart";
 import {
   ShoppingBag,
@@ -25,11 +25,44 @@ import { useI18n } from "@/lib/LanguageProvider";
 import { localized, MessageKey } from "@/lib/i18n";
 import { num } from "@/lib/format";
 
+/** One row of filter chips — a dimension of the Browse page. */
+function FilterChips({
+  options,
+  active,
+  onPick,
+}: {
+  options: { id: number | "all"; name: string }[];
+  active: number | "all";
+  onPick: (id: number | "all") => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map((opt) => {
+        const on = active === opt.id;
+        return (
+          <button
+            key={String(opt.id)}
+            onClick={() => onPick(opt.id)}
+            className={`rounded-full border px-3.5 py-2 text-[13px] font-medium transition ${
+              on
+                ? "border-brand bg-brand text-white"
+                : "border-line-strong bg-surface text-ink hover:border-brand hover:text-brand"
+            }`}
+          >
+            <bdi>{opt.name}</bdi>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 /** The destinations of the phone tab bar. */
-type Tab = "home" | "store" | "cart";
+type Tab = "home" | "browse" | "store" | "cart";
 
 const TABS: { id: Tab; icon: typeof Home; key: MessageKey }[] = [
   { id: "home", icon: Home, key: "shop.home" },
+  { id: "browse", icon: SlidersHorizontal, key: "browse.title" },
   { id: "store", icon: Store, key: "shop.store" },
   { id: "cart", icon: ShoppingCart, key: "common.cart" },
 ];
@@ -39,7 +72,10 @@ export default function ShopView() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // The two filters stack: brand AND category, each cleared on its own.
   const [activeCategory, setActiveCategory] = useState<number | "all">("all");
+  const [activeType, setActiveType] = useState<number | "all">("all");
+  const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
   const [query, setQuery] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -52,7 +88,14 @@ export default function ShopView() {
 
   const load = useCallback(async () => {
     try {
-      setCategories(await fetchProducts());
+      const [cats, types] = await Promise.all([
+        fetchProducts(),
+        // A shop that has never set a category still works; the filter just
+        // has nothing to offer, so this must not take the catalogue down.
+        fetchProductCategories().catch(() => [] as ProductCategory[]),
+      ]);
+      setCategories(cats);
+      setProductCategories(types);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -80,10 +123,14 @@ export default function ShopView() {
   const cart = useCart(load);
 
   const allProducts = categories.flatMap((cat) => cat.products);
-  const byCategory =
+  const byBrand =
     activeCategory === "all"
       ? allProducts
       : allProducts.filter((p) => p.category_id === activeCategory);
+  const byCategory =
+    activeType === "all"
+      ? byBrand
+      : byBrand.filter((p) => p.product_category_id === activeType);
   const q = query.trim().toLowerCase();
   // Match either name, so an Arabic query still finds a product whose card
   // shows the English name and vice versa.
@@ -128,12 +175,17 @@ export default function ShopView() {
   };
 
   const activeCat = categories.find((c) => c.id === activeCategory);
+  const activeTypeCat = productCategories.find((c) => c.id === activeType);
+  // Whichever filters are on, named. Both on reads "COSRX · Serum".
   const activeName =
-    activeCategory === "all"
-      ? t("shop.allProducts")
-      : activeCat
-        ? localized(activeCat, "name", lang)
-        : t("shop.products");
+    [
+      activeCat ? localized(activeCat, "name", lang) : null,
+      activeTypeCat ? localized(activeTypeCat, "name", lang) : null,
+    ]
+      .filter(Boolean)
+      .join(" · ") || t("shop.allProducts");
+  const filtersOn =
+    (activeCategory === "all" ? 0 : 1) + (activeType === "all" ? 0 : 1);
 
   const chips = [
     { id: "all" as const, name: t("common.all") },
@@ -156,6 +208,16 @@ export default function ShopView() {
   const pickCategory = (id: number | "all") => {
     setActiveCategory(id);
     goToCatalog();
+  };
+
+  const pickType = (id: number | "all") => {
+    setActiveType(id);
+    goToCatalog();
+  };
+
+  const clearFilters = () => {
+    setActiveCategory("all");
+    setActiveType("all");
   };
 
   if (loading) {
@@ -242,26 +304,13 @@ export default function ShopView() {
     </div>
   );
 
-  const categoryStrip = (
-    <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4">
-      {chips.map((chip) => {
-        const active = activeCategory === chip.id;
-        return (
-          <button
-            key={String(chip.id)}
-            onClick={() => pickCategory(chip.id)}
-            className={`shrink-0 rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition active:scale-95 ${
-              active
-                ? "border-brand bg-brand text-white"
-                : "border-line-strong bg-transparent text-ink"
-            }`}
-          >
-            <bdi>{chip.name}</bdi>
-          </button>
-        );
-      })}
-    </div>
-  );
+  const typeChips = [
+    { id: "all" as const, name: t("browse.all") },
+    ...productCategories.map((c) => ({
+      id: c.id,
+      name: localized(c, "name", lang),
+    })),
+  ];
 
   return (
     <div className="shop app-shell bg-paper">
@@ -363,13 +412,76 @@ export default function ShopView() {
           </div>
         )}
 
+        {/* Browse — the filter page. Both dimensions in full, so a shopper
+            picks from the whole list rather than scrolling a strip. Shown on
+            the phone as a tab and on the desktop as its own section. */}
+        {tab === "browse" && (
+          <div className="tab-in mx-auto w-full max-w-3xl px-4 py-6 sm:px-5 sm:py-10">
+            <div className="flex items-baseline justify-between gap-4">
+              <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
+                {t("browse.title")}
+              </h1>
+              {filtersOn > 0 && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center gap-1 text-xs font-semibold text-brand active:scale-95"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  {t("browse.clearAll")}
+                </button>
+              )}
+            </div>
+
+            <section className="mt-6">
+              <h2 className="label-caps mb-3 text-ink-3">
+                {t("browse.category")}
+              </h2>
+              {productCategories.length > 0 ? (
+                <FilterChips
+                  options={typeChips}
+                  active={activeType}
+                  onPick={pickType}
+                />
+              ) : (
+                <p className="rounded-lg border border-dashed border-line-strong bg-sunken/40 px-4 py-4 text-[13px] text-ink-3">
+                  {t("browse.noCategories")}
+                </p>
+              )}
+            </section>
+
+            <section className="mt-8">
+              <h2 className="label-caps mb-3 text-ink-3">{t("browse.brand")}</h2>
+              <FilterChips
+                options={chips}
+                active={activeCategory}
+                onPick={pickCategory}
+              />
+            </section>
+
+            {/* What the two filters currently add up to. */}
+            <button
+              onClick={goToCatalog}
+              className="mt-9 flex h-12 w-full items-center justify-center rounded-full bg-brand text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.99]"
+            >
+              {visibleProducts.length === 1
+                ? t("browse.showResultsOne")
+                : t("browse.showResults", { n: visibleProducts.length })}
+            </button>
+          </div>
+        )}
+
         {/* Cart tab — phone only; the desktop uses the drawer. */}
         {tab === "cart" && (
           <div className="tab-in h-full sm:hidden">{cartPanel}</div>
         )}
 
-        {/* Hero — desktop only; the phone has its home tab instead. */}
-        <section className="shop-hero hidden border-b border-line sm:block">
+        {/* Hero — desktop only; the phone has its home tab instead. It is
+            part of the home view, so it steps aside for Browse. */}
+        <section
+          className={`shop-hero hidden border-b border-line ${
+            tab === "browse" ? "" : "sm:block"
+          }`}
+        >
           <div className="mx-auto max-w-7xl px-5 py-14 lg:py-20">
             <div className="rise">
               <span className="label-caps text-brand">{t("shop.eyebrow")}</span>
@@ -407,16 +519,43 @@ export default function ShopView() {
         <main
           id="catalog"
           className={`mx-auto max-w-7xl scroll-mt-24 px-4 pb-10 pt-4 sm:px-5 sm:py-10 ${
-            tab === "store" ? "" : "hidden sm:block"
-          }`}
+            tab === "store" ? "" : "hidden"
+          } ${tab === "browse" ? "" : "sm:block"}`}
         >
           {/* Store search — phone only; the desktop has one in the header. */}
           <div className="tab-in pb-4 sm:hidden">{renderSearch()}</div>
 
           <div className="mb-5 space-y-4 sm:mb-6">
-            {/* Brands. The only place they are listed: the home screen and
-                the desktop hero deliberately don't name them. */}
-            {categoryStrip}
+            {/* What is filtering the grid right now, and a way out of each.
+                The full lists live on the Browse page. */}
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => goTab("browse")}
+                className="flex h-9 items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3.5 text-[13px] font-medium text-ink transition hover:border-brand hover:text-brand"
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5" />
+                {t("browse.title")}
+              </button>
+
+              {activeTypeCat && (
+                <button
+                  onClick={() => setActiveType("all")}
+                  className="flex h-9 items-center gap-1.5 rounded-full border border-brand bg-brand px-3.5 text-[13px] font-medium text-white"
+                >
+                  <bdi>{localized(activeTypeCat, "name", lang)}</bdi>
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+              {activeCat && (
+                <button
+                  onClick={() => setActiveCategory("all")}
+                  className="flex h-9 items-center gap-1.5 rounded-full border border-brand bg-brand px-3.5 text-[13px] font-medium text-white"
+                >
+                  <bdi>{localized(activeCat, "name", lang)}</bdi>
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
 
             <div className="flex items-baseline justify-between gap-4">
               <h2 className="font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">
@@ -548,7 +687,7 @@ export default function ShopView() {
         className="z-40 shrink-0 border-t border-line bg-surface/95 backdrop-blur-md sm:hidden"
         style={{ paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))" }}
       >
-        <div className="grid grid-cols-3">
+        <div className="grid grid-cols-4">
           {TABS.map(({ id, icon: Icon, key }) => {
             const active = tab === id;
             return (

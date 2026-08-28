@@ -5,11 +5,13 @@ import {
   Category,
   Product,
   ProductInput,
+  ProductCategory,
   isDiscounted,
   isLowStock,
 } from "@/types";
 import {
   fetchProducts,
+  fetchProductCategories,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -34,10 +36,17 @@ export default function AdminProductsPage() {
   const [pendingDelete, setPendingDelete] = useState<number | null>(null);
   const [rowError, setRowError] = useState<string | null>(null);
   const [lowStockOnly, setLowStockOnly] = useState(false);
+  // The product types, for the picker in the modal.
+  const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
 
   const load = useCallback(async () => {
     try {
-      setCategories(await fetchProducts());
+      const [cats, types] = await Promise.all([
+        fetchProducts(),
+        fetchProductCategories(),
+      ]);
+      setCategories(cats);
+      setProductCategories(types);
     } finally {
       setLoading(false);
     }
@@ -91,6 +100,7 @@ export default function AdminProductsPage() {
         usage_ar: product.usage_ar,
         stock,
         variants: product.variants,
+        product_category_id: product.product_category_id,
       };
       await updateProduct(product.id, payload);
       await load();
@@ -422,6 +432,7 @@ export default function AdminProductsPage() {
         onClose={() => setModalOpen(false)}
         product={editingProduct}
         categories={categories}
+        productCategories={productCategories}
         defaultCategoryId={editingProduct?.category_id ?? categories[0]?.id}
         onSave={handleSave}
         onDelete={handleDelete}

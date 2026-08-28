@@ -2,7 +2,14 @@
 // /api routes: products, categories and orders alike. That is the point —
 // what an admin edits on one device is what every visitor sees on theirs.
 
-import { Category, Product, ProductInput, Order, OrderCreate } from "@/types";
+import {
+  Category,
+  Product,
+  ProductInput,
+  ProductCategory,
+  Order,
+  OrderCreate,
+} from "@/types";
 import { tt } from "./i18n";
 import { saveMyOrder } from "./myOrders";
 
@@ -48,6 +55,46 @@ export async function fetchProducts(): Promise<Category[]> {
   const res = await fetch("/api/catalog", { cache: "no-store" });
   if (!res.ok) throw new Error(await readError(res, tt("err.loadProducts")));
   return res.json();
+}
+
+// ── Product categories (the product type, not the brand) ────────────
+
+/** Public — the storefront's category filter reads this alongside the catalog. */
+export async function fetchProductCategories(): Promise<ProductCategory[]> {
+  const res = await fetch("/api/product-categories", { cache: "no-store" });
+  if (!res.ok) throw new Error(await readError(res, tt("err.loadProducts")));
+  return res.json();
+}
+
+export async function createProductCategory(
+  input: { name: string; name_ar: string },
+): Promise<ProductCategory> {
+  return adminWrite<ProductCategory>(
+    "/api/product-categories",
+    "POST",
+    tt("err.saveCategory"),
+    input,
+  );
+}
+
+export async function updateProductCategory(
+  id: number,
+  input: { name: string; name_ar: string },
+): Promise<ProductCategory> {
+  return adminWrite<ProductCategory>(
+    `/api/product-categories/${id}`,
+    "PUT",
+    tt("err.saveCategory"),
+    input,
+  );
+}
+
+export async function deleteProductCategory(id: number): Promise<void> {
+  return adminWrite<void>(
+    `/api/product-categories/${id}`,
+    "DELETE",
+    tt("err.deleteCategory"),
+  );
 }
 
 export async function createProduct(

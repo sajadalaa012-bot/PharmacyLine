@@ -8,7 +8,14 @@
 
 import seedData from "@/data/catalog.json";
 import { getPool, ensureSchema, query } from "./db";
-import { Category, Product, ProductInput, ProductVariant } from "@/types";
+import { backfillProductCategories } from "./classifyProducts";
+import {
+  Category,
+  Product,
+  ProductInput,
+  ProductVariant,
+  ProductCategory,
+} from "@/types";
 
 export class CatalogError extends Error {
   constructor(
@@ -68,6 +75,17 @@ function mapProduct(r: Row): Product {
     usage_ar: opt(r.usage_ar),
     stock: r.stock == null ? undefined : Number(r.stock),
     variants: mapVariants(r.variants),
+    product_category_id:
+      r.product_category_id == null ? undefined : Number(r.product_category_id),
+  };
+}
+
+function mapProductCategory(r: Row): ProductCategory {
+  return {
+    id: Number(r.id),
+    name: String(r.name),
+    name_ar: opt(r.name_ar),
+    display_order: Number(r.display_order),
   };
 }
 
@@ -117,6 +135,7 @@ const PRODUCT_FIELDS = [
   "usage_ar",
   "stock",
   "variants",
+  "product_category_id",
 ] as const;
 
 const PRODUCT_COLUMNS = `id, ${PRODUCT_FIELDS.join(", ")}`;
@@ -143,6 +162,7 @@ function productValues(p: ProductInput): unknown[] {
     // pg serialises this into the jsonb column; an empty array is the
     // "sold as itself" case and matches the column default.
     JSON.stringify(p.variants ?? []),
+    p.product_category_id ?? null,
   ];
 }
 
@@ -264,6 +284,8 @@ export function validateProduct(body: unknown): ProductInput {
     usage_ar: text(b.usage_ar),
     stock,
     variants: validateVariants(b.variants),
+    // Absent / blank / 0 all mean "not typed yet", which is a normal state.
+    product_category_id: Math.floor(num(b.product_category_id, 0)) || undefined,
   };
 }
 
@@ -358,6 +380,7 @@ export function ensureCatalog(): Promise<void> {
   if (!seedPromise) {
     seedPromise = ensureSchema()
       .then(seedCatalog)
+      .then(backfillProductCategories)
       .catch((err) => {
         // Don't cache a failure — a transient database blip would otherwise
         // leave this instance permanently unable to serve the catalog.
@@ -445,6 +468,73 @@ export async function updateProduct(
 export async function deleteProduct(id: number): Promise<boolean> {
   await ensureCatalog();
   const res = await query("DELETE FROM products WHERE id = $1", [id]);
+  return res.rowCount > 0;
+}
+
+// ── Product categories (the product type: Serum, Cleanser, …) ───────
+
+export async function listProductCategories(): Promise<ProductCategory[]> {
+  await ensureCatalog();
+  const res = await query<Row>(
+    "SELECT id, name, name_ar, display_order FROM product_categories ORDER BY display_order, id",
+  );
+  return res.rows.map(mapProductCategory);
+}
+
+export async function createProductCategory(
+  input: CategoryInput,
+): Promise<ProductCategory> {
+  await ensureCatalog();
+  const clash = await query(
+    "SELECT 1 FROM product_categories WHERE lower(name) = lower($1)",
+    [input.name],
+  );
+  if (clash.rowCount > 0)
+    throw new CatalogError(`Category "${input.name}" already exists.`, 409);
+
+  let order = input.display_order;
+  if (!order) {
+    const max = await query<Row>(
+      "SELECT COALESCE(MAX(display_order), 0) AS m FROM product_categories",
+    );
+    order = Number(max.rows[0].m) + 1;
+  }
+  const res = await query<Row>(
+    `INSERT INTO product_categories (name, name_ar, display_order)
+     VALUES ($1,$2,$3) RETURNING id, name, name_ar, display_order`,
+    [input.name, input.name_ar, order],
+  );
+  return mapProductCategory(res.rows[0]);
+}
+
+export async function updateProductCategory(
+  id: number,
+  input: CategoryInput,
+): Promise<ProductCategory | null> {
+  await ensureCatalog();
+  const clash = await query(
+    "SELECT 1 FROM product_categories WHERE lower(name) = lower($1) AND id <> $2",
+    [input.name, id],
+  );
+  if (clash.rowCount > 0)
+    throw new CatalogError(`Category "${input.name}" already exists.`, 409);
+
+  const res = await query<Row>(
+    `UPDATE product_categories SET name = $2, name_ar = $3,
+            display_order = COALESCE($4, display_order)
+     WHERE id = $1 RETURNING id, name, name_ar, display_order`,
+    [id, input.name, input.name_ar, input.display_order ?? null],
+  );
+  return res.rows[0] ? mapProductCategory(res.rows[0]) : null;
+}
+
+/**
+ * Deleting a category does not delete its products — the column is
+ * ON DELETE SET NULL, so they simply go back to being untyped.
+ */
+export async function deleteProductCategory(id: number): Promise<boolean> {
+  await ensureCatalog();
+  const res = await query("DELETE FROM product_categories WHERE id = $1", [id]);
   return res.rowCount > 0;
 }
 
