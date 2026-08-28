@@ -163,17 +163,6 @@ const en = {
   "checkout.phonePlaceholder": "07XX XXX XXXX",
   "checkout.location": "Delivery location",
   "checkout.locationPlaceholder": "Area, street, nearest landmark…",
-  "checkout.useMyLocation": "Use my location",
-  "checkout.locating": "Locating…",
-  "checkout.located": "Location added:",
-  "checkout.locateFailed":
-    "Couldn't read your location — please type the address instead.",
-  "checkout.locateDenied":
-    "Location is blocked for this site. Allow it in your browser settings, or type the address.",
-  "checkout.locateUnsupported":
-    "This browser can't share a location — please type the address.",
-  "checkout.locateInsecure":
-    "Location needs a secure (https) connection — please type the address.",
   "checkout.required": "Add your name, phone, and delivery location to place the order.",
   "checkout.customer": "Customer",
   "checkout.noDetails": "No delivery details on this order",
@@ -627,15 +616,6 @@ const ar: Record<MessageKey, string> = {
   "checkout.phonePlaceholder": "07XX XXX XXXX",
   "checkout.location": "موقع التوصيل",
   "checkout.locationPlaceholder": "المنطقة، الشارع، أقرب نقطة دالة…",
-  "checkout.useMyLocation": "استخدام موقعي",
-  "checkout.locating": "جارٍ تحديد الموقع…",
-  "checkout.located": "تمت إضافة الموقع:",
-  "checkout.locateFailed": "تعذّر تحديد موقعك — يُرجى كتابة العنوان بدلاً من ذلك.",
-  "checkout.locateDenied":
-    "الوصول إلى الموقع محظور لهذا الموقع. فعّله من إعدادات المتصفح، أو اكتب العنوان.",
-  "checkout.locateUnsupported": "هذا المتصفح لا يدعم مشاركة الموقع — يُرجى كتابة العنوان.",
-  "checkout.locateInsecure":
-    "تحديد الموقع يتطلب اتصالاً آمناً (https) — يُرجى كتابة العنوان.",
   "checkout.required": "أضف اسمك ورقم هاتفك وموقع التوصيل لإتمام الطلب.",
   "checkout.customer": "الزبون",
   "checkout.noDetails": "لا توجد معلومات توصيل لهذا الطلب",

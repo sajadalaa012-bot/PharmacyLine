@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { CartItem, CustomerDetails, hasCustomerDetails, lineKey } from "@/types";
 import { money, num } from "@/lib/format";
-import { ShoppingCart, Trash2, X, MapPin, LoaderCircle } from "lucide-react";
+import { ShoppingCart, Trash2, X } from "lucide-react";
 import { useI18n } from "@/lib/LanguageProvider";
 
 interface CartPanelProps {
@@ -25,11 +24,6 @@ interface CartPanelProps {
   /** Customer storefront: hides discount % and price editing. */
   customerMode?: boolean;
 }
-
-/** A "31.99123, 44.92456" pin sitting at the end of the location field —
- *  what this component itself wrote there last time. Language-independent,
- *  so it still matches a field filled in the other language. */
-const PIN_AT_END = /(\s*·)?\s*-?\d{1,2}\.\d{3,}\s*,\s*-?\d{1,3}\.\d{3,}\s*$/;
 
 /**
  * The order, on one screen. Everything except the list of items is fixed
@@ -56,10 +50,6 @@ export default function CartPanel({
   customerMode = false,
 }: CartPanelProps) {
   const { t } = useI18n();
-  const [locating, setLocating] = useState(false);
-  const [locateError, setLocateError] = useState<string | null>(null);
-  /** The pin just written, echoed back so the tap visibly did something. */
-  const [located, setLocated] = useState<string | null>(null);
   const itemsTotal = items.reduce((sum, ci) => sum + ci.subtotal, 0);
   const discountAmount = (itemsTotal * discount) / 100;
   const grandTotal = Math.max(0, itemsTotal - discountAmount);
@@ -68,64 +58,6 @@ export default function CartPanel({
   // A shopper's order has to be deliverable; a sale rung up at the counter
   // has the customer standing there, so the same fields stay optional.
   const customerReady = !customerMode || hasCustomerDetails(customer);
-
-  /**
-   * Put the phone's coordinates beside whatever address was typed.
-   *
-   * Two things this has to survive. Tapping it twice must not stack pins, so
-   * a pin already at the end of the field is replaced rather than appended.
-   * And a precise fix regularly never arrives indoors — where people order
-   * from — so a high-accuracy attempt that fails falls back to the coarse
-   * network fix instead of reporting failure.
-   */
-  const applyPin = (lat: number, lng: number) => {
-    const pin = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-    const base = customer.customer_location.replace(PIN_AT_END, "").trim();
-    onCustomerChange("customer_location", base ? `${base} · ${pin}` : pin);
-    setLocating(false);
-    setLocated(pin);
-  };
-
-  const useMyLocation = () => {
-    if (locating) return;
-    setLocateError(null);
-    setLocated(null);
-
-    if (!navigator.geolocation) {
-      setLocateError(t("checkout.locateUnsupported"));
-      return;
-    }
-    // A browser only hands out a position over https (localhost aside), and
-    // it fails silently enough that this is worth saying out loud.
-    if (typeof window !== "undefined" && !window.isSecureContext) {
-      setLocateError(t("checkout.locateInsecure"));
-      return;
-    }
-
-    setLocating(true);
-    const ok = (pos: GeolocationPosition) =>
-      applyPin(pos.coords.latitude, pos.coords.longitude);
-
-    navigator.geolocation.getCurrentPosition(
-      ok,
-      (err) => {
-        if (err.code === err.PERMISSION_DENIED) {
-          setLocateError(t("checkout.locateDenied"));
-          setLocating(false);
-          return;
-        }
-        navigator.geolocation.getCurrentPosition(
-          ok,
-          () => {
-            setLocateError(t("checkout.locateFailed"));
-            setLocating(false);
-          },
-          { enableHighAccuracy: false, timeout: 20000, maximumAge: 120000 },
-        );
-      },
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 },
-    );
-  };
 
   const field =
     "h-10 w-full rounded-md border border-line bg-sunken px-3 text-sm text-ink " +
@@ -281,48 +213,14 @@ export default function CartPanel({
           />
         </div>
 
-        <div className="relative">
-          <input
-            type="text"
-            value={customer.customer_location}
-            onChange={(e) =>
-              onCustomerChange("customer_location", e.target.value)
-            }
-            placeholder={t("checkout.locationPlaceholder")}
-            aria-label={t("checkout.location")}
-            className={`${field} pe-11`}
-          />
-          {/* Drops the phone's coordinates in beside whatever was typed */}
-          <button
-            type="button"
-            onClick={useMyLocation}
-            disabled={locating}
-            aria-label={t("checkout.useMyLocation")}
-            title={t("checkout.useMyLocation")}
-            className={`absolute end-1 top-1 flex h-8 w-9 items-center justify-center rounded-md
-                        transition hover:bg-surface active:scale-90 disabled:opacity-60 ${
-                          located ? "text-brand" : "text-ink-3 hover:text-brand"
-                        }`}
-          >
-            {locating ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" />
-            ) : (
-              <MapPin className="h-4 w-4" />
-            )}
-          </button>
-        </div>
-
-        {(locating || located) && !locateError && (
-          <p className="text-[11px] text-ink-3">
-            {locating ? (
-              t("checkout.locating")
-            ) : (
-              <span className="text-brand">
-                {t("checkout.located")} <span dir="ltr">{located}</span>
-              </span>
-            )}
-          </p>
-        )}
+        <input
+          type="text"
+          value={customer.customer_location}
+          onChange={(e) => onCustomerChange("customer_location", e.target.value)}
+          placeholder={t("checkout.locationPlaceholder")}
+          aria-label={t("checkout.location")}
+          className={field}
+        />
 
         <div className="flex gap-2">
           {!customerMode && (
@@ -356,9 +254,6 @@ export default function CartPanel({
           />
         </div>
 
-        {locateError && (
-          <p className="text-[11px] text-rose">{locateError}</p>
-        )}
       </div>
 
       {/* Totals */}
