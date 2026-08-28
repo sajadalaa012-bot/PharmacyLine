@@ -13,7 +13,6 @@ import {
   Home,
   Store,
   SlidersHorizontal,
-  Check,
   ChevronDown,
 } from "lucide-react";
 import ProductCard from "./ProductCard";
@@ -66,13 +65,14 @@ function FilterHeader({
 }
 
 /**
- * One dimension of the Browse page, as a list.
+ * One dimension of the Browse page: a bar of chips you swipe along.
  *
- * A list rather than a row of chips because there are 31 brands: as chips
- * they wrap into a wall you have to read across, where rows can be scanned
- * down. It also leaves room for the count beside each one.
+ * Kept on a single line rather than wrapped, so opening a section adds one
+ * row to the page however many brands it holds — thirty-one wrapped chips
+ * would push the second section off the screen entirely. Each chip carries
+ * its count, so the bar says what it is worth tapping without opening it.
  */
-function FilterList({
+function FilterBar({
   options,
   active,
   onPick,
@@ -82,29 +82,25 @@ function FilterList({
   onPick: (id: number | "all") => void;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-line">
-      {options.map((opt, i) => {
+    // pb-1 leaves room for the focus ring, which overflow would otherwise clip.
+    <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
+      {options.map((opt) => {
         const on = active === opt.id;
         return (
           <button
             key={String(opt.id)}
             onClick={() => onPick(opt.id)}
-            className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-start text-sm transition ${
-              i > 0 ? "border-t border-line" : ""
-            } ${
+            className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-medium transition active:scale-95 ${
               on
-                ? "bg-brand/10 font-semibold text-brand"
-                : "bg-surface text-ink hover:bg-sunken"
+                ? "border-brand bg-brand text-white"
+                : "border-line-strong bg-surface text-ink hover:border-brand hover:text-brand"
             }`}
           >
-            <bdi className="min-w-0 truncate">{opt.name}</bdi>
-            <span className="flex shrink-0 items-center gap-2.5">
-              <span
-                className={`text-xs tabular-nums ${on ? "text-brand/70" : "text-ink-3"}`}
-              >
-                {opt.count}
-              </span>
-              {on && <Check className="h-4 w-4" />}
+            <bdi>{opt.name}</bdi>
+            <span
+              className={`text-[11px] tabular-nums ${on ? "text-white/70" : "text-ink-3"}`}
+            >
+              {opt.count}
             </span>
           </button>
         );
@@ -532,7 +528,7 @@ export default function ShopView() {
                 <div inert={!openCategory}>
                   <div className="pt-3">
                     {productCategories.length > 0 ? (
-                      <FilterList
+                      <FilterBar
                         options={typeOptions}
                         active={activeType}
                         onPick={pickType}
@@ -557,7 +553,7 @@ export default function ShopView() {
               <div className="collapse" data-open={openBrand}>
                 <div inert={!openBrand}>
                   <div className="pt-3">
-                    <FilterList
+                    <FilterBar
                       options={brandOptions}
                       active={activeCategory}
                       onPick={pickCategory}
