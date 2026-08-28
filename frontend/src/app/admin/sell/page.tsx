@@ -154,26 +154,20 @@ export default function AdminSellPage() {
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                  {category.products.map((product, i) => {
-                    const paid = cart.items.find(
-                      (ci) => ci.product_id === product.id && !ci.is_free
-                    );
-                    const free = cart.items.find(
-                      (ci) => ci.product_id === product.id && ci.is_free
-                    );
-                    return (
-                      <ProductCard
-                        key={product.id}
-                        product={product}
-                        qty={(paid?.quantity ?? 0) + (free?.quantity ?? 0)}
-                        mode="pos"
-                        onAdd={cart.add}
-                        onRemove={cart.remove}
-                        onFree={cart.addFree}
-                        index={i}
-                      />
-                    );
-                  })}
+                  {category.products.map((product, i) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      // Paid and bonus together — the counter wants to see
+                      // how many of this option are going out of the door.
+                      qtyOf={(vid) => cart.qtyOf(product.id, vid)}
+                      mode="pos"
+                      onAdd={cart.add}
+                      onRemove={cart.remove}
+                      onFree={cart.addFree}
+                      index={i}
+                    />
+                  ))}
                 </div>
               </section>
             ))

@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import {
   Product,
+  ProductVariant,
   CartItem,
   CustomerDetails,
   EMPTY_CUSTOMER,
@@ -10,6 +11,10 @@ import {
   OrderCreate,
   OrderStatus,
   isStockTracked,
+  lineKey,
+  variantPricing,
+  variantStock,
+  variantCode,
 } from "@/types";
 import { createOrder, updateOrder } from "./api";
 import { useI18n } from "./LanguageProvider";
@@ -41,119 +46,176 @@ export function useCart(
     [lang],
   );
 
+  /** The option label, snapshotted the same way and for the same reason. */
+  const optionName = useCallback(
+    (variant?: ProductVariant | null) =>
+      variant ? localized(variant, "name", lang) : undefined,
+    [lang],
+  );
+
   // Stock ceilings for whatever is in the basket, remembered as items are
   // added. Kept here rather than on the cart line because cart lines are sent
-  // to the server verbatim as order items.
-  const limits = useRef(new Map<number, number>());
+  // to the server verbatim as order items. Keyed per line, so two options of
+  // one product each hold their own ceiling.
+  const limits = useRef(new Map<string, number>());
 
-  /** Largest quantity allowed for a product, or Infinity when untracked. */
+  /** Largest quantity allowed on one line, or Infinity when untracked. */
   const limitFor = useCallback(
-    (productId: number) => limits.current.get(productId) ?? Infinity,
+    (key: string) => limits.current.get(key) ?? Infinity,
     [],
   );
 
-  const add = useCallback((product: Product) => {
-    if (isStockTracked(product)) limits.current.set(product.id, product.stock ?? 0);
-    const max = isStockTracked(product) ? (product.stock ?? 0) : Infinity;
-    if (max <= 0) return;
-    setItems((prev) => {
-      const existing = prev.find(
-        (ci) => ci.product_id === product.id && !ci.is_free
-      );
-      if (existing) {
-        // Silently hold at the ceiling rather than letting the order promise
-        // stock that isn't there.
-        if (existing.quantity >= max) return prev;
+  /** The cart line for one product/option, paid or bonus. */
+  const findLine = useCallback(
+    (list: CartItem[], key: string) => list.find((ci) => lineKey(ci) === key),
+    [],
+  );
+
+  /** How many of one option are in the basket — both lines unless isFree is set. */
+  const qtyOf = useCallback(
+    (productId: number, variantId?: string, isFree?: boolean) =>
+      items
+        .filter(
+          (ci) =>
+            ci.product_id === productId &&
+            (ci.variant_id ?? undefined) === variantId &&
+            (isFree === undefined || ci.is_free === isFree),
+        )
+        .reduce((sum, ci) => sum + ci.quantity, 0),
+    [items],
+  );
+
+  const add = useCallback(
+    (product: Product, variant?: ProductVariant | null) => {
+      const key = lineKey({
+        product_id: product.id,
+        variant_id: variant?.id,
+        is_free: false,
+      });
+      const stock = variantStock(product, variant);
+      if (isStockTracked({ stock })) limits.current.set(key, stock ?? 0);
+      const max = isStockTracked({ stock }) ? (stock ?? 0) : Infinity;
+      if (max <= 0) return;
+      const { price } = variantPricing(product, variant);
+      setItems((prev) => {
+        const existing = findLine(prev, key);
+        if (existing) {
+          // Silently hold at the ceiling rather than letting the order promise
+          // stock that isn't there.
+          if (existing.quantity >= max) return prev;
+          return prev.map((ci) =>
+            ci === existing
+              ? {
+                  ...ci,
+                  quantity: ci.quantity + 1,
+                  subtotal: (ci.quantity + 1) * ci.unit_price,
+                }
+              : ci
+          );
+        }
+        return [
+          ...prev,
+          {
+            product_id: product.id,
+            product_code: variantCode(product, variant),
+            product_name: lineName(product),
+            variant_id: variant?.id,
+            variant_name: optionName(variant),
+            quantity: 1,
+            unit_price: price,
+            subtotal: price,
+            is_free: false,
+          },
+        ];
+      });
+    },
+    [lineName, optionName, findLine]
+  );
+
+  const remove = useCallback(
+    (product: Product, variant?: ProductVariant | null) => {
+      setItems((prev) => {
+        const of = (isFree: boolean) =>
+          findLine(
+            prev,
+            lineKey({
+              product_id: product.id,
+              variant_id: variant?.id,
+              is_free: isFree,
+            }),
+          );
+        // The paid line comes down first; a bonus is only taken back once
+        // there is nothing paid-for left to remove.
+        const target = of(false) || of(true);
+        if (!target) return prev;
+        if (target.quantity <= 1) return prev.filter((ci) => ci !== target);
         return prev.map((ci) =>
-          ci === existing
+          ci === target
             ? {
                 ...ci,
-                quantity: ci.quantity + 1,
-                subtotal: (ci.quantity + 1) * ci.unit_price,
+                quantity: ci.quantity - 1,
+                subtotal: (ci.quantity - 1) * ci.unit_price,
               }
             : ci
         );
-      }
-      return [
-        ...prev,
-        {
-          product_id: product.id,
-          product_code: product.code,
-          product_name: lineName(product),
-          quantity: 1,
-          unit_price: product.price,
-          subtotal: product.price,
-          is_free: false,
-        },
-      ];
-    });
-  }, [lineName]);
+      });
+    },
+    [findLine]
+  );
 
-  const remove = useCallback((product: Product) => {
-    setItems((prev) => {
-      const paid = prev.find((ci) => ci.product_id === product.id && !ci.is_free);
-      const free = prev.find((ci) => ci.product_id === product.id && ci.is_free);
-      const target = paid || free;
-      if (!target) return prev;
-      if (target.quantity <= 1) return prev.filter((ci) => ci !== target);
-      return prev.map((ci) =>
-        ci === target
-          ? {
-              ...ci,
-              quantity: ci.quantity - 1,
-              subtotal: (ci.quantity - 1) * ci.unit_price,
-            }
-          : ci
-      );
-    });
-  }, []);
-
-  const addFree = useCallback((product: Product) => {
-    if (isStockTracked(product)) limits.current.set(product.id, product.stock ?? 0);
-    const max = isStockTracked(product) ? (product.stock ?? 0) : Infinity;
-    if (max <= 0) return;
-    setItems((prev) => {
-      const existing = prev.find(
-        (ci) => ci.product_id === product.id && ci.is_free
-      );
-      if (existing) {
-        if (existing.quantity >= max) return prev;
-        return prev.map((ci) =>
-          ci === existing ? { ...ci, quantity: ci.quantity + 1, subtotal: 0 } : ci
-        );
-      }
-      return [
-        ...prev,
-        {
-          product_id: product.id,
-          product_code: product.code,
-          product_name: lineName(product),
-          quantity: 1,
-          unit_price: 0,
-          subtotal: 0,
-          is_free: true,
-        },
-      ];
-    });
-  }, [lineName]);
-
-  const setQty = useCallback(
-    (productId: number, isFree: boolean, qty: number) => {
-      // Typing a quantity by hand goes through here too, so the ceiling has to
-      // be enforced at this level and not only on the +/- buttons.
-      const capped = Math.min(qty, limitFor(productId));
+  const addFree = useCallback(
+    (product: Product, variant?: ProductVariant | null) => {
+      const key = lineKey({
+        product_id: product.id,
+        variant_id: variant?.id,
+        is_free: true,
+      });
+      const stock = variantStock(product, variant);
+      if (isStockTracked({ stock })) limits.current.set(key, stock ?? 0);
+      const max = isStockTracked({ stock }) ? (stock ?? 0) : Infinity;
+      if (max <= 0) return;
       setItems((prev) => {
-        if (capped <= 0) {
-          return prev.filter(
-            (ci) => !(ci.product_id === productId && ci.is_free === isFree)
+        const existing = findLine(prev, key);
+        if (existing) {
+          if (existing.quantity >= max) return prev;
+          return prev.map((ci) =>
+            ci === existing ? { ...ci, quantity: ci.quantity + 1, subtotal: 0 } : ci
           );
         }
+        return [
+          ...prev,
+          {
+            product_id: product.id,
+            product_code: variantCode(product, variant),
+            product_name: lineName(product),
+            variant_id: variant?.id,
+            variant_name: optionName(variant),
+            quantity: 1,
+            unit_price: 0,
+            subtotal: 0,
+            is_free: true,
+          },
+        ];
+      });
+    },
+    [lineName, optionName, findLine]
+  );
+
+  // Both of these address one line by its key rather than by product, since a
+  // product bought in two options is two lines the panel edits independently.
+  const setQty = useCallback(
+    (key: string, qty: number) => {
+      // Typing a quantity by hand goes through here too, so the ceiling has to
+      // be enforced at this level and not only on the +/- buttons.
+      const capped = Math.min(qty, limitFor(key));
+      setItems((prev) => {
+        if (capped <= 0) return prev.filter((ci) => lineKey(ci) !== key);
         return prev.map((ci) =>
-          ci.product_id === productId && ci.is_free === isFree
+          lineKey(ci) === key
             ? {
                 ...ci,
                 quantity: capped,
-                subtotal: isFree ? 0 : capped * ci.unit_price,
+                subtotal: ci.is_free ? 0 : capped * ci.unit_price,
               }
             : ci
         );
@@ -162,22 +224,19 @@ export function useCart(
     [limitFor]
   );
 
-  const setUnitPrice = useCallback(
-    (productId: number, isFree: boolean, price: number) => {
-      setItems((prev) =>
-        prev.map((ci) =>
-          ci.product_id === productId && ci.is_free === isFree
-            ? {
-                ...ci,
-                unit_price: price,
-                subtotal: isFree ? 0 : ci.quantity * price,
-              }
-            : ci
-        )
-      );
-    },
-    []
-  );
+  const setUnitPrice = useCallback((key: string, price: number) => {
+    setItems((prev) =>
+      prev.map((ci) =>
+        lineKey(ci) === key
+          ? {
+              ...ci,
+              unit_price: price,
+              subtotal: ci.is_free ? 0 : ci.quantity * price,
+            }
+          : ci
+      )
+    );
+  }, []);
 
   /** Update one checkout field — name, phone, or delivery location. */
   const setCustomerField = useCallback(
@@ -200,6 +259,8 @@ export function useCart(
         product_id: it.product_id,
         product_code: it.product_code,
         product_name: it.product_name,
+        variant_id: it.variant_id,
+        variant_name: it.variant_name,
         quantity: it.quantity,
         unit_price: it.unit_price,
         subtotal: it.subtotal,
@@ -292,6 +353,7 @@ export function useCart(
     add,
     remove,
     addFree,
+    qtyOf,
     setQty,
     setUnitPrice,
     clear,

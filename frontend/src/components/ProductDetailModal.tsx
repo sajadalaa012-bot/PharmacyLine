@@ -3,10 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Product,
+  ProductVariant,
   isOutOfStock,
   isStockTracked,
   isDiscounted,
   discountPercent,
+  variantsOf,
+  variantPricing,
+  variantStock,
+  variantCode,
 } from "@/types";
 import { useI18n } from "@/lib/LanguageProvider";
 import { localized } from "@/lib/i18n";
@@ -27,10 +32,11 @@ import {
 
 interface ProductDetailModalProps {
   product: Product;
-  qty: number;
+  /** How many of one option are in the basket — the modal picks the option. */
+  qtyOf: (variantId?: string) => number;
   onClose: () => void;
-  onAdd: (product: Product) => void;
-  onRemove: (product: Product) => void;
+  onAdd: (product: Product, variant?: ProductVariant | null) => void;
+  onRemove: (product: Product, variant?: ProductVariant | null) => void;
 }
 
 /** Split a multi-line field into clean, non-empty lines. */
@@ -44,7 +50,7 @@ function lines(text?: string): string[] {
 
 export default function ProductDetailModal({
   product,
-  qty,
+  qtyOf,
   onClose,
   onAdd,
   onRemove,
@@ -54,11 +60,26 @@ export default function ProductDetailModal({
 
   // Shopper-facing copy, Arabic where the admin has written it.
   const name = localized(product, "name", lang);
-  const soldOut = isOutOfStock(product);
-  const onOffer = isDiscounted(product);
-  const off = discountPercent(product);
-  const atStockLimit = isStockTracked(product) && qty >= (product.stock ?? 0);
   const description = localized(product, "description", lang);
+
+  // ── Options ──
+  // Opens on the first option that is actually in stock, so the price and the
+  // add button never start out describing something nobody can buy.
+  const variants = variantsOf(product);
+  const firstAvailable =
+    variants.find((v) => !isOutOfStock({ stock: variantStock(product, v) })) ??
+    variants[0];
+  const [chosenId, setChosenId] = useState<string | undefined>(firstAvailable?.id);
+  const variant = variants.find((v) => v.id === chosenId) ?? firstAvailable ?? null;
+
+  const pricing = variantPricing(product, variant);
+  const stock = variantStock(product, variant);
+  const qty = qtyOf(variant?.id);
+
+  const soldOut = isOutOfStock({ stock });
+  const onOffer = isDiscounted(pricing);
+  const off = discountPercent(pricing);
+  const atStockLimit = isStockTracked({ stock }) && qty >= (stock ?? 0);
 
   // Close on Escape (closes the zoom viewer first, then the modal).
   useEffect(() => {
@@ -120,7 +141,7 @@ export default function ProductDetailModal({
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-line bg-sunken/50 px-5 py-3.5">
           <span className="label-caps rounded-sm border border-brand/25 bg-brand/[0.08] px-1.5 py-0.5 text-brand">
-            {product.code}
+            {variantCode(product, variant)}
           </span>
           <button
             type="button"
@@ -175,7 +196,7 @@ export default function ProductDetailModal({
                     onOffer ? "text-rose" : "text-ink"
                   }`}
                 >
-                  {num(product.price)}
+                  {num(pricing.price)}
                   <span
                     className={`ms-1.5 font-sans text-xs font-semibold tracking-[0.08em] ${
                       onOffer ? "text-rose/70" : "text-ink-3"
@@ -187,7 +208,7 @@ export default function ProductDetailModal({
                 {onOffer && (
                   <>
                     <span className="font-display text-base font-semibold text-ink-3 line-through decoration-rose/70 decoration-[1.5px] tabular-nums">
-                      {num(product.old_price as number)}
+                      {num(pricing.old_price as number)}
                     </span>
                     <span className="label-caps rounded-full bg-rose px-2 py-0.5 text-[10px] text-white">
                       {t("offer.percentOff", { n: off })}
@@ -199,25 +220,65 @@ export default function ProductDetailModal({
               {onOffer && (
                 <p className="mt-1.5 text-xs font-semibold text-rose">
                   {t("offer.youSave", {
-                    n: num((product.old_price as number) - product.price),
+                    n: num((pricing.old_price as number) - pricing.price),
                     currency: t("common.currency"),
                   })}
                 </p>
               )}
 
-              {isStockTracked(product) && (
+              {/* Options, as tappable chips — the whole set is visible at
+                  once here, where there is room for it. */}
+              {variants.length > 0 && (
+                <div className="mt-4">
+                  <p className="label-caps mb-2 text-ink-3">
+                    {t("variants.chooseLabel")}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {variants.map((v) => {
+                      const vStock = variantStock(product, v);
+                      const vOut = isOutOfStock({ stock: vStock });
+                      const chosen = v.id === variant?.id;
+                      return (
+                        <button
+                          key={v.id}
+                          type="button"
+                          onClick={() => setChosenId(v.id)}
+                          disabled={vOut}
+                          aria-pressed={chosen}
+                          className={`rounded-lg border px-3 py-1.5 text-[13px] font-medium transition ${
+                            chosen
+                              ? "border-brand bg-brand/10 text-brand"
+                              : "border-line bg-sunken text-ink-2 hover:border-brand/40 hover:text-ink"
+                          } ${vOut ? "cursor-not-allowed opacity-40 line-through" : ""}`}
+                        >
+                          <bdi>{localized(v, "name", lang)}</bdi>
+                          {/* Only worth showing when the options differ in
+                              price — otherwise it is the same number twice. */}
+                          {v.price != null && (
+                            <span className="ms-1.5 text-[11px] text-ink-3 tabular-nums">
+                              {num(variantPricing(product, v).price)}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {isStockTracked({ stock }) && (
                 <p
                   className={`mt-2 text-xs font-semibold ${
                     soldOut
                       ? "text-rose"
-                      : (product.stock ?? 0) <= 5
+                      : (stock ?? 0) <= 5
                         ? "text-copper"
                         : "text-ink-3"
                   }`}
                 >
                   {soldOut
                     ? t("stock.outOfStock")
-                    : t("stock.inStock", { n: product.stock ?? 0 })}
+                    : t("stock.inStock", { n: stock ?? 0 })}
                 </p>
               )}
 
@@ -231,7 +292,7 @@ export default function ProductDetailModal({
               <div className="mt-auto pt-5">
                 {qty === 0 ? (
                   <button
-                    onClick={() => onAdd(product)}
+                    onClick={() => onAdd(product, variant)}
                     disabled={soldOut}
                     className="h-11 w-full rounded-md bg-brand text-sm font-semibold text-on-brand transition-colors hover:bg-brand-deep active:scale-[0.99] disabled:pointer-events-none disabled:bg-line-strong disabled:text-ink-3"
                   >
@@ -240,7 +301,7 @@ export default function ProductDetailModal({
                 ) : (
                   <div className="flex h-11 items-center justify-between rounded-md border border-line-strong bg-sunken px-1.5">
                     <button
-                      onClick={() => onRemove(product)}
+                      onClick={() => onRemove(product, variant)}
                       aria-label={t("product.removeOne", { name })}
                       className="flex h-8 w-10 items-center justify-center rounded text-ink-2 transition hover:bg-rose/10 hover:text-rose active:scale-90"
                     >
@@ -250,7 +311,7 @@ export default function ProductDetailModal({
                       {t("product.inCart", { n: qty })}
                     </span>
                     <button
-                      onClick={() => onAdd(product)}
+                      onClick={() => onAdd(product, variant)}
                       disabled={atStockLimit}
                       aria-label={t("product.addOne", { name })}
                       className="flex h-8 w-10 items-center justify-center rounded text-ink-2 transition hover:bg-brand/10 hover:text-brand active:scale-90 disabled:pointer-events-none disabled:opacity-30"

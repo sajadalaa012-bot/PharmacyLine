@@ -160,6 +160,8 @@ function toInput(
    * republishing a photo change would quietly cancel every offer.
    */
   old_price: number | undefined = p.old_price,
+  /** The options to keep, for the same reason. See COMPARED. */
+  variants: ProductInput["variants"] = p.variants,
 ): ProductInput {
   // Spelt out rather than spread so `id` can't be smuggled into the payload.
   return {
@@ -167,6 +169,7 @@ function toInput(
     code: p.code,
     price: p.price,
     old_price,
+    variants,
     image_url,
     category_id,
     description: p.description,
@@ -232,6 +235,7 @@ export async function applyRecovery(plan: RecoveryPlan): Promise<RecoveryResult>
           await shrink(local),
           server.category_id,
           local.old_price ?? server.old_price,
+          local.variants ?? server.variants,
         ),
       );
       result.updated++;

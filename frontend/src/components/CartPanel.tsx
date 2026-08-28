@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CartItem, CustomerDetails, hasCustomerDetails } from "@/types";
+import { CartItem, CustomerDetails, hasCustomerDetails, lineKey } from "@/types";
 import { money, num } from "@/lib/format";
 import { ShoppingCart, Trash2, X, MapPin, LoaderCircle } from "lucide-react";
 import { useI18n } from "@/lib/LanguageProvider";
@@ -14,8 +14,9 @@ interface CartPanelProps {
   onCustomerChange: (field: keyof CustomerDetails, value: string) => void;
   discount: number;
   onDiscountChange: (discount: number) => void;
-  onQtyChange: (productId: number, isFree: boolean, qty: number) => void;
-  onUnitPriceChange?: (productId: number, isFree: boolean, price: number) => void;
+  /** Addressed by line key — a product bought in two options is two lines. */
+  onQtyChange: (key: string, qty: number) => void;
+  onUnitPriceChange?: (key: string, price: number) => void;
   onSubmit: () => void;
   onClear: () => void;
   submitting: boolean;
@@ -166,16 +167,18 @@ export default function CartPanel({
         ) : (
           <ul className="divide-y divide-line">
             {items.map((item) => (
-              <li
-                key={`${item.product_id}-${item.is_free ? "free" : "paid"}`}
-                className="py-2"
-              >
+              <li key={lineKey(item)} className="py-2">
                 <div className="flex items-start justify-between gap-3">
                   <p className="min-w-0 flex-1 text-[13px] font-medium leading-snug text-ink">
                     <span className="me-1.5 font-mono text-[11px] font-bold text-brand">
                       {item.product_code}
                     </span>
                     <bdi>{item.product_name}</bdi>
+                    {item.variant_name && (
+                      <span className="ms-1.5 rounded-sm border border-line-strong bg-sunken px-1 py-px text-[11px] font-semibold text-ink-2">
+                        <bdi>{item.variant_name}</bdi>
+                      </span>
+                    )}
                     {item.is_free && (
                       <span className="label-caps ms-1.5 rounded-sm border border-copper/35 bg-copper/[0.08] px-1 py-px text-copper">
                         {t("common.bonus")}
@@ -199,7 +202,7 @@ export default function CartPanel({
                     onChange={(e) => {
                       const val = parseInt(e.target.value, 10);
                       if (!isNaN(val) && val >= 1) {
-                        onQtyChange(item.product_id, item.is_free, val);
+                        onQtyChange(lineKey(item), val);
                       }
                     }}
                     onBlur={(e) => {
@@ -222,7 +225,7 @@ export default function CartPanel({
                         onChange={(e) => {
                           const val = parseFloat(e.target.value);
                           if (!isNaN(val) && val >= 0) {
-                            onUnitPriceChange?.(item.product_id, item.is_free, val);
+                            onUnitPriceChange?.(lineKey(item), val);
                           }
                         }}
                         className="w-24 rounded-md border border-line bg-sunken px-1.5 py-1 text-center text-xs font-semibold text-ink tabular-nums
@@ -238,7 +241,7 @@ export default function CartPanel({
                     </span>
                   )}
                   <button
-                    onClick={() => onQtyChange(item.product_id, item.is_free, 0)}
+                    onClick={() => onQtyChange(lineKey(item), 0)}
                     aria-label={t("cart.removeFromOrder", {
                       name: item.product_name,
                     })}

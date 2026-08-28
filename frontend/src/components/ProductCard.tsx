@@ -1,11 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import {
   Product,
+  ProductVariant,
   isOutOfStock,
   isStockTracked,
   isDiscounted,
   discountPercent,
+  variantsOf,
+  variantPricing,
+  variantStock,
+  variantCode,
 } from "@/types";
 import { Package, Plus, Minus, Maximize2 } from "lucide-react";
 import { useI18n } from "@/lib/LanguageProvider";
@@ -14,11 +20,16 @@ import { num } from "@/lib/format";
 
 interface ProductCardProps {
   product: Product;
-  qty: number;
+  /**
+   * How many of one option are in the basket. A lookup rather than a number
+   * because the card picks the option itself — the parent has no way to know
+   * which one is showing.
+   */
+  qtyOf: (variantId?: string) => number;
   mode: "shop" | "pos";
-  onAdd: (product: Product) => void;
-  onRemove: (product: Product) => void;
-  onFree?: (product: Product) => void;
+  onAdd: (product: Product, variant?: ProductVariant | null) => void;
+  onRemove: (product: Product, variant?: ProductVariant | null) => void;
+  onFree?: (product: Product, variant?: ProductVariant | null) => void;
   /** When set, tapping the image or name opens the product detail view. */
   onOpenDetail?: (product: Product) => void;
   index?: number;
@@ -26,7 +37,7 @@ interface ProductCardProps {
 
 export default function ProductCard({
   product,
-  qty,
+  qtyOf,
   mode,
   onAdd,
   onRemove,
@@ -37,15 +48,31 @@ export default function ProductCard({
   const { t, lang } = useI18n();
   // The shopper-facing name: Arabic when set, English otherwise.
   const name = localized(product, "name", lang);
-  const soldOut = isOutOfStock(product);
+
+  // ── Options ──
+  // A product sold in options starts on the first one that is actually in
+  // stock, so the card never opens on something nobody can buy.
+  const variants = variantsOf(product);
+  const firstAvailable =
+    variants.find((v) => !isOutOfStock({ stock: variantStock(product, v) })) ??
+    variants[0];
+  const [chosenId, setChosenId] = useState<string | undefined>(firstAvailable?.id);
+  const variant = variants.find((v) => v.id === chosenId) ?? firstAvailable ?? null;
+
+  // Everything below reads from the chosen option, falling back to the
+  // product itself when there are none. See variantPricing / variantStock.
+  const pricing = variantPricing(product, variant);
+  const stock = variantStock(product, variant);
+  const qty = qtyOf(variant?.id);
+
+  const soldOut = isOutOfStock({ stock });
   // On offer: the card shows what it used to cost next to what it costs now.
-  const onOffer = isDiscounted(product);
-  const off = discountPercent(product);
+  const onOffer = isDiscounted(pricing);
+  const off = discountPercent(pricing);
   // Nudge, not alarm: only worth saying when the number is genuinely small.
-  const runningLow =
-    !soldOut && isStockTracked(product) && (product.stock ?? 0) <= 5;
+  const runningLow = !soldOut && isStockTracked({ stock }) && (stock ?? 0) <= 5;
   // Never let the basket exceed what is on the shelf.
-  const atStockLimit = isStockTracked(product) && qty >= (product.stock ?? 0);
+  const atStockLimit = isStockTracked({ stock }) && qty >= (stock ?? 0);
   // Every item shares the same peach tint (matches the F7 card).
   const tintClass = "tint-2";
 
@@ -112,8 +139,9 @@ export default function ProductCard({
 
       {/* Body */}
       <div className={`flex flex-1 flex-col gap-1.5 ${mode === "shop" ? "px-3.5 pb-3.5 pt-1" : "px-3 pb-3 pt-0.5"}`}>
+        {/* The code as the receipt will carry it, option suffix and all. */}
         <span className="label-caps self-start rounded-sm border border-brand/25 bg-brand/[0.07] px-1.5 py-0.5 text-brand">
-          {product.code}
+          {variantCode(product, variant)}
         </span>
 
         <h3
@@ -125,9 +153,40 @@ export default function ProductCard({
           <bdi>{name}</bdi>
         </h3>
 
+        {/* Option picker. Chips rather than a dropdown: the card clips its
+            own overflow, so a popup panel would be cut off inside it. */}
+        {variants.length > 0 && (
+          <div
+            role="group"
+            aria-label={t("variants.chooseAria", { name })}
+            className="flex flex-wrap gap-1"
+          >
+            {variants.map((v) => {
+              const vOut = isOutOfStock({ stock: variantStock(product, v) });
+              const chosen = v.id === variant?.id;
+              return (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={() => setChosenId(v.id)}
+                  disabled={vOut}
+                  aria-pressed={chosen}
+                  className={`rounded-md border px-1.5 py-0.5 text-[11px] font-medium leading-tight transition ${
+                    chosen
+                      ? "border-brand bg-brand/10 text-brand"
+                      : "border-line-strong bg-white/60 text-[#6b6156] hover:border-brand/40"
+                  } ${vOut ? "cursor-not-allowed opacity-40 line-through" : ""}`}
+                >
+                  <bdi>{localized(v, "name", lang)}</bdi>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {runningLow && (
           <p className="text-[11px] font-semibold text-copper">
-            {t("stock.left", { n: product.stock ?? 0 })}
+            {t("stock.left", { n: stock ?? 0 })}
           </p>
         )}
 
@@ -136,7 +195,7 @@ export default function ProductCard({
         <div className="mt-auto flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
           {onOffer && (
             <span className="font-display text-[13px] font-semibold text-ink-3 line-through decoration-rose/70 decoration-[1.5px] tabular-nums">
-              {num(product.old_price as number)}
+              {num(pricing.old_price as number)}
             </span>
           )}
           <p
@@ -144,7 +203,7 @@ export default function ProductCard({
               onOffer ? "text-rose" : "text-[#211d17]"
             }`}
           >
-            {num(product.price)}
+            {num(pricing.price)}
             <span
               className={`ms-1 font-sans text-[10px] font-semibold tracking-[0.08em] ${
                 onOffer ? "text-rose/70" : "text-[#8c8073]"
@@ -159,7 +218,7 @@ export default function ProductCard({
         {mode === "shop" ? (
           qty === 0 ? (
             <button
-              onClick={() => onAdd(product)}
+              onClick={() => onAdd(product, variant)}
               disabled={soldOut}
               className="mt-1.5 h-9 w-full rounded-md bg-brand text-[13px] font-semibold tracking-[0.01em] text-cart
                          transition-colors duration-200 hover:bg-brand-deep active:scale-[0.98]
@@ -170,7 +229,7 @@ export default function ProductCard({
           ) : (
             <div className="mt-1.5 flex h-9 items-center justify-between rounded-md border border-line-strong bg-sunken px-1">
               <button
-                onClick={() => onRemove(product)}
+                onClick={() => onRemove(product, variant)}
                 aria-label={t("product.removeOne", { name })}
                 className="flex h-7 w-8 items-center justify-center rounded text-ink-2 transition hover:bg-rose/10 hover:text-rose active:scale-90"
               >
@@ -178,7 +237,7 @@ export default function ProductCard({
               </button>
               <span className="text-sm font-bold text-ink tabular-nums">{qty}</span>
               <button
-                onClick={() => onAdd(product)}
+                onClick={() => onAdd(product, variant)}
                 disabled={atStockLimit}
                 aria-label={t("product.addOne", { name })}
                 className="flex h-7 w-8 items-center justify-center rounded text-ink-2 transition hover:bg-brand/10 hover:text-brand active:scale-90 disabled:pointer-events-none disabled:opacity-30"
@@ -190,7 +249,7 @@ export default function ProductCard({
         ) : (
           <div className="mt-1.5 flex items-center gap-1.5">
             <button
-              onClick={() => onRemove(product)}
+              onClick={() => onRemove(product, variant)}
               disabled={qty === 0}
               aria-label={t("product.remove", { name })}
               className="flex h-8 w-9 items-center justify-center rounded-md border border-line bg-surface text-ink-2
@@ -200,7 +259,7 @@ export default function ProductCard({
               <Minus className="h-3.5 w-3.5" />
             </button>
             <button
-              onClick={() => onAdd(product)}
+              onClick={() => onAdd(product, variant)}
               disabled={soldOut || atStockLimit}
               aria-label={t("product.addAria", { name })}
               className="flex h-8 w-9 items-center justify-center rounded-md bg-brand text-on-brand
@@ -210,7 +269,7 @@ export default function ProductCard({
               <Plus className="h-3.5 w-3.5" />
             </button>
             <button
-              onClick={() => onFree?.(product)}
+              onClick={() => onFree?.(product, variant)}
               aria-label={t("product.addBonus", { name })}
               className="label-caps h-8 flex-1 rounded-md border border-copper/35 bg-copper/[0.08] text-copper
                          transition hover:bg-copper/15 active:scale-95"

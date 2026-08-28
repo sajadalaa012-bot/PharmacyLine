@@ -83,7 +83,8 @@ export function orderToWhatsAppText(order: Order): string {
 
   for (const it of order.items) {
     const bonus = it.is_free ? " 🎁 (مجاني)" : "";
-    lines.push(`▪️ [${it.product_code}] ${it.product_name}${bonus}`);
+    const option = it.variant_name ? ` — ${it.variant_name}` : "";
+    lines.push(`▪️ [${it.product_code}] ${it.product_name}${option}${bonus}`);
     lines.push(`   الكمية: ${it.quantity} × ${iqd(it.unit_price)} = ${iqd(it.subtotal)}`);
   }
 

@@ -280,6 +280,30 @@ const en = {
   "stock.stopTracking": "Stop tracking",
   "stock.saveFailed": "Could not save the stock level.",
   "stock.lowFilter": "Low or out of stock",
+  "stock.variantHint":
+    "The fallback for any option that doesn't set a stock level of its own.",
+
+  // ── Options (sizes, flavours, shades) ──
+  "variants.title": "Options (optional)",
+  "variants.hint":
+    "Sizes, flavours, shades — anything the same product comes in. Add them and shoppers pick one before adding to the cart. Leave the price, offer and stock blank on an option and it uses the product's own.",
+  "variants.emptyHint":
+    "No options — this product is sold as itself, at the price above.",
+  "variants.addOption": "Add an option",
+  "variants.removeOption": "Remove this option",
+  "variants.moveUp": "Move up",
+  "variants.moveDown": "Move down",
+  "variants.name": "Option",
+  "variants.nameAr": "Option (Arabic)",
+  "variants.namePlaceholder": "e.g. 100 ml",
+  "variants.nameArPlaceholder": "e.g. ١٠٠ مل",
+  "variants.codeSuffix": "Code",
+  "variants.codePlaceholder": "100ML",
+  "variants.price": "Price",
+  "variants.oldPrice": "Old price",
+  "variants.inherits": "Same as above",
+  "variants.chooseLabel": "Choose an option",
+  "variants.chooseAria": "Choose an option for {name}",
 
   // ── Offers (a product with an old price above its current one) ──
   "offer.percentOff": "−{n}%",
@@ -391,6 +415,10 @@ const en = {
   "err.oldPriceInvalid": "The old price must be a valid positive number.",
   "err.oldPriceTooLow":
     "The old price has to be higher than the price — otherwise there is no discount to show.",
+  "err.variantNameRequired": "Every option needs a name.",
+  "err.variantDuplicate": "Two options have the same name.",
+  "err.variantOldPriceTooLow":
+    "The old price for \"{name}\" has to be higher than what it sells for.",
   "err.categoryRequired": "Please select a category.",
   "err.uploadFailed": "Failed to upload image",
   "err.saveGeneric": "An error occurred while saving.",
@@ -677,6 +705,30 @@ const ar: Record<MessageKey, string> = {
   "stock.stopTracking": "إيقاف الاحتساب",
   "stock.saveFailed": "تعذّر حفظ كمية المخزون.",
   "stock.lowFilter": "مخزون منخفض أو نافد",
+  "stock.variantHint":
+    "يُستخدم لأي خيار لا يحدّد مخزوناً خاصاً به.",
+
+  // ── الخيارات (الأحجام والنكهات والدرجات) ──
+  "variants.title": "الخيارات (اختياري)",
+  "variants.hint":
+    "الأحجام أو النكهات أو الدرجات — أي شكل يتوفّر به المنتج نفسه. أضفها ليختار المتسوّق واحداً قبل الإضافة إلى السلة. اترك السعر أو العرض أو المخزون فارغاً في أي خيار ليأخذ قيمة المنتج نفسه.",
+  "variants.emptyHint":
+    "لا توجد خيارات — يُباع هذا المنتج كما هو، بالسعر أعلاه.",
+  "variants.addOption": "إضافة خيار",
+  "variants.removeOption": "حذف هذا الخيار",
+  "variants.moveUp": "تحريك للأعلى",
+  "variants.moveDown": "تحريك للأسفل",
+  "variants.name": "الخيار",
+  "variants.nameAr": "الخيار (بالعربية)",
+  "variants.namePlaceholder": "مثال: 100 ml",
+  "variants.nameArPlaceholder": "مثال: ١٠٠ مل",
+  "variants.codeSuffix": "الرمز",
+  "variants.codePlaceholder": "100ML",
+  "variants.price": "السعر",
+  "variants.oldPrice": "السعر القديم",
+  "variants.inherits": "كما أعلاه",
+  "variants.chooseLabel": "اختر الخيار",
+  "variants.chooseAria": "اختر خياراً لـ {name}",
 
   // ── Offers ──
   "offer.percentOff": "−{n}%",
@@ -785,6 +837,10 @@ const ar: Record<MessageKey, string> = {
   "err.oldPriceInvalid": "يجب أن يكون السعر القديم رقماً موجباً صحيحاً.",
   "err.oldPriceTooLow":
     "يجب أن يكون السعر القديم أعلى من السعر الحالي، وإلا فلا يوجد خصم لعرضه.",
+  "err.variantNameRequired": "كل خيار يحتاج إلى اسم.",
+  "err.variantDuplicate": "هناك خياران يحملان الاسم نفسه.",
+  "err.variantOldPriceTooLow":
+    "يجب أن يكون السعر القديم لـ \"{name}\" أعلى من سعر بيعه.",
   "err.categoryRequired": "يُرجى اختيار قسم.",
   "err.uploadFailed": "تعذّر رفع الصورة",
   "err.saveGeneric": "حدث خطأ أثناء الحفظ.",

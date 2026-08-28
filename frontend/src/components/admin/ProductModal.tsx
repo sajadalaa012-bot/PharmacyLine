@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Product, Category, ProductInput } from "@/types";
+import { Product, Category, ProductInput, ProductVariant } from "@/types";
 import { uploadProductImage } from "@/lib/api";
 import { X, Package } from "lucide-react";
 import Dropdown from "@/components/Dropdown";
+import VariantEditor from "@/components/admin/VariantEditor";
 import { useI18n } from "@/lib/LanguageProvider";
 import { localized } from "@/lib/i18n";
 import { num } from "@/lib/format";
@@ -44,6 +45,8 @@ export default function ProductModal({
   const [usage, setUsage] = useState("");
   // Blank means "not tracked" — see Product.stock.
   const [stock, setStock] = useState("");
+  // The options this product is sold in. Empty = sold as itself.
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
 
   // Arabic copy. Blank fields fall back to the English above on the storefront,
   // so a product can be listed long before anyone translates it.
@@ -81,6 +84,9 @@ export default function ProductModal({
         setStock(
           typeof product.stock === "number" ? String(product.stock) : "",
         );
+        // Copied, not shared: editing a row must not mutate the loaded
+        // product, or cancelling the modal would leave the change behind.
+        setVariants((product.variants ?? []).map((v) => ({ ...v })));
         setNameAr(product.name_ar ?? "");
         setDescriptionAr(product.description_ar ?? "");
         setBenefitsAr(product.benefits_ar ?? "");
@@ -98,6 +104,7 @@ export default function ProductModal({
         setIngredients("");
         setUsage("");
         setStock("");
+        setVariants([]);
         setNameAr("");
         setDescriptionAr("");
         setBenefitsAr("");
@@ -143,6 +150,32 @@ export default function ProductModal({
     }
     if (!categoryId) return setError(t("err.categoryRequired"));
 
+    // Options: a half-filled row is a mistake worth pointing at, since a
+    // nameless option would simply be dropped on save and the admin would
+    // wonder where it went. A completely blank row is fine — it is just the
+    // row they added and changed their mind about.
+    const filled = variants.filter(
+      (v) =>
+        v.name.trim() !== "" ||
+        (v.name_ar ?? "").trim() !== "" ||
+        (v.code ?? "").trim() !== "" ||
+        v.price != null ||
+        v.old_price != null ||
+        v.stock != null,
+    );
+    if (filled.some((v) => v.name.trim() === ""))
+      return setError(t("err.variantNameRequired"));
+
+    const labels = filled.map((v) => v.name.trim().toLowerCase());
+    if (new Set(labels).size !== labels.length)
+      return setError(t("err.variantDuplicate"));
+
+    for (const v of filled) {
+      const vPrice = v.price ?? parsedPrice;
+      if (v.old_price != null && v.old_price <= vPrice)
+        return setError(t("err.variantOldPriceTooLow", { name: v.name.trim() }));
+    }
+
     setIsSubmitting(true);
     setError(null);
     try {
@@ -163,6 +196,12 @@ export default function ProductModal({
         ingredients_ar: ingredientsAr.trim(),
         usage_ar: usageAr.trim(),
         stock: stock.trim() === "" ? undefined : Math.max(0, parseInt(stock, 10)),
+        variants: filled.map((v) => ({
+          ...v,
+          name: v.name.trim(),
+          name_ar: (v.name_ar ?? "").trim() || undefined,
+          code: (v.code ?? "").trim().toUpperCase() || undefined,
+        })),
       });
       onClose();
     } catch (err) {
@@ -326,9 +365,26 @@ export default function ProductModal({
                 className={inputCls}
               />
               <p className="mt-1 text-[11px] text-ink-3">
-                {t("stock.untrackedHint")}
+                {variants.length > 0
+                  ? t("stock.variantHint")
+                  : t("stock.untrackedHint")}
               </p>
             </div>
+
+            {/* ── Options (sizes, flavours, shades) ── */}
+            <div className="mt-1 border-t border-line pt-4">
+              <p className="label-caps text-ink-3">{t("variants.title")}</p>
+              <p className="mt-1 text-[11px] leading-relaxed text-ink-3">
+                {t("variants.hint")}
+              </p>
+            </div>
+
+            <VariantEditor
+              variants={variants}
+              onChange={setVariants}
+              basePrice={price}
+              baseCode={code.trim().toUpperCase()}
+            />
 
             <div>
               <label className="label-caps mb-1.5 block text-ink-3">

@@ -31,6 +31,8 @@ export interface OrderInput {
     product_id: number | null;
     product_code: string;
     product_name: string;
+    variant_id: string | null;
+    variant_name: string | null;
     quantity: number;
     unit_price: number;
     subtotal: number;
@@ -67,6 +69,11 @@ export function validateOrderInput(body: unknown): OrderInput {
         it.product_id == null ? null : Math.floor(num(it.product_id, 0)) || null,
       product_code,
       product_name,
+      // Which option was bought, snapshotted with the line. Absent on a
+      // product sold as itself, and on every order placed before options
+      // existed — both read back as null.
+      variant_id: text(it.variant_id, 64) || null,
+      variant_name: text(it.variant_name, 300) || null,
       quantity,
       unit_price,
       subtotal: is_free ? 0 : quantity * unit_price,
@@ -105,6 +112,8 @@ function mapItem(r: Row): OrderItem {
     product_id: r.product_id == null ? 0 : Number(r.product_id),
     product_code: String(r.product_code),
     product_name: String(r.product_name),
+    variant_id: r.variant_id == null ? undefined : String(r.variant_id),
+    variant_name: r.variant_name == null ? undefined : String(r.variant_name),
     quantity: Number(r.quantity),
     unit_price: num(r.unit_price),
     subtotal: num(r.subtotal),
@@ -194,13 +203,16 @@ export async function createOrder(
     for (const it of input.items) {
       await client.query(
         `INSERT INTO order_items
-          (order_id, product_id, product_code, product_name, quantity, unit_price, subtotal, is_free)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+          (order_id, product_id, product_code, product_name, variant_id, variant_name,
+           quantity, unit_price, subtotal, is_free)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
         [
           id,
           it.product_id,
           it.product_code,
           it.product_name,
+          it.variant_id,
+          it.variant_name,
           it.quantity,
           it.unit_price,
           it.subtotal,
@@ -306,13 +318,16 @@ export async function replaceOrder(
     for (const it of input.items) {
       await client.query(
         `INSERT INTO order_items
-          (order_id, product_id, product_code, product_name, quantity, unit_price, subtotal, is_free)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+          (order_id, product_id, product_code, product_name, variant_id, variant_name,
+           quantity, unit_price, subtotal, is_free)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
         [
           id,
           it.product_id,
           it.product_code,
           it.product_name,
+          it.variant_id,
+          it.variant_name,
           it.quantity,
           it.unit_price,
           it.subtotal,

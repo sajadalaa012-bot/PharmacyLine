@@ -302,6 +302,11 @@ export default function AdminOrdersPage() {
                                   {item.product_code}
                                 </span>
                                 <bdi>{item.product_name}</bdi>
+                                {item.variant_name && (
+                                  <span className="ms-1.5 rounded-sm border border-line-strong bg-sunken px-1 py-px text-[11px] font-semibold text-ink-2">
+                                    <bdi>{item.variant_name}</bdi>
+                                  </span>
+                                )}
                                 {item.is_free && (
                                   <span className="label-caps ms-1.5 rounded-sm border border-copper/35 bg-copper/[0.08] px-1 py-px text-copper">
                                     {t("common.bonus")}

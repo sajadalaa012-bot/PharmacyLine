@@ -8,7 +8,7 @@
 
 import seedData from "@/data/catalog.json";
 import { getPool, ensureSchema, query } from "./db";
-import { Category, Product, ProductInput } from "@/types";
+import { Category, Product, ProductInput, ProductVariant } from "@/types";
 
 export class CatalogError extends Error {
   constructor(
@@ -26,6 +26,8 @@ export class CatalogError extends Error {
 const MAX_NAME = 300;
 const MAX_TEXT = 5000;
 const MAX_IMAGE_URL = 3_000_000;
+/** Enough for every size, shade or flavour a real product comes in. */
+const MAX_VARIANTS = 40;
 
 function text(v: unknown, max = MAX_TEXT): string {
   return typeof v === "string" ? v.trim().slice(0, max) : "";
@@ -65,7 +67,35 @@ function mapProduct(r: Row): Product {
     ingredients_ar: opt(r.ingredients_ar),
     usage_ar: opt(r.usage_ar),
     stock: r.stock == null ? undefined : Number(r.stock),
+    variants: mapVariants(r.variants),
   };
+}
+
+/**
+ * The stored options, defensively. `jsonb` comes back already parsed, but a
+ * row written before the column existed — or by hand — could hold anything,
+ * and a malformed option must not take the whole catalog down.
+ */
+function mapVariants(v: unknown): ProductVariant[] | undefined {
+  if (!Array.isArray(v) || v.length === 0) return undefined;
+  const out: ProductVariant[] = [];
+  for (const raw of v) {
+    if (!raw || typeof raw !== "object") continue;
+    const r = raw as Record<string, unknown>;
+    const id = typeof r.id === "string" ? r.id : "";
+    const name = typeof r.name === "string" ? r.name : "";
+    if (!id || !name) continue;
+    out.push({
+      id,
+      name,
+      name_ar: opt(r.name_ar),
+      code: opt(r.code),
+      price: r.price == null ? undefined : num(r.price),
+      old_price: r.old_price == null ? undefined : num(r.old_price),
+      stock: r.stock == null ? undefined : Number(r.stock),
+    });
+  }
+  return out.length > 0 ? out : undefined;
 }
 
 // The order of the columns every product query selects and every write sets.
@@ -86,6 +116,7 @@ const PRODUCT_FIELDS = [
   "ingredients_ar",
   "usage_ar",
   "stock",
+  "variants",
 ] as const;
 
 const PRODUCT_COLUMNS = `id, ${PRODUCT_FIELDS.join(", ")}`;
@@ -109,6 +140,9 @@ function productValues(p: ProductInput): unknown[] {
     p.ingredients_ar ?? "",
     p.usage_ar ?? "",
     p.stock ?? null,
+    // pg serialises this into the jsonb column; an empty array is the
+    // "sold as itself" case and matches the column default.
+    JSON.stringify(p.variants ?? []),
   ];
 }
 
@@ -128,6 +162,55 @@ function imageUrl(v: unknown): string {
       413,
     );
   return s;
+}
+
+/** A number field on an option: blank / absent / unparseable all mean "inherit". */
+function optionalNum(v: unknown): number | undefined {
+  if (v === "" || v == null) return undefined;
+  const n = num(v, NaN);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+/**
+ * The options an admin submitted. Nameless rows are dropped rather than
+ * rejected — the editor keeps a blank row at the bottom for the next one, and
+ * saving with it still empty is not an error. Ids are generated for rows that
+ * arrive without one and de-duplicated, because a repeated id would make two
+ * options share a cart line.
+ */
+function validateVariants(v: unknown): ProductVariant[] {
+  if (!Array.isArray(v)) return [];
+  const out: ProductVariant[] = [];
+  const seen = new Set<string>();
+  for (const raw of v.slice(0, MAX_VARIANTS)) {
+    if (!raw || typeof raw !== "object") continue;
+    const r = raw as Record<string, unknown>;
+    const name = text(r.name, MAX_NAME);
+    if (!name) continue;
+
+    let id = text(r.id, 64);
+    if (!id || seen.has(id)) id = `v${out.length + 1}-${Date.now().toString(36)}`;
+    seen.add(id);
+
+    const price = optionalNum(r.price);
+    const old_price = optionalNum(r.old_price);
+    const stock = optionalNum(r.stock);
+    if (price !== undefined && price < 0)
+      throw new CatalogError(`The price for "${name}" is invalid.`);
+    if (old_price !== undefined && old_price < 0)
+      throw new CatalogError(`The old price for "${name}" is invalid.`);
+
+    out.push({
+      id,
+      name,
+      name_ar: text(r.name_ar, MAX_NAME) || undefined,
+      code: text(r.code, 60).toUpperCase() || undefined,
+      price,
+      old_price,
+      stock: stock === undefined ? undefined : Math.max(0, Math.floor(stock)),
+    });
+  }
+  return out;
 }
 
 export function validateProduct(body: unknown): ProductInput {
@@ -180,6 +263,7 @@ export function validateProduct(body: unknown): ProductInput {
     ingredients_ar: text(b.ingredients_ar),
     usage_ar: text(b.usage_ar),
     stock,
+    variants: validateVariants(b.variants),
   };
 }
 

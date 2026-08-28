@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Category, Product } from "@/types";
+import { Category, Product, priceRange } from "@/types";
 import { fetchProducts } from "@/lib/api";
 import { useCart } from "@/lib/useCart";
 import {
@@ -112,18 +112,22 @@ export default function ShopView() {
     (max !== null && Number.isFinite(max));
   const visibleProducts = priceActive
     ? bySearch.filter((p) => {
-        if (min !== null && Number.isFinite(min) && p.price < min) return false;
-        if (max !== null && Number.isFinite(max) && p.price > max) return false;
+        // A product sold in options is in range when any option is: hiding
+        // one whose 50 ml size costs what the shopper asked for, because its
+        // 200 ml size doesn't, would be the wrong answer.
+        const { min: lo, max: hi } = priceRange(p);
+        if (min !== null && Number.isFinite(min) && hi < min) return false;
+        if (max !== null && Number.isFinite(max) && lo > max) return false;
         return true;
       })
     : bySearch;
 
   // Bounds across the whole catalog, used as input placeholders.
   const priceBounds = allProducts.reduce(
-    (acc, p) => ({
-      min: Math.min(acc.min, p.price),
-      max: Math.max(acc.max, p.price),
-    }),
+    (acc, p) => {
+      const { min: lo, max: hi } = priceRange(p);
+      return { min: Math.min(acc.min, lo), max: Math.max(acc.max, hi) };
+    },
     { min: Infinity, max: 0 }
   );
   const clearPrice = () => {
@@ -620,23 +624,18 @@ export default function ShopView() {
               key={`${String(activeCategory)}-${q}`}
               className="grid grid-cols-2 gap-3 pb-4 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5"
             >
-              {visibleProducts.map((product, i) => {
-                const item = cart.items.find(
-                  (ci) => ci.product_id === product.id && !ci.is_free
-                );
-                return (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    qty={item?.quantity ?? 0}
-                    mode="shop"
-                    onAdd={cart.add}
-                    onRemove={cart.remove}
-                    onOpenDetail={setDetailProduct}
-                    index={i}
-                  />
-                );
-              })}
+              {visibleProducts.map((product, i) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  qtyOf={(vid) => cart.qtyOf(product.id, vid, false)}
+                  mode="shop"
+                  onAdd={cart.add}
+                  onRemove={cart.remove}
+                  onOpenDetail={setDetailProduct}
+                  index={i}
+                />
+              ))}
             </div>
           )}
         </main>
@@ -743,11 +742,7 @@ export default function ShopView() {
       {detailProduct && (
         <ProductDetailModal
           product={detailProduct}
-          qty={
-            cart.items.find(
-              (ci) => ci.product_id === detailProduct.id && !ci.is_free
-            )?.quantity ?? 0
-          }
+          qtyOf={(vid) => cart.qtyOf(detailProduct.id, vid, false)}
           onClose={() => setDetailProduct(null)}
           onAdd={cart.add}
           onRemove={cart.remove}

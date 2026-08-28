@@ -123,6 +123,18 @@ async function initSchema(): Promise<void> {
     -- nullable rather than defaulted — see isDiscounted().
     ALTER TABLE products ADD COLUMN IF NOT EXISTS old_price NUMERIC(14,2);
 
+    -- The options a product is sold in (size, flavour, shade). A JSON array
+    -- rather than a table of its own: options are only ever read and written
+    -- with the product that owns them, never queried across products, and a
+    -- product update already replaces every field in one statement.
+    ALTER TABLE products ADD COLUMN IF NOT EXISTS variants JSONB NOT NULL DEFAULT '[]'::jsonb;
+
+    -- Which option an order line was for. Both are snapshots taken when the
+    -- line was added, like product_name beside them: renaming an option later
+    -- must not rewrite what a customer already ordered.
+    ALTER TABLE order_items ADD COLUMN IF NOT EXISTS variant_id TEXT;
+    ALTER TABLE order_items ADD COLUMN IF NOT EXISTS variant_name TEXT;
+
     -- The pharmacy directory and its visit map were removed from the admin.
     -- Their tables are deliberately left alone rather than dropped here: a
     -- schema bootstrap is the wrong place to destroy data someone typed in.

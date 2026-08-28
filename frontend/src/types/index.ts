@@ -5,6 +5,34 @@
 // storefront shows the English, so a half-translated catalog still reads fine.
 // See `localized()` in lib/i18n.ts.
 
+/**
+ * One buyable option of a product — a size, a flavour, a shade. A product
+ * with no variants is sold as itself; a product with variants is only ever
+ * sold as one of them, so the shopper picks before anything reaches the cart.
+ *
+ * Every field except the name is an override: leave it blank and the option
+ * inherits the product's own price, offer, code and stock. That way a
+ * "Strawberry / Vanilla" pair costs nothing to set up, while a
+ * "50 ml / 100 ml" pair can price each size separately.
+ */
+export interface ProductVariant {
+  /** Stable within the product. Cart lines and order lines are keyed on it,
+   *  so it must survive edits — never renumber these. */
+  id: string;
+  /** The option label, e.g. "100 ml". */
+  name: string;
+  /** Arabic label; falls back to `name`. */
+  name_ar?: string;
+  /** Appended to the product code on receipts, e.g. "100ML" → "F173-100ML". */
+  code?: string;
+  /** What this option costs. Blank = the product's price. */
+  price?: number;
+  /** Was-price for an offer on this option. See `variantPricing`. */
+  old_price?: number;
+  /** Units on hand for this option. Blank = the product's own stock rule. */
+  stock?: number;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -39,6 +67,8 @@ export interface Product {
    * sets a number. `0` means genuinely out of stock.
    */
   stock?: number;
+  /** Buyable options. Empty / absent = the product is sold as itself. */
+  variants?: ProductVariant[];
 }
 
 /** True when a product cannot be added to an order right now. */
@@ -49,6 +79,81 @@ export function isOutOfStock(product: Pick<Product, "stock">): boolean {
 /** True when someone has put this product under stock control. */
 export function isStockTracked(product: Pick<Product, "stock">): boolean {
   return typeof product.stock === "number";
+}
+
+/** The options a product is sold in — empty when it is sold as itself. */
+export function variantsOf(product: Pick<Product, "variants">): ProductVariant[] {
+  return product.variants ?? [];
+}
+
+/** True when the shopper has to pick an option before they can buy. */
+export function hasVariants(product: Pick<Product, "variants">): boolean {
+  return variantsOf(product).length > 0;
+}
+
+/**
+ * What one option actually costs, and what it used to cost.
+ *
+ * An option that sets no price of its own sells at the product's price, offer
+ * included. An option that *does* set its own price does not inherit the
+ * product's offer — a "was" price quoted against a different sum would be a
+ * lie — but it can carry an offer of its own.
+ */
+export function variantPricing(
+  product: Pick<Product, "price" | "old_price">,
+  variant?: ProductVariant | null,
+): { price: number; old_price?: number } {
+  if (!variant) return { price: product.price, old_price: product.old_price };
+  if (variant.price == null)
+    return {
+      price: product.price,
+      old_price: variant.old_price ?? product.old_price,
+    };
+  return { price: variant.price, old_price: variant.old_price };
+}
+
+/** Units on hand for one option. `undefined` = not tracked, so purchasable. */
+export function variantStock(
+  product: Pick<Product, "stock">,
+  variant?: ProductVariant | null,
+): number | undefined {
+  return variant?.stock ?? product.stock;
+}
+
+/** The code that goes on the receipt line for one option. */
+export function variantCode(
+  product: Pick<Product, "code">,
+  variant?: ProductVariant | null,
+): string {
+  const suffix = variant?.code?.trim();
+  return suffix ? `${product.code}-${suffix}` : product.code;
+}
+
+/**
+ * True when this product needs restocking: it is itself down to the last few,
+ * or — when it is sold in options — any one option is. An option counts on
+ * its own, since running out of the 100 ml size is a gap on the shelf whatever
+ * the other sizes are doing.
+ */
+export function isLowStock(
+  product: Pick<Product, "stock" | "variants">,
+  threshold = 5,
+): boolean {
+  const low = (stock: number | undefined) =>
+    isStockTracked({ stock }) && (stock ?? 0) <= threshold;
+  const variants = variantsOf(product);
+  if (variants.length === 0) return low(product.stock);
+  return variants.some((v) => low(variantStock(product, v)));
+}
+
+/** The cheapest and dearest an option of this product sells for. */
+export function priceRange(
+  product: Pick<Product, "price" | "old_price" | "variants">,
+): { min: number; max: number } {
+  const variants = variantsOf(product);
+  if (variants.length === 0) return { min: product.price, max: product.price };
+  const prices = variants.map((v) => variantPricing(product, v).price);
+  return { min: Math.min(...prices), max: Math.max(...prices) };
 }
 
 /**
@@ -93,6 +198,7 @@ export interface ProductInput {
   ingredients_ar?: string;
   usage_ar?: string;
   stock?: number;
+  variants?: ProductVariant[];
 }
 
 export interface Category {
@@ -110,10 +216,27 @@ export interface CartItem {
   product_id: number;
   product_code: string;
   product_name: string;
+  /** Which option this line is for; absent on a product sold as itself. */
+  variant_id?: string;
+  /** The option label as the buyer saw it — a snapshot, like product_name. */
+  variant_name?: string;
   quantity: number;
   unit_price: number;
   subtotal: number;
   is_free: boolean;
+}
+
+/**
+ * Identifies one line of a cart or order. A product bought in two options —
+ * or once paid and once as a bonus — is two lines, so the key has to carry
+ * all three parts.
+ */
+export function lineKey(line: {
+  product_id: number;
+  variant_id?: string;
+  is_free: boolean;
+}): string {
+  return `${line.product_id}:${line.variant_id ?? ""}:${line.is_free ? "free" : "paid"}`;
 }
 
 // ── Order types ─────────────────────────────────────────────────────
@@ -122,6 +245,8 @@ export interface OrderItemCreate {
   product_id: number;
   product_code: string;
   product_name: string;
+  variant_id?: string;
+  variant_name?: string;
   quantity: number;
   unit_price: number;
   subtotal: number;
@@ -168,6 +293,8 @@ export interface OrderItem {
   product_id: number;
   product_code: string;
   product_name: string;
+  variant_id?: string;
+  variant_name?: string;
   quantity: number;
   unit_price: number;
   subtotal: number;

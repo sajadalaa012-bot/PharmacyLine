@@ -5,8 +5,8 @@ import {
   Category,
   Product,
   ProductInput,
-  isStockTracked,
   isDiscounted,
+  isLowStock,
 } from "@/types";
 import {
   fetchProducts,
@@ -90,6 +90,7 @@ export default function AdminProductsPage() {
         ingredients_ar: product.ingredients_ar,
         usage_ar: product.usage_ar,
         stock,
+        variants: product.variants,
       };
       await updateProduct(product.id, payload);
       await load();
@@ -142,14 +143,11 @@ export default function AdminProductsPage() {
       p.code.toLowerCase().includes(q);
     const matchesCategory =
       categoryFilter === "all" || p.category_id === categoryFilter;
-    const matchesStock =
-      !lowStockOnly || (isStockTracked(p) && (p.stock ?? 0) <= 5);
+    const matchesStock = !lowStockOnly || isLowStock(p);
     return matchesQuery && matchesCategory && matchesStock;
   });
 
-  const lowStockCount = allProducts.filter(
-    (p) => isStockTracked(p) && (p.stock ?? 0) <= 5
-  ).length;
+  const lowStockCount = allProducts.filter(isLowStock).length;
 
   return (
     <div className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6 sm:py-7">

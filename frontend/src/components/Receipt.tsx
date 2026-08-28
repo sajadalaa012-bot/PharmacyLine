@@ -138,6 +138,11 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
                     <div className="min-w-0 flex-1">
                       <p className="text-[13px] font-medium leading-snug text-ink">
                         <bdi>{item.product_name}</bdi>
+                        {item.variant_name && (
+                          <span className="ms-1.5 rounded-sm border border-line-strong bg-sunken px-1 py-px text-[11px] font-semibold text-ink-2">
+                            <bdi>{item.variant_name}</bdi>
+                          </span>
+                        )}
                         {item.is_free && (
                           <span className="label-caps ms-1.5 rounded-sm border border-copper/35 bg-copper/[0.08] px-1 py-px text-copper">
                             {t("common.bonus")}
