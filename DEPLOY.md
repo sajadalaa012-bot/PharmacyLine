@@ -1,4 +1,4 @@
-# Deploying Pharmacy Line (going live)
+# Deploying AL-MASA (going live)
 
 The app now runs as **one service**: the FastAPI backend serves the API, the
 uploaded images, and the pre-built frontend. It needs **one persistent disk**
@@ -23,7 +23,7 @@ From the project folder (`Sajad3laa`), in a terminal:
 ```powershell
 git init
 git add .
-git commit -m "Pharmacy Line POS"
+git commit -m "AL-MASA POS"
 ```
 
 Create an empty repo on github.com (e.g. `pharmacy-line`), then:

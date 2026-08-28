@@ -35,7 +35,7 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
       });
       if (!blob) throw new Error(t("receipt.renderFailed"));
 
-      const fileName = `pharmacy-line-order-${String(order.id).padStart(5, "0")}.png`;
+      const fileName = `al-masa-order-${String(order.id).padStart(5, "0")}.png`;
       const file = new File([blob], fileName, { type: "image/png" });
 
       // iOS / mobile: use the native share sheet so the user can "Save Image"
