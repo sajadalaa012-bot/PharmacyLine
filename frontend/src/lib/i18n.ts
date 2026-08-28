@@ -281,6 +281,10 @@ const en = {
   "stock.saveFailed": "Could not save the stock level.",
   "stock.lowFilter": "Low or out of stock",
 
+  // ── Offers (a product with an old price above its current one) ──
+  "offer.percentOff": "−{n}%",
+  "offer.youSave": "You save {n} {currency}",
+
   // ── Searchable dropdown ──
   "dropdown.search": "Search…",
   "dropdown.noResults": "No matches",
@@ -292,6 +296,13 @@ const en = {
   "modal.nameAr": "Name (Arabic)",
   "modal.code": "Code",
   "modal.priceIqd": "Price (IQD)",
+  "modal.oldPriceIqd": "Old price (IQD) — optional",
+  "modal.noOffer": "No offer",
+  "modal.clearOffer": "Clear",
+  "modal.oldPriceHint":
+    "Leave blank for one price. Enter what it used to cost and shoppers see that struck through beside the price above.",
+  "modal.offerPreview":
+    "Shoppers see {old} struck through, then {price} {currency} — {n}% off.",
   "modal.category": "Category",
   "modal.categoryAria": "Product category",
   "modal.photo": "Photo",
@@ -377,6 +388,9 @@ const en = {
   "err.nameRequired": "Product name is required.",
   "err.codeRequired": "Product code is required.",
   "err.priceInvalid": "Price must be a valid positive number.",
+  "err.oldPriceInvalid": "The old price must be a valid positive number.",
+  "err.oldPriceTooLow":
+    "The old price has to be higher than the price — otherwise there is no discount to show.",
   "err.categoryRequired": "Please select a category.",
   "err.uploadFailed": "Failed to upload image",
   "err.saveGeneric": "An error occurred while saving.",
@@ -664,6 +678,10 @@ const ar: Record<MessageKey, string> = {
   "stock.saveFailed": "تعذّر حفظ كمية المخزون.",
   "stock.lowFilter": "مخزون منخفض أو نافد",
 
+  // ── Offers ──
+  "offer.percentOff": "−{n}%",
+  "offer.youSave": "توفّر {n} {currency}",
+
   // ── Searchable dropdown ──
   "dropdown.search": "بحث…",
   "dropdown.noResults": "لا توجد نتائج",
@@ -675,6 +693,13 @@ const ar: Record<MessageKey, string> = {
   "modal.nameAr": "الاسم (بالعربية)",
   "modal.code": "الرمز",
   "modal.priceIqd": "السعر (د.ع)",
+  "modal.oldPriceIqd": "السعر القديم (د.ع) — اختياري",
+  "modal.noOffer": "لا يوجد عرض",
+  "modal.clearOffer": "مسح",
+  "modal.oldPriceHint":
+    "اتركه فارغاً لعرض سعر واحد. أدخل السعر السابق ليظهر للمتسوّقين مشطوباً بجانب السعر الحالي.",
+  "modal.offerPreview":
+    "سيرى المتسوّقون {old} مشطوباً ثم {price} {currency} — خصم {n}%.",
   "modal.category": "القسم",
   "modal.categoryAria": "قسم المنتج",
   "modal.photo": "الصورة",
@@ -757,6 +782,9 @@ const ar: Record<MessageKey, string> = {
   "err.nameRequired": "اسم المنتج مطلوب.",
   "err.codeRequired": "رمز المنتج مطلوب.",
   "err.priceInvalid": "يجب أن يكون السعر رقماً موجباً صحيحاً.",
+  "err.oldPriceInvalid": "يجب أن يكون السعر القديم رقماً موجباً صحيحاً.",
+  "err.oldPriceTooLow":
+    "يجب أن يكون السعر القديم أعلى من السعر الحالي، وإلا فلا يوجد خصم لعرضه.",
   "err.categoryRequired": "يُرجى اختيار قسم.",
   "err.uploadFailed": "تعذّر رفع الصورة",
   "err.saveGeneric": "حدث خطأ أثناء الحفظ.",

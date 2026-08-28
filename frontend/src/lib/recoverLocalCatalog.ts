@@ -150,12 +150,23 @@ export async function planRecovery(): Promise<{
 
 // ── Applying ────────────────────────────────────────────────────────
 
-function toInput(p: Product, image_url: string, category_id: number): ProductInput {
+function toInput(
+  p: Product,
+  image_url: string,
+  category_id: number,
+  /**
+   * The offer to keep. Legacy devices predate `old_price` entirely, so a
+   * recovery reads it from the live shop rather than the device — otherwise
+   * republishing a photo change would quietly cancel every offer.
+   */
+  old_price: number | undefined = p.old_price,
+): ProductInput {
   // Spelt out rather than spread so `id` can't be smuggled into the payload.
   return {
     name: p.name,
     code: p.code,
     price: p.price,
+    old_price,
     image_url,
     category_id,
     description: p.description,
@@ -216,7 +227,12 @@ export async function applyRecovery(plan: RecoveryPlan): Promise<RecoveryResult>
       // structure. See COMPARED.
       await updateProduct(
         server.id,
-        toInput(local, await shrink(local), server.category_id),
+        toInput(
+          local,
+          await shrink(local),
+          server.category_id,
+          local.old_price ?? server.old_price,
+        ),
       );
       result.updated++;
     } catch (err) {

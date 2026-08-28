@@ -10,6 +10,12 @@ export interface Product {
   name: string;
   code: string;
   price: number;
+  /**
+   * What the product used to cost, when it is on offer. The storefront shows
+   * it struck through beside `price`, which is always what is actually
+   * charged. `undefined` — or anything not above `price` — means no offer.
+   */
+  old_price?: number;
   image_url: string;
   category_id: number;
   // ── Optional detail fields (shown on the product detail view) ──
@@ -45,11 +51,36 @@ export function isStockTracked(product: Pick<Product, "stock">): boolean {
   return typeof product.stock === "number";
 }
 
+/**
+ * True when this product is on offer: it carries a former price, and that
+ * price is genuinely higher than what it sells for now. An `old_price` at or
+ * below `price` is a typo rather than a discount, so nothing is shown for it.
+ */
+export function isDiscounted(
+  product: Pick<Product, "price" | "old_price">,
+): boolean {
+  return (
+    typeof product.old_price === "number" &&
+    Number.isFinite(product.old_price) &&
+    product.old_price > product.price
+  );
+}
+
+/** How much off, as a whole percentage. 0 when there is no offer. */
+export function discountPercent(
+  product: Pick<Product, "price" | "old_price">,
+): number {
+  if (!isDiscounted(product)) return 0;
+  const was = product.old_price as number;
+  return Math.round(((was - product.price) / was) * 100);
+}
+
 /** The editable payload for creating or updating a product. */
 export interface ProductInput {
   name: string;
   code: string;
   price: number;
+  old_price?: number;
   image_url: string;
   category_id: number;
   description?: string;

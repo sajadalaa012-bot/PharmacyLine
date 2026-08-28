@@ -7,6 +7,7 @@ import { X, Package } from "lucide-react";
 import Dropdown from "@/components/Dropdown";
 import { useI18n } from "@/lib/LanguageProvider";
 import { localized } from "@/lib/i18n";
+import { num } from "@/lib/format";
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -33,6 +34,8 @@ export default function ProductModal({
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [price, setPrice] = useState("");
+  // The "was" price of an offer. Blank means the product isn't on offer.
+  const [oldPrice, setOldPrice] = useState("");
   const [categoryId, setCategoryId] = useState<number>(0);
   const [imageUrl, setImageUrl] = useState("");
   const [description, setDescription] = useState("");
@@ -64,6 +67,11 @@ export default function ProductModal({
         setName(product.name);
         setCode(product.code);
         setPrice(product.price.toString());
+        setOldPrice(
+          typeof product.old_price === "number"
+            ? String(product.old_price)
+            : "",
+        );
         setCategoryId(product.category_id);
         setImageUrl(product.image_url);
         setDescription(product.description ?? "");
@@ -82,6 +90,7 @@ export default function ProductModal({
         setName("");
         setCode("");
         setPrice("");
+        setOldPrice("");
         setCategoryId(defaultCategoryId || categories[0]?.id || 0);
         setImageUrl("");
         setDescription("");
@@ -122,6 +131,16 @@ export default function ProductModal({
     const parsedPrice = parseFloat(price);
     if (isNaN(parsedPrice) || parsedPrice < 0)
       return setError(t("err.priceInvalid"));
+    // Blank = not on offer. A number is only a discount if it is above what
+    // the product actually sells for, so anything else is caught here rather
+    // than shown to shoppers as a nonsense saving.
+    const parsedOldPrice = oldPrice.trim() === "" ? undefined : parseFloat(oldPrice);
+    if (parsedOldPrice !== undefined) {
+      if (isNaN(parsedOldPrice) || parsedOldPrice < 0)
+        return setError(t("err.oldPriceInvalid"));
+      if (parsedOldPrice <= parsedPrice)
+        return setError(t("err.oldPriceTooLow"));
+    }
     if (!categoryId) return setError(t("err.categoryRequired"));
 
     setIsSubmitting(true);
@@ -131,6 +150,7 @@ export default function ProductModal({
         name: name.trim(),
         code: code.trim().toUpperCase(),
         price: parsedPrice,
+        old_price: parsedOldPrice,
         image_url: imageUrl.trim(),
         category_id: categoryId,
         description: description.trim(),
@@ -169,6 +189,22 @@ export default function ProductModal({
       setIsSubmitting(false);
     }
   };
+
+  // What the offer will look like on the storefront, as the two numbers are
+  // typed — so a wrong way round pair is obvious before it is saved.
+  const previewNew = parseFloat(price);
+  const previewOld = parseFloat(oldPrice);
+  const offerPreview =
+    Number.isFinite(previewNew) &&
+    Number.isFinite(previewOld) &&
+    previewOld > previewNew
+      ? t("modal.offerPreview", {
+          old: num(previewOld),
+          price: num(previewNew),
+          currency: t("common.currency"),
+          n: Math.round(((previewOld - previewNew) / previewOld) * 100),
+        })
+      : null;
 
   const inputCls =
     "w-full rounded-md border border-line bg-sunken px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-3 focus:border-brand/60 focus:ring-1 focus:ring-brand/30";
@@ -244,6 +280,36 @@ export default function ProductModal({
                   className={inputCls}
                 />
               </div>
+            </div>
+
+            {/* Offer — the old price shoppers see struck through. */}
+            <div>
+              <label className="label-caps mb-1.5 block text-ink-3">
+                {t("modal.oldPriceIqd")}
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  value={oldPrice}
+                  onChange={(e) => setOldPrice(e.target.value)}
+                  placeholder={t("modal.noOffer")}
+                  dir="ltr"
+                  className={inputCls}
+                />
+                {oldPrice.trim() !== "" && (
+                  <button
+                    type="button"
+                    onClick={() => setOldPrice("")}
+                    className="label-caps shrink-0 rounded-md border border-line px-3 py-2.5 text-ink-2 transition hover:bg-sunken hover:text-ink"
+                  >
+                    {t("modal.clearOffer")}
+                  </button>
+                )}
+              </div>
+              <p className="mt-1 text-[11px] text-ink-3">
+                {offerPreview ?? t("modal.oldPriceHint")}
+              </p>
             </div>
 
             <div>

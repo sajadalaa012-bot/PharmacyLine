@@ -52,6 +52,7 @@ function mapProduct(r: Row): Product {
     name: String(r.name),
     code: String(r.code),
     price: num(r.price),
+    old_price: r.old_price == null ? undefined : num(r.old_price),
     image_url: String(r.image_url ?? ""),
     category_id: Number(r.category_id),
     description: opt(r.description),
@@ -72,6 +73,7 @@ const PRODUCT_FIELDS = [
   "name",
   "code",
   "price",
+  "old_price",
   "image_url",
   "category_id",
   "description",
@@ -94,6 +96,7 @@ function productValues(p: ProductInput): unknown[] {
     p.name,
     p.code,
     p.price,
+    p.old_price ?? null,
     p.image_url,
     p.category_id,
     p.description ?? "",
@@ -139,6 +142,17 @@ export function validateProduct(body: unknown): ProductInput {
   const price = num(b.price, NaN);
   if (!Number.isFinite(price) || price < 0)
     throw new CatalogError("Product price is invalid.");
+
+  // The "was" price of an offer. Blank / absent / unparseable all mean "no
+  // offer"; so does a number that isn't above the price actually charged,
+  // since a struck-through price no higher than the real one says nothing.
+  const oldPriceRaw = num(b.old_price, NaN);
+  const old_price =
+    b.old_price === "" || b.old_price == null || !Number.isFinite(oldPriceRaw)
+      ? undefined
+      : oldPriceRaw;
+  if (old_price !== undefined && old_price < 0)
+    throw new CatalogError("The old price is invalid.");
   const category_id = Math.floor(num(b.category_id, 0));
   if (category_id < 1) throw new CatalogError("Pick a category.");
 
@@ -153,6 +167,7 @@ export function validateProduct(body: unknown): ProductInput {
     name,
     code,
     price,
+    old_price,
     image_url: imageUrl(b.image_url),
     category_id,
     description: text(b.description),

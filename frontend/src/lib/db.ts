@@ -118,6 +118,11 @@ async function initSchema(): Promise<void> {
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_phone TEXT NOT NULL DEFAULT '';
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_location TEXT NOT NULL DEFAULT '';
 
+    -- The "was" price of a product on offer. NULL is the normal case: no
+    -- offer, one price. Added after the catalog was already live, so it is
+    -- nullable rather than defaulted — see isDiscounted().
+    ALTER TABLE products ADD COLUMN IF NOT EXISTS old_price NUMERIC(14,2);
+
     -- The pharmacy directory and its visit map were removed from the admin.
     -- Their tables are deliberately left alone rather than dropped here: a
     -- schema bootstrap is the wrong place to destroy data someone typed in.

@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Category, Product, ProductInput, isStockTracked } from "@/types";
+import {
+  Category,
+  Product,
+  ProductInput,
+  isStockTracked,
+  isDiscounted,
+} from "@/types";
 import {
   fetchProducts,
   createProduct,
@@ -71,6 +77,7 @@ export default function AdminProductsPage() {
         name: product.name,
         code: product.code,
         price: product.price,
+        old_price: product.old_price,
         image_url: product.image_url,
         category_id: product.category_id,
         description: product.description,
@@ -255,10 +262,19 @@ export default function AdminProductsPage() {
                     {p.categoryName}
                   </span>
                 </div>
-                <div className="mt-1 flex items-center gap-2">
-                  <p className="text-sm font-semibold text-ink tabular-nums">
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <p
+                    className={`text-sm font-semibold tabular-nums ${
+                      isDiscounted(p) ? "text-rose" : "text-ink"
+                    }`}
+                  >
                     {money(p.price)}
                   </p>
+                  {isDiscounted(p) && (
+                    <span className="text-xs font-semibold text-ink-3 line-through tabular-nums">
+                      {money(p.old_price as number)}
+                    </span>
+                  )}
                   <StockControl
                     product={p}
                     onSave={(stock) => handleStockSave(p, stock)}
@@ -348,8 +364,15 @@ export default function AdminProductsPage() {
                       {p.categoryName}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-end font-semibold text-ink tabular-nums">
-                    {money(p.price)}
+                  <td className="px-4 py-3 text-end font-semibold tabular-nums">
+                    <span className={isDiscounted(p) ? "text-rose" : "text-ink"}>
+                      {money(p.price)}
+                    </span>
+                    {isDiscounted(p) && (
+                      <span className="ms-2 text-xs font-semibold text-ink-3 line-through">
+                        {money(p.old_price as number)}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-center">

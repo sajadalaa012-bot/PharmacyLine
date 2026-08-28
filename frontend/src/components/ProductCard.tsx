@@ -1,6 +1,12 @@
 "use client";
 
-import { Product, isOutOfStock, isStockTracked } from "@/types";
+import {
+  Product,
+  isOutOfStock,
+  isStockTracked,
+  isDiscounted,
+  discountPercent,
+} from "@/types";
 import { Package, Plus, Minus, Maximize2 } from "lucide-react";
 import { useI18n } from "@/lib/LanguageProvider";
 import { localized } from "@/lib/i18n";
@@ -32,6 +38,9 @@ export default function ProductCard({
   // The shopper-facing name: Arabic when set, English otherwise.
   const name = localized(product, "name", lang);
   const soldOut = isOutOfStock(product);
+  // On offer: the card shows what it used to cost next to what it costs now.
+  const onOffer = isDiscounted(product);
+  const off = discountPercent(product);
   // Nudge, not alarm: only worth saying when the number is genuinely small.
   const runningLow =
     !soldOut && isStockTracked(product) && (product.stock ?? 0) <= 5;
@@ -49,6 +58,17 @@ export default function ProductCard({
       {soldOut && (
         <span className="label-caps absolute start-2 top-2 z-10 rounded-full bg-ink/80 px-2 py-1 text-[10px] text-paper">
           {t("stock.outOfStock")}
+        </span>
+      )}
+
+      {/* Offer flag — under the sold-out one when a product is both. */}
+      {onOffer && (
+        <span
+          className={`label-caps absolute start-2 z-10 rounded-full bg-rose px-2 py-1 text-[10px] text-white shadow-sm ${
+            soldOut ? "top-10" : "top-2"
+          }`}
+        >
+          {t("offer.percentOff", { n: off })}
         </span>
       )}
 
@@ -111,12 +131,29 @@ export default function ProductCard({
           </p>
         )}
 
-        <p className="mt-auto font-display text-base font-semibold tracking-tight text-[#211d17] tabular-nums">
-          {num(product.price)}
-          <span className="ms-1 font-sans text-[10px] font-semibold tracking-[0.08em] text-[#8c8073]">
-            {t("common.currency")}
-          </span>
-        </p>
+        {/* Price. On offer it reads "was … now …": the old price struck
+            through, then what the shopper actually pays. */}
+        <div className="mt-auto flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+          {onOffer && (
+            <span className="font-display text-[13px] font-semibold text-ink-3 line-through decoration-rose/70 decoration-[1.5px] tabular-nums">
+              {num(product.old_price as number)}
+            </span>
+          )}
+          <p
+            className={`font-display text-base font-semibold tracking-tight tabular-nums ${
+              onOffer ? "text-rose" : "text-[#211d17]"
+            }`}
+          >
+            {num(product.price)}
+            <span
+              className={`ms-1 font-sans text-[10px] font-semibold tracking-[0.08em] ${
+                onOffer ? "text-rose/70" : "text-[#8c8073]"
+              }`}
+            >
+              {t("common.currency")}
+            </span>
+          </p>
+        </div>
 
         {/* Actions */}
         {mode === "shop" ? (

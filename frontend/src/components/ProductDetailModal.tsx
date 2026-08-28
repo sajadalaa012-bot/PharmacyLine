@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Product, isOutOfStock, isStockTracked } from "@/types";
+import {
+  Product,
+  isOutOfStock,
+  isStockTracked,
+  isDiscounted,
+  discountPercent,
+} from "@/types";
 import { useI18n } from "@/lib/LanguageProvider";
 import { localized } from "@/lib/i18n";
 import { num } from "@/lib/format";
@@ -49,6 +55,8 @@ export default function ProductDetailModal({
   // Shopper-facing copy, Arabic where the admin has written it.
   const name = localized(product, "name", lang);
   const soldOut = isOutOfStock(product);
+  const onOffer = isDiscounted(product);
+  const off = discountPercent(product);
   const atStockLimit = isStockTracked(product) && qty >= (product.stock ?? 0);
   const description = localized(product, "description", lang);
 
@@ -160,12 +168,42 @@ export default function ProductDetailModal({
                 <bdi>{name}</bdi>
               </h3>
 
-              <p className="mt-2 font-display text-2xl font-semibold tracking-tight text-ink tabular-nums">
-                {num(product.price)}
-                <span className="ms-1.5 font-sans text-xs font-semibold tracking-[0.08em] text-ink-3">
-                  {t("common.currency")}
-                </span>
-              </p>
+              {/* Price — "was … now …" while the product is on offer. */}
+              <div className="mt-2 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+                <p
+                  className={`font-display text-2xl font-semibold tracking-tight tabular-nums ${
+                    onOffer ? "text-rose" : "text-ink"
+                  }`}
+                >
+                  {num(product.price)}
+                  <span
+                    className={`ms-1.5 font-sans text-xs font-semibold tracking-[0.08em] ${
+                      onOffer ? "text-rose/70" : "text-ink-3"
+                    }`}
+                  >
+                    {t("common.currency")}
+                  </span>
+                </p>
+                {onOffer && (
+                  <>
+                    <span className="font-display text-base font-semibold text-ink-3 line-through decoration-rose/70 decoration-[1.5px] tabular-nums">
+                      {num(product.old_price as number)}
+                    </span>
+                    <span className="label-caps rounded-full bg-rose px-2 py-0.5 text-[10px] text-white">
+                      {t("offer.percentOff", { n: off })}
+                    </span>
+                  </>
+                )}
+              </div>
+
+              {onOffer && (
+                <p className="mt-1.5 text-xs font-semibold text-rose">
+                  {t("offer.youSave", {
+                    n: num((product.old_price as number) - product.price),
+                    currency: t("common.currency"),
+                  })}
+                </p>
+              )}
 
               {isStockTracked(product) && (
                 <p
