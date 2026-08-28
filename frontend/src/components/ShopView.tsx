@@ -15,7 +15,6 @@ import {
   Home,
   Store,
   SlidersHorizontal,
-  ChevronRight,
 } from "lucide-react";
 import ProductCard from "./ProductCard";
 import ProductDetailModal from "./ProductDetailModal";
@@ -357,48 +356,20 @@ export default function ShopView() {
                 <ArrowRight className="h-4 w-4 flip-rtl" />
               </button>
 
-              <div className="mt-7 flex items-center gap-5">
-                <div>
-                  <p className="font-display text-2xl font-semibold leading-none text-ink tabular-nums">
-                    {allProducts.length}
-                  </p>
-                  <p className="mt-1 text-[11px] text-ink-3">
-                    {t("shop.productsInStock")}
-                  </p>
-                </div>
-                <div className="h-8 w-px bg-line-strong" />
-                <div>
-                  <p className="font-display text-2xl font-semibold leading-none text-ink tabular-nums">
-                    {categories.length}
-                  </p>
-                  <p className="mt-1 text-[11px] text-ink-3">
-                    {t("shop.categories")}
-                  </p>
-                </div>
+              <div className="mt-7">
+                <p className="font-display text-2xl font-semibold leading-none text-ink tabular-nums">
+                  {allProducts.length}
+                </p>
+                <p className="mt-1 text-[11px] text-ink-3">
+                  {t("shop.productsInStock")}
+                </p>
               </div>
             </section>
 
             {/* Sheet — the rest of the home screen rides up over the canvas */}
             <div className="home-sheet relative -mt-7 bg-paper pb-8 pt-6">
-            {/* Categories */}
-            <section>
-              <div className="flex items-center justify-between px-4 pb-3">
-                <h2 className="font-display text-lg font-semibold tracking-tight text-ink">
-                  {t("shop.browseCategories")}
-                </h2>
-                <button
-                  onClick={() => pickCategory("all")}
-                  className="flex items-center gap-0.5 text-xs font-semibold text-brand active:scale-95"
-                >
-                  {t("shop.seeAll")}
-                  <ChevronRight className="h-3.5 w-3.5 flip-rtl" />
-                </button>
-              </div>
-              <div className="px-4">{categoryStrip}</div>
-            </section>
-
             {/* Promises */}
-            <section className="px-4 pt-7">
+            <section className="px-4">
               <div className="grid grid-cols-3 gap-2">
                 {TRUST.map(({ icon: Icon, key }) => (
                   <div
@@ -486,40 +457,6 @@ export default function ShopView() {
                     {t("shop.productsInStock")}
                   </p>
                 </div>
-                <div className="mb-1 h-10 w-px bg-line" />
-                <div>
-                  <p className="font-display text-5xl font-semibold leading-none tracking-tight text-ink tabular-nums">
-                    {categories.length}
-                  </p>
-                  <p className="mt-1.5 text-xs text-ink-3">
-                    {t("shop.categories")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-7 flex flex-wrap gap-2">
-                {[
-                  { id: "all" as const, name: t("shop.allProducts") },
-                  ...categories.map((c) => ({
-                    id: c.id,
-                    name: localized(c, "name", lang),
-                  })),
-                ].map((chip) => {
-                  const active = activeCategory === chip.id;
-                  return (
-                    <button
-                      key={String(chip.id)}
-                      onClick={() => pickCategory(chip.id)}
-                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                        active
-                          ? "border-brand bg-brand text-white"
-                          : "border-line-strong bg-transparent text-ink hover:border-brand hover:text-brand"
-                      }`}
-                    >
-                      <bdi>{chip.name}</bdi>
-                    </button>
-                  );
-                })}
               </div>
             </div>
           </div>
@@ -532,13 +469,14 @@ export default function ShopView() {
             tab === "store" ? "" : "hidden sm:block"
           }`}
         >
-          {/* Store toolbar — phone only */}
-          <div className="tab-in space-y-3 pb-4 sm:hidden">
-            {renderSearch()}
-            {categoryStrip}
-          </div>
+          {/* Store search — phone only; the desktop has one in the header. */}
+          <div className="tab-in pb-4 sm:hidden">{renderSearch()}</div>
 
           <div className="mb-5 space-y-4 sm:mb-6">
+            {/* Brands. The only place they are listed: the home screen and
+                the desktop hero deliberately don't name them. */}
+            {categoryStrip}
+
             <div className="flex items-baseline justify-between gap-4">
               <h2 className="font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">
                 <bdi>{activeName}</bdi>

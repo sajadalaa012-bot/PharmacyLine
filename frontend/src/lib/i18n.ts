@@ -96,7 +96,6 @@ const en = {
   "shop.ctaBrowse": "Browse categories",
   "shop.inCollection": "In the collection",
   "shop.productsInStock": "products in stock",
-  "shop.categories": "categories",
   "shop.trustDelivery": "Fast local delivery",
   "shop.trustCurated": "Hand-picked selection",
   "shop.price": "Price",
@@ -116,9 +115,7 @@ const en = {
     "Pharmacy, skincare, and wellness essentials — curated and delivered.",
   "shop.copyright":
     "© 2026 AL-MASA — مكتب الماسة. All rights reserved.",
-  "shop.browseCategories": "Shop by category",
   "shop.featured": "Featured",
-  "shop.seeAll": "See all",
   "shop.goodToSeeYou": "Welcome back",
 
   // ── Install to home screen ──
@@ -549,7 +546,6 @@ const ar: Record<MessageKey, string> = {
   "shop.ctaBrowse": "تصفّح الأقسام",
   "shop.inCollection": "في المجموعة",
   "shop.productsInStock": "منتج متوفر",
-  "shop.categories": "قسم",
   "shop.trustDelivery": "توصيل محلي سريع",
   "shop.trustCurated": "تشكيلة منتقاة بعناية",
   "shop.price": "السعر",
@@ -568,9 +564,7 @@ const ar: Record<MessageKey, string> = {
   "shop.footerBlurb":
     "مستحضرات الصيدلية والعناية بالبشرة والعافية — مختارة وموصَّلة إليك.",
   "shop.copyright": "© 2026 AL-MASA — مكتب الماسة. جميع الحقوق محفوظة.",
-  "shop.browseCategories": "تسوّق حسب القسم",
   "shop.featured": "مختارات",
-  "shop.seeAll": "عرض الكل",
   "shop.goodToSeeYou": "أهلاً بعودتك",
 
   // ── Install to home screen ──
