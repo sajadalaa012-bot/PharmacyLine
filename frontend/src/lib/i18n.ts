@@ -283,6 +283,42 @@ const en = {
   "stock.variantHint":
     "The fallback for any option that doesn't set a stock level of its own.",
 
+  // ── Telegram ──
+  "nav.telegram": "Telegram",
+  "tg.title": "Telegram notifications",
+  "tg.subtitle":
+    "Send every order to a Telegram chat the moment it is placed.",
+  "tg.step1": "1. The bot",
+  "tg.step2": "2. Where orders go",
+  "tg.step3": "3. Destinations",
+  "tg.connected": "Connected",
+  "tg.notConnected": "Not connected",
+  "tg.connectedTo": "Connected to",
+  "tg.fromEnv":
+    "The token is set by TELEGRAM_BOT_TOKEN in this app's environment variables. Change it there.",
+  "tg.tokenLabel": "Bot token",
+  "tg.tokenHint":
+    "From @BotFather on Telegram. It is stored server-side and never shown again.",
+  "tg.tokenSaved": "Bot token saved.",
+  "tg.step2Hint":
+    "A bot cannot message you first. Open Telegram, send any message to @{bot} — or add it to a group and send one there — then press Find chats.",
+  "tg.findChats": "Find chats",
+  "tg.added": "Added",
+  "tg.noneFound":
+    "No chats yet. Send a message to the bot in Telegram, then try again.",
+  "tg.chatIdPlaceholder": "Or paste a chat ID",
+  "tg.addManually": "Add",
+  "tg.noChats": "No destinations yet — orders are not being sent anywhere.",
+  "tg.removeChat": "Remove this destination",
+  "tg.live": "Sending",
+  "tg.notLive": "Not sending",
+  "tg.sendTest": "Send a test message",
+  "tg.testSent": "Test message sent. Check Telegram.",
+  "tg.whatGetsSent":
+    "Every new order is sent with its items, options, totals, and the customer's name, phone and a map link. Orders you edit or approve later are not re-sent.",
+  "tg.loadFailed": "Could not load the Telegram settings.",
+  "tg.actionFailed": "That did not work. Please try again.",
+
   // ── Options (sizes, flavours, shades) ──
   "variants.title": "Options (optional)",
   "variants.hint":
@@ -707,6 +743,41 @@ const ar: Record<MessageKey, string> = {
   "stock.lowFilter": "مخزون منخفض أو نافد",
   "stock.variantHint":
     "يُستخدم لأي خيار لا يحدّد مخزوناً خاصاً به.",
+
+  // ── تيليغرام ──
+  "nav.telegram": "تيليغرام",
+  "tg.title": "إشعارات تيليغرام",
+  "tg.subtitle": "أرسل كل طلب إلى محادثة تيليغرام لحظة تقديمه.",
+  "tg.step1": "١. البوت",
+  "tg.step2": "٢. إلى أين تُرسل الطلبات",
+  "tg.step3": "٣. الوجهات",
+  "tg.connected": "متصل",
+  "tg.notConnected": "غير متصل",
+  "tg.connectedTo": "متصل بـ",
+  "tg.fromEnv":
+    "الرمز محدَّد عبر TELEGRAM_BOT_TOKEN في متغيّرات بيئة التطبيق. غيّره من هناك.",
+  "tg.tokenLabel": "رمز البوت",
+  "tg.tokenHint":
+    "تحصل عليه من @BotFather في تيليغرام. يُحفظ على الخادم ولا يُعرض مرة أخرى.",
+  "tg.tokenSaved": "تم حفظ رمز البوت.",
+  "tg.step2Hint":
+    "لا يستطيع البوت مراسلتك أولاً. افتح تيليغرام وأرسل أي رسالة إلى ‎@{bot}‎ — أو أضفه إلى مجموعة وأرسل رسالة فيها — ثم اضغط «بحث عن المحادثات».",
+  "tg.findChats": "بحث عن المحادثات",
+  "tg.added": "مضاف",
+  "tg.noneFound":
+    "لا توجد محادثات بعد. أرسل رسالة إلى البوت في تيليغرام ثم أعد المحاولة.",
+  "tg.chatIdPlaceholder": "أو ألصق معرّف المحادثة",
+  "tg.addManually": "إضافة",
+  "tg.noChats": "لا توجد وجهات بعد — لا تُرسل الطلبات إلى أي مكان.",
+  "tg.removeChat": "حذف هذه الوجهة",
+  "tg.live": "الإرسال مفعّل",
+  "tg.notLive": "الإرسال متوقف",
+  "tg.sendTest": "إرسال رسالة تجريبية",
+  "tg.testSent": "تم إرسال الرسالة التجريبية. تحقّق من تيليغرام.",
+  "tg.whatGetsSent":
+    "يُرسل كل طلب جديد مع منتجاته وخياراته ومجاميعه، واسم الزبون ورقمه ورابط الخريطة. الطلبات التي تعدّلها أو تؤكّدها لاحقاً لا يُعاد إرسالها.",
+  "tg.loadFailed": "تعذّر تحميل إعدادات تيليغرام.",
+  "tg.actionFailed": "لم تنجح العملية. حاول مرة أخرى.",
 
   // ── الخيارات (الأحجام والنكهات والدرجات) ──
   "variants.title": "الخيارات (اختياري)",

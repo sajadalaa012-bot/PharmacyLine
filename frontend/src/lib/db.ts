@@ -135,6 +135,14 @@ async function initSchema(): Promise<void> {
     ALTER TABLE order_items ADD COLUMN IF NOT EXISTS variant_id TEXT;
     ALTER TABLE order_items ADD COLUMN IF NOT EXISTS variant_name TEXT;
 
+    -- Settings an admin changes at runtime, which would otherwise need a
+    -- redeploy. Currently the Telegram destination chats. See lib/settings.ts.
+    CREATE TABLE IF NOT EXISTS app_settings (
+      key        TEXT PRIMARY KEY,
+      value      TEXT NOT NULL,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
     -- The pharmacy directory and its visit map were removed from the admin.
     -- Their tables are deliberately left alone rather than dropped here: a
     -- schema bootstrap is the wrong place to destroy data someone typed in.

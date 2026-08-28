@@ -11,6 +11,7 @@ import {
   ShoppingBag,
   Monitor,
   Upload,
+  Send,
   LogOut,
   Menu,
   X,
@@ -28,6 +29,7 @@ const NAV: { href: string; label: MessageKey; icon: typeof Package }[] = [
   { href: "/admin/products", label: "nav.products", icon: Package },
   { href: "/admin/categories", label: "nav.categories", icon: Folder },
   { href: "/admin/orders", label: "nav.orders", icon: ClipboardList },
+  { href: "/admin/telegram", label: "nav.telegram", icon: Send },
   // One-time tool: publishes catalog edits stranded in this browser from
   // before the catalog moved to the shared database.
   { href: "/admin/recover", label: "nav.recover", icon: Upload },

@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { createOrder, listOrders, validateOrderInput, OrderValidationError } from "@/lib/orders";
 import { isAdminRequest } from "@/lib/serverAuth";
+import { notifyNewOrder } from "@/lib/telegram";
 import { OrderStatus } from "@/types";
 
 export const runtime = "nodejs";
@@ -14,6 +15,10 @@ export async function POST(req: NextRequest) {
     const status: OrderStatus =
       body && body.status === "approved" ? "approved" : "pending";
     const order = await createOrder(input, status);
+    // Push it to the shop's Telegram. Deliberately after the response: the
+    // order is already saved, so nobody should wait on Telegram to see their
+    // receipt, and notifyNewOrder never throws.
+    after(() => notifyNewOrder(order));
     return NextResponse.json(order, { status: 201 });
   } catch (err) {
     if (err instanceof OrderValidationError)
