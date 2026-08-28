@@ -10,8 +10,6 @@ import {
   Search,
   X,
   ArrowRight,
-  Truck,
-  Sparkles,
   Home,
   Store,
   SlidersHorizontal,
@@ -26,11 +24,6 @@ import LanguageToggle from "./LanguageToggle";
 import { useI18n } from "@/lib/LanguageProvider";
 import { localized, MessageKey } from "@/lib/i18n";
 import { num } from "@/lib/format";
-
-const TRUST: { icon: typeof Truck; key: MessageKey }[] = [
-  { icon: Truck, key: "shop.trustDelivery" },
-  { icon: Sparkles, key: "shop.trustCurated" },
-];
 
 /** The destinations of the phone tab bar. */
 type Tab = "home" | "store" | "cart";
@@ -356,37 +349,12 @@ export default function ShopView() {
                 <ArrowRight className="h-4 w-4 flip-rtl" />
               </button>
 
-              <div className="mt-7">
-                <p className="font-display text-2xl font-semibold leading-none text-ink tabular-nums">
-                  {allProducts.length}
-                </p>
-                <p className="mt-1 text-[11px] text-ink-3">
-                  {t("shop.productsInStock")}
-                </p>
-              </div>
             </section>
 
             {/* Sheet — the rest of the home screen rides up over the canvas */}
             <div className="home-sheet relative -mt-7 bg-paper pb-8 pt-6">
-            {/* Promises */}
-            <section className="px-4">
-              <div className="grid grid-cols-3 gap-2">
-                {TRUST.map(({ icon: Icon, key }) => (
-                  <div
-                    key={key}
-                    className="flex flex-col items-center gap-1.5 rounded-2xl border border-line bg-surface px-2 py-3 text-center"
-                  >
-                    <Icon className="h-4 w-4 text-brand" />
-                    <span className="text-[10px] font-medium leading-tight text-ink-2">
-                      {t(key)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </section>
-
             {/* Small print — the app equivalent of the site footer */}
-            <div className="mt-8 px-4">
+            <div className="px-4">
               <p className="text-center text-[11px] text-ink-3">
                 {t("shop.copyright")}
               </p>
@@ -402,7 +370,7 @@ export default function ShopView() {
 
         {/* Hero — desktop only; the phone has its home tab instead. */}
         <section className="shop-hero hidden border-b border-line sm:block">
-          <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-14 lg:grid-cols-[1.1fr_0.9fr] lg:py-20">
+          <div className="mx-auto max-w-7xl px-5 py-14 lg:py-20">
             <div className="rise">
               <span className="label-caps text-brand">{t("shop.eyebrow")}</span>
               <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-5xl lg:text-6xl">
@@ -431,33 +399,6 @@ export default function ShopView() {
                 </button>
               </div>
 
-              <div className="mt-10 flex flex-wrap gap-x-7 gap-y-3">
-                {TRUST.map(({ icon: Icon, key }) => (
-                  <div key={key} className="flex items-center gap-2">
-                    <Icon className="h-4 w-4 text-brand" />
-                    <span className="text-xs font-medium text-ink-2">
-                      {t(key)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Editorial data panel — no external imagery required */}
-            <div className="rise rounded-2xl border border-line bg-surface/70 p-7 backdrop-blur-sm lg:p-9">
-              <span className="label-caps text-ink-3">
-                {t("shop.inCollection")}
-              </span>
-              <div className="mt-4 flex items-end gap-6">
-                <div>
-                  <p className="font-display text-5xl font-semibold leading-none tracking-tight text-ink tabular-nums">
-                    {allProducts.length}
-                  </p>
-                  <p className="mt-1.5 text-xs text-ink-3">
-                    {t("shop.productsInStock")}
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
         </section>
@@ -589,16 +530,6 @@ export default function ShopView() {
               <p className="mt-1.5 max-w-xs text-xs leading-relaxed text-ink-3">
                 {t("shop.footerBlurb")}
               </p>
-            </div>
-            <div className="flex flex-wrap gap-x-8 gap-y-3">
-              {TRUST.map(({ icon: Icon, key }) => (
-                <div key={key} className="flex items-center gap-2">
-                  <Icon className="h-4 w-4 text-ink-3" />
-                  <span className="text-xs font-medium text-ink-2">
-                    {t(key)}
-                  </span>
-                </div>
-              ))}
             </div>
           </div>
           <div className="border-t border-line/70">
