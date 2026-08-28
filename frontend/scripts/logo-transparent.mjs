@@ -1,13 +1,6 @@
-// Turns the supplied AL-MASA logo (dark artwork on a white square, with a lot
-// of empty margin) into two web-ready marks:
-//
-//   almasa-logo.png       cropped to the artwork, white knocked out
-//   almasa-logo-dark.png  the same, with the near-black wordmark lifted to
-//                         cream so it stays readable on the dark theme
-//
-// Run from frontend/:  node scripts/logo-transparent.mjs
-import sharp from "sharp";
-import { fileURLToPath } from "node:url";
+// Builds the AL-MASA logo from the vector definition matching the physical sign.
+// Run from frontend/:  node scripts/build-logo.mjs
+import "./build-logo.mjs";
 import path from "node:path";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
