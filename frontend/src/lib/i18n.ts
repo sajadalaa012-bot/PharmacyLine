@@ -87,11 +87,11 @@ const en = {
   "shop.closeCart": "Close cart",
   "shop.allProducts": "All products",
   "shop.products": "Products",
-  "shop.eyebrow": "Pharmacy · Skincare · Supplements",
+  "shop.eyebrow": "Skincare",
   "shop.headline1": "Everyday wellness,",
   "shop.headline2": "thoughtfully curated.",
   "shop.lede":
-    "A considered edit of trusted medical, skincare, and supplement essentials — browse the collection and build your order in a few taps.",
+    "A considered edit of trusted skincare essentials — browse the collection and build your order in a few taps.",
   "shop.ctaShop": "Shop the collection",
   "shop.ctaBrowse": "Browse categories",
   "shop.price": "Price",
@@ -108,7 +108,7 @@ const en = {
   "shop.tryWiden": "Try widening the price range or clearing the filter",
   "shop.addFromAdmin": "Add products from the Admin dashboard",
   "shop.footerBlurb":
-    "Pharmacy, skincare, and wellness essentials — curated and delivered.",
+    "Skincare and wellness essentials — curated and delivered.",
   "shop.copyright":
     "© 2026 AL-MASA — مكتب الماسة. All rights reserved.",
   "shop.featured": "Featured",
@@ -559,11 +559,11 @@ const ar: Record<MessageKey, string> = {
   "shop.closeCart": "إغلاق السلة",
   "shop.allProducts": "كل المنتجات",
   "shop.products": "المنتجات",
-  "shop.eyebrow": "صيدلية · العناية بالبشرة · المكمّلات",
+  "shop.eyebrow": "العناية بالبشرة",
   "shop.headline1": "عافية يومية،",
   "shop.headline2": "مختارة بعناية.",
   "shop.lede":
-    "تشكيلة منتقاة من المستحضرات الطبية ومنتجات العناية بالبشرة والمكمّلات الموثوقة — تصفّح المجموعة وجهّز طلبك بلمسات قليلة.",
+    "تشكيلة منتقاة من منتجات العناية بالبشرة الموثوقة — تصفّح المجموعة وجهّز طلبك بلمسات قليلة.",
   "shop.ctaShop": "تسوّق المجموعة",
   "shop.ctaBrowse": "تصفّح الأقسام",
   "shop.price": "السعر",
@@ -580,7 +580,7 @@ const ar: Record<MessageKey, string> = {
   "shop.tryWiden": "جرّب توسيع النطاق السعري أو إزالة الفلتر",
   "shop.addFromAdmin": "أضف منتجات من لوحة التحكم",
   "shop.footerBlurb":
-    "مستحضرات الصيدلية والعناية بالبشرة والعافية — مختارة وموصَّلة إليك.",
+    "مستحضرات العناية بالبشرة والعافية — مختارة وموصَّلة إليك.",
   "shop.copyright": "© 2026 AL-MASA — مكتب الماسة. جميع الحقوق محفوظة.",
   "shop.featured": "مختارات",
   "shop.goodToSeeYou": "أهلاً بعودتك",
