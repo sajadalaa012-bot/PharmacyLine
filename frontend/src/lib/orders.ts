@@ -3,7 +3,7 @@
 // from the line items — client-sent totals are not trusted.
 
 import { randomUUID } from "crypto";
-import { getPool, ensureSchema } from "./db";
+import { connect, query, ensureSchema } from "./db";
 import { Order, OrderItem, OrderStatus } from "@/types";
 
 export class OrderValidationError extends Error {}
@@ -146,12 +146,11 @@ export async function createOrder(
   status: OrderStatus,
 ): Promise<Order & { track_token: string }> {
   await ensureSchema();
-  const pool = getPool();
   const subtotal = input.items.reduce((s, it) => s + it.subtotal, 0);
   const grand_total = Math.max(0, subtotal - input.discount);
   const token = randomUUID();
 
-  const client = await pool.connect();
+  const client = await connect();
   try {
     await client.query("BEGIN");
 
@@ -228,7 +227,7 @@ export async function createOrder(
     await client.query("ROLLBACK").catch(() => {});
     const code = (err as { code?: string }).code;
     if (code === "23505" && input.idempotency_key) {
-      const dup = await pool.query(
+      const dup = await query(
         "SELECT id, track_token FROM orders WHERE idempotency_key = $1",
         [input.idempotency_key],
       );
@@ -248,10 +247,9 @@ export async function createOrder(
 
 export async function getOrder(id: number): Promise<Order | null> {
   await ensureSchema();
-  const pool = getPool();
-  const o = await pool.query("SELECT * FROM orders WHERE id = $1", [id]);
+  const o = await query("SELECT * FROM orders WHERE id = $1", [id]);
   if (!o.rows[0]) return null;
-  const items = await pool.query(
+  const items = await query(
     "SELECT * FROM order_items WHERE order_id = $1 ORDER BY id",
     [id],
   );
@@ -260,14 +258,13 @@ export async function getOrder(id: number): Promise<Order | null> {
 
 export async function listOrders(): Promise<Order[]> {
   await ensureSchema();
-  const pool = getPool();
-  const o = await pool.query(
+  const o = await query(
     "SELECT * FROM orders ORDER BY created_at DESC, id DESC",
   );
   const ids = o.rows.map((r) => Number(r.id));
   const byOrder = new Map<number, OrderItem[]>();
   if (ids.length) {
-    const items = await pool.query(
+    const items = await query(
       "SELECT * FROM order_items WHERE order_id = ANY($1::bigint[]) ORDER BY id",
       [ids],
     );
@@ -288,11 +285,10 @@ export async function replaceOrder(
   status: OrderStatus,
 ): Promise<Order | null> {
   await ensureSchema();
-  const pool = getPool();
   const subtotal = input.items.reduce((s, it) => s + it.subtotal, 0);
   const grand_total = Math.max(0, subtotal - input.discount);
 
-  const client = await pool.connect();
+  const client = await connect();
   try {
     await client.query("BEGIN");
     const upd = await client.query(
@@ -349,7 +345,7 @@ export async function replaceOrder(
 
 export async function deleteOrder(id: number): Promise<boolean> {
   await ensureSchema();
-  const res = await getPool().query("DELETE FROM orders WHERE id = $1", [id]);
+  const res = await query("DELETE FROM orders WHERE id = $1", [id]);
   return (res.rowCount ?? 0) > 0;
 }
 
@@ -362,7 +358,7 @@ export async function trackOrder(
   token: string,
 ): Promise<Order | null> {
   await ensureSchema();
-  const check = await getPool().query(
+  const check = await query(
     "SELECT id FROM orders WHERE id = $1 AND track_token = $2",
     [id, token],
   );

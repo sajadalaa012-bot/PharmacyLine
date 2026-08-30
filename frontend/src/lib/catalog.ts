@@ -7,7 +7,7 @@
 // (`TRUNCATE products, categories RESTART IDENTITY;`) and reload.
 
 import seedData from "@/data/catalog.json";
-import { getPool, ensureSchema, query } from "./db";
+import { connect, ensureSchema, query } from "./db";
 import { backfillProductCategories } from "./classifyProducts";
 import {
   Category,
@@ -330,7 +330,7 @@ async function seedCatalog(): Promise<void> {
   const probe = await query<{ n: string }>("SELECT COUNT(*) AS n FROM categories");
   if (Number(probe.rows[0].n) > 0) return;
 
-  const client = await getPool().connect();
+  const client = await connect();
   try {
     await client.query("BEGIN");
     // Any constant works as long as every instance uses the same one.

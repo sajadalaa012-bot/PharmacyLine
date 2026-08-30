@@ -1,7 +1,9 @@
-// Postgres access for orders. One pooled connection reused across warm
-// serverless invocations; all queries are parameterized.
+// Postgres access for the shop — the catalog, the orders, the handful of
+// settings an admin changes at runtime. One pooled connection reused across
+// warm serverless invocations; all queries are parameterized.
 
-import { Pool, type QueryResultRow } from "pg";
+import { Pool, type PoolClient, type QueryResultRow } from "pg";
+import { createHash } from "node:crypto";
 
 const globalForPg = globalThis as unknown as { __pgPool?: Pool };
 
@@ -19,11 +21,29 @@ function makePool(): Pool {
     ) &&
       process.env.DATABASE_SSL !== "false");
 
-  return new Pool({
+  const pool = new Pool({
     connectionString,
     ssl: useSSL ? { rejectUnauthorized: false } : undefined,
-    max: 5,
+    // A serverless instance serves one request at a time, and the widest
+    // thing any request does is listCatalog's two parallel queries. Holding
+    // more than that open only spends the database's connection limit — and a
+    // burst of cold starts is exactly when that limit bites.
+    max: 3,
+    // Fail fast rather than hang until the platform kills the function: a
+    // database briefly out of connections should surface as an error that
+    // connect() can retry, not as a dead request.
+    connectionTimeoutMillis: 5_000,
+    idleTimeoutMillis: 10_000,
   });
+
+  // Hosted Postgres drops idle connections routinely, and node-postgres
+  // reports that as an 'error' event on the pool. With no listener, Node
+  // re-raises it as an uncaught exception and takes down the whole function —
+  // including whatever request happened to be in flight.
+  pool.on("error", (err) => {
+    console.error("Postgres pool error on an idle client:", err);
+  });
+  return pool;
 }
 
 export function getPool(): Pool {
@@ -31,23 +51,67 @@ export function getPool(): Pool {
   return globalForPg.__pgPool;
 }
 
+// ── Connecting ──────────────────────────────────────────────────────
+
+/**
+ * True for a failure that happened *before* any statement reached the
+ * database: the pool could not hand back a usable connection. Retrying those
+ * is safe for reads and writes alike, because nothing ran.
+ */
+function isConnectFault(err: unknown): boolean {
+  const e = err as { code?: string; message?: string } | null;
+  switch (e?.code) {
+    case "53300": // too_many_connections
+    case "57P03": // cannot_connect_now — the server is still coming up
+    case "ECONNREFUSED":
+    case "ECONNRESET":
+    case "ETIMEDOUT":
+    case "EPIPE":
+      return true;
+  }
+  return /timeout exceeded when trying to connect|Connection terminated/i.test(
+    e?.message ?? "",
+  );
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * A pooled client, retrying a refused or exhausted connection. Everyone
+ * arriving at once is the normal case for a serverless shop, not an
+ * exceptional one: a shopper should wait a few hundred milliseconds rather
+ * than be told the shop could not load.
+ */
+export async function connect(): Promise<PoolClient> {
+  let lastErr: unknown;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      return await getPool().connect();
+    } catch (err) {
+      if (!isConnectFault(err)) throw err;
+      lastErr = err;
+      await sleep(150 * (attempt + 1));
+    }
+  }
+  throw lastErr;
+}
+
 export async function query<T extends QueryResultRow = QueryResultRow>(
   text: string,
   params: unknown[] = [],
 ): Promise<{ rows: T[]; rowCount: number }> {
-  const res = await getPool().query<T>(text, params);
-  return { rows: res.rows, rowCount: res.rowCount ?? 0 };
+  const client = await connect();
+  try {
+    const res = await client.query<T>(text, params);
+    return { rows: res.rows, rowCount: res.rowCount ?? 0 };
+  } finally {
+    client.release();
+  }
 }
 
-let schemaReady: Promise<void> | null = null;
+// ── Schema ──────────────────────────────────────────────────────────
 
-export function ensureSchema(): Promise<void> {
-  if (!schemaReady) schemaReady = initSchema();
-  return schemaReady;
-}
-
-async function initSchema(): Promise<void> {
-  await getPool().query(`
+const SCHEMA_SQL = `
     CREATE TABLE IF NOT EXISTS orders (
       id              BIGSERIAL PRIMARY KEY,
       idempotency_key TEXT UNIQUE,
@@ -170,5 +234,85 @@ async function initSchema(): Promise<void> {
     -- Their tables are deliberately left alone rather than dropped here: a
     -- schema bootstrap is the wrong place to destroy data someone typed in.
     -- Drop pharmacies and pharmacy_folders by hand if you want the space.
-  `);
+`;
+
+/**
+ * Changes whenever SCHEMA_SQL does, which is the whole point: the bootstrap
+ * runs after a deploy that edits the schema and is skipped by every cold start
+ * afterwards. Nothing to remember to bump by hand.
+ */
+const SCHEMA_HASH = createHash("sha256")
+  .update(SCHEMA_SQL)
+  .digest("hex")
+  .slice(0, 16);
+
+/** Any constant works as long as every instance uses the same one. */
+const SCHEMA_LOCK = 724302;
+
+let schemaReady: Promise<void> | null = null;
+
+export function ensureSchema(): Promise<void> {
+  if (!schemaReady) {
+    schemaReady = initSchema().catch((err) => {
+      // Never cache a failure. A blip during bootstrap would otherwise leave
+      // this instance telling every visitor it serves that the shop could not
+      // load, for the rest of its life.
+      schemaReady = null;
+      throw err;
+    });
+  }
+  return schemaReady;
+}
+
+/** The schema version this database was last brought up to, if any. */
+async function recordedHash(client: PoolClient): Promise<string | null> {
+  // A missing app_settings has to be checked separately: selecting from a
+  // table that does not exist fails at parse time, and inside a transaction
+  // that would abort everything after it.
+  const reg = await client.query<{ t: string | null }>(
+    "SELECT to_regclass('public.app_settings') AS t",
+  );
+  if (!reg.rows[0]?.t) return null;
+  const res = await client.query<{ value: string }>(
+    "SELECT value FROM app_settings WHERE key = 'schema_hash'",
+  );
+  return res.rows[0]?.value ?? null;
+}
+
+async function initSchema(): Promise<void> {
+  const client = await connect();
+  try {
+    // The overwhelmingly common case: the database is already at the schema
+    // this build expects, so a cold start costs two cheap reads rather than
+    // forty DDL statements.
+    if ((await recordedHash(client)) === SCHEMA_HASH) return;
+
+    // Cold starts arrive in bursts, and concurrent CREATE TABLE / ALTER TABLE
+    // race each other in Postgres — "tuple concurrently updated", duplicate
+    // pg_type rows, deadlocks. That is what made one visitor in twenty see
+    // "the shop could not load" while everyone else got in. One instance runs
+    // the DDL; the rest wait here and then find the hash already recorded.
+    await client.query("BEGIN");
+    // Bounded, so a wedged lock surfaces as an error the next request can
+    // retry instead of hanging until the platform kills the function.
+    await client.query("SET LOCAL lock_timeout = '8s'");
+    await client.query("SELECT pg_advisory_xact_lock($1)", [SCHEMA_LOCK]);
+    if ((await recordedHash(client)) === SCHEMA_HASH) {
+      await client.query("ROLLBACK");
+      return;
+    }
+    await client.query(SCHEMA_SQL);
+    await client.query(
+      `INSERT INTO app_settings (key, value, updated_at)
+       VALUES ('schema_hash', $1, now())
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
+      [SCHEMA_HASH],
+    );
+    await client.query("COMMIT");
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw err;
+  } finally {
+    client.release();
+  }
 }
