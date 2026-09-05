@@ -189,7 +189,7 @@ const iqd = (n: number) =>
 export function orderToTelegramHtml(order: Order): string {
   const d = new Date(order.created_at);
   const lines: string[] = [
-    `🧾 <b>طلب جديد — ${esc("AL-MASA")}</b>`,
+    `🧾 <b>طلب جديد — ${esc("velina")}</b>`,
     `رقم الطلب: <code>${String(order.id).padStart(5, "0")}</code>`,
     `التاريخ: ${d.toLocaleDateString("en-GB")} — ${d.toLocaleTimeString("en-GB", {
       hour: "2-digit",

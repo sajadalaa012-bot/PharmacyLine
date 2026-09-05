@@ -24,14 +24,14 @@ const plexArabic = IBM_Plex_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "AL-MASA — مكتب الماسة",
+  title: "velina — فيلينا",
   description:
     "Point of sale and storefront for medical, skincare, and supplement products.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "AL-MASA",
+    title: "velina",
   },
   icons: {
     icon: "/icons/icon-192.png",

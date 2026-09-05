@@ -64,7 +64,7 @@ const en = {
   "common.clickAgain": "Click again to confirm",
   "common.tapAgain": "Tap again to confirm",
   "common.clearSearch": "Clear search",
-  "common.brand": "AL-MASA",
+  "common.brand": "velina",
 
   // ── Language toggle ──
   "lang.switchTo": "Switch to Arabic",
@@ -110,13 +110,13 @@ const en = {
   "shop.footerBlurb":
     "Skincare and wellness essentials — curated and delivered.",
   "shop.copyright":
-    "© 2026 AL-MASA — مكتب الماسة. All rights reserved.",
+    "© 2026 velina — فيلينا. All rights reserved.",
   "shop.featured": "Featured",
   "shop.goodToSeeYou": "Welcome back",
 
   // ── Install to home screen ──
   "app.installTitle": "Install the app",
-  "app.installBody": "Add AL-MASA to your home screen — full screen, one tap away.",
+  "app.installBody": "Add velina to your home screen — full screen, one tap away.",
   "app.installIos": "Tap the Share button, then “Add to Home Screen”.",
   "app.install": "Install",
   "app.notNow": "Not now",
@@ -536,7 +536,7 @@ const ar: Record<MessageKey, string> = {
   "common.clickAgain": "اضغط مرة أخرى للتأكيد",
   "common.tapAgain": "المس مرة أخرى للتأكيد",
   "common.clearSearch": "مسح البحث",
-  "common.brand": "AL-MASA",
+  "common.brand": "velina",
 
   // ── Language toggle ──
   "lang.switchTo": "التبديل إلى الإنكليزية",
@@ -581,13 +581,13 @@ const ar: Record<MessageKey, string> = {
   "shop.addFromAdmin": "أضف منتجات من لوحة التحكم",
   "shop.footerBlurb":
     "مستحضرات العناية بالبشرة والعافية — مختارة وموصَّلة إليك.",
-  "shop.copyright": "© 2026 AL-MASA — مكتب الماسة. جميع الحقوق محفوظة.",
+  "shop.copyright": "© 2026 velina — فيلينا. جميع الحقوق محفوظة.",
   "shop.featured": "مختارات",
   "shop.goodToSeeYou": "أهلاً بعودتك",
 
   // ── Install to home screen ──
   "app.installTitle": "ثبّت التطبيق",
-  "app.installBody": "أضف AL-MASA إلى شاشتك الرئيسية — بملء الشاشة وبلمسة واحدة.",
+  "app.installBody": "أضف فيلينا إلى شاشتك الرئيسية — بملء الشاشة وبلمسة واحدة.",
   "app.installIos": "اضغط زر المشاركة، ثم «إضافة إلى الشاشة الرئيسية».",
   "app.install": "تثبيت",
   "app.notNow": "ليس الآن",

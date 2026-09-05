@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
           token,
           chatIds,
           [
-            "✅ <b>AL-MASA</b>",
+            "✅ <b>velina</b>",
             "",
             "تم ربط المتجر بهذه المحادثة بنجاح.",
             "ستصلك الطلبات الجديدة هنا.",

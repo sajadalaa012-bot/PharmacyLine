@@ -74,7 +74,7 @@ export function mapsLink(location: string): string {
 export function orderToWhatsAppText(order: Order): string {
   const d = new Date(order.created_at);
   const lines: string[] = [
-    "🧾 *فاتورة — AL-MASA*",
+    "🧾 *فاتورة — velina*",
     `رقم الطلب: ${String(order.id).padStart(5, "0")}`,
     `التاريخ: ${d.toLocaleDateString("en-GB")} — ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`,
     "",
