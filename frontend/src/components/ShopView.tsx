@@ -15,12 +15,12 @@ import {
   ShoppingCart,
   Search,
   X,
-  ArrowRight,
   Home,
   Store,
   SlidersHorizontal,
   ChevronDown,
 } from "lucide-react";
+import HomeCarousel from "./HomeCarousel";
 import ProductCard from "./ProductCard";
 import ProductDetailModal from "./ProductDetailModal";
 import CartPanel from "./CartPanel";
@@ -284,6 +284,14 @@ export default function ShopView() {
     goToCatalog();
   };
 
+  /** Take the shopper to the products that are actually on offer. */
+  const showOffers = () => {
+    setOffersOnly(true);
+    setActiveCategory("all");
+    setActiveType("all");
+    goToCatalog();
+  };
+
   const clearFilters = () => {
     setActiveCategory("all");
     setActiveType("all");
@@ -467,22 +475,19 @@ export default function ShopView() {
             <section className="home-canvas home-canvas-hero px-4 pb-12 pt-4">
               {renderSearch()}
 
-              <span className="label-caps mt-6 block text-brand">
-                {t("shop.eyebrow")}
-              </span>
-              <h1 className="mt-2 font-display text-[30px] font-semibold leading-[1.12] tracking-tight text-ink">
-                {t("shop.headline1")}
-                <br />
-                {t("shop.headline2")}
-              </h1>
-              <button
-                onClick={() => pickCategory("all")}
-                className="mt-5 flex h-11 items-center gap-2 rounded-full bg-brand px-5 text-sm font-semibold text-on-brand transition active:scale-[0.97]"
-              >
-                {t("shop.ctaShop")}
-                <ArrowRight className="h-4 w-4 flip-rtl" />
-              </button>
-
+              {/* The deck says what the shop is and what is discounted, in
+                  place of a headline that could only say the first. */}
+              <div className="mt-5">
+                <HomeCarousel
+                  products={allProducts}
+                  brandCount={categories.length}
+                  categoryCount={productCategories.length}
+                  onShopAll={() => pickCategory("all")}
+                  onShopOffers={showOffers}
+                  onBrowse={() => goTab("browse")}
+                  onOpenProduct={setDetailProduct}
+                />
+              </div>
             </section>
 
             {/* Sheet — the rest of the home screen rides up over the canvas */}
@@ -602,35 +607,17 @@ export default function ShopView() {
             tab === "browse" ? "" : "sm:block"
           }`}
         >
-          <div className="mx-auto max-w-7xl px-5 py-14 lg:py-20">
+          <div className="mx-auto max-w-7xl px-5 py-10 lg:py-14">
             <div className="rise">
-              <span className="label-caps text-brand">{t("shop.eyebrow")}</span>
-              <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-5xl lg:text-6xl">
-                {t("shop.headline1")}
-                <br />
-                {t("shop.headline2")}
-              </h1>
-              <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-ink-2">
-                {t("shop.lede")}
-              </p>
-
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <button
-                  onClick={goToCatalog}
-                  className="group flex h-12 items-center gap-2 rounded-full bg-brand px-7 text-sm font-semibold text-on-brand
-                             transition hover:bg-brand-deep active:scale-[0.98]"
-                >
-                  {t("shop.ctaShop")}
-                  <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
-                </button>
-                <button
-                  onClick={goToCatalog}
-                  className="h-12 rounded-full border border-line-strong px-6 text-sm font-semibold text-ink transition hover:bg-sunken"
-                >
-                  {t("shop.ctaBrowse")}
-                </button>
-              </div>
-
+              <HomeCarousel
+                products={allProducts}
+                brandCount={categories.length}
+                categoryCount={productCategories.length}
+                onShopAll={goToCatalog}
+                onShopOffers={showOffers}
+                onBrowse={() => goTab("browse")}
+                onOpenProduct={setDetailProduct}
+              />
             </div>
           </div>
         </section>
@@ -815,14 +802,7 @@ export default function ShopView() {
           something to advertise — an ad for offers that do not exist is
           worse than no ad. */}
       {tab === "home" && hasOffers && (
-        <OfferPopup
-          onShop={() => {
-            setOffersOnly(true);
-            setActiveCategory("all");
-            setActiveType("all");
-            goToCatalog();
-          }}
-        />
+        <OfferPopup onShop={showOffers} />
       )}
 
       {/* ── Tab bar — phone only ────────────────────────────────────── */}

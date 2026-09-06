@@ -348,6 +348,23 @@ const en = {
   "offer.percentOff": "−{n}%",
   "offer.youSave": "You save {n} {currency}",
 
+  // ── Home deck (the slideshow that opens the home screen) ──
+  "home.deck": "Highlights",
+  "home.slideOf": "Slide {n} of {total}",
+  "home.prev": "Previous slide",
+  "home.next": "Next slide",
+  "home.goTo": "Go to slide {n}",
+  "home.pause": "Pause the slideshow",
+  "home.play": "Play the slideshow",
+  "home.viewProduct": "View product",
+  "home.collectionTitle": "Everything in one place",
+  "home.collectionBody":
+    "Browse by brand or by what a product does, tap to see the detail, and build your order in a few taps.",
+  "home.statProducts": "Products",
+  "home.statBrands": "Brands",
+  "home.statCategories": "Categories",
+  "home.statOffers": "On offer",
+
   // ── Searchable dropdown ──
   "dropdown.search": "Search…",
   "dropdown.noResults": "No matches",
@@ -816,6 +833,23 @@ const ar: Record<MessageKey, string> = {
   // ── Offers ──
   "offer.percentOff": "−{n}%",
   "offer.youSave": "توفّر {n} {currency}",
+
+  // ── شريط العروض في الصفحة الرئيسية ──
+  "home.deck": "أبرز ما لدينا",
+  "home.slideOf": "الشريحة {n} من {total}",
+  "home.prev": "الشريحة السابقة",
+  "home.next": "الشريحة التالية",
+  "home.goTo": "الانتقال إلى الشريحة {n}",
+  "home.pause": "إيقاف العرض المتحرك",
+  "home.play": "تشغيل العرض المتحرك",
+  "home.viewProduct": "عرض المنتج",
+  "home.collectionTitle": "كل ما تحتاجه في مكان واحد",
+  "home.collectionBody":
+    "تصفّح حسب الماركة أو حسب نوع المنتج، اضغط لرؤية التفاصيل، وجهّز طلبك بلمسات قليلة.",
+  "home.statProducts": "منتجات",
+  "home.statBrands": "ماركات",
+  "home.statCategories": "أقسام",
+  "home.statOffers": "عروض",
 
   // ── Searchable dropdown ──
   "dropdown.search": "بحث…",
