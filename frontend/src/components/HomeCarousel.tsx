@@ -15,8 +15,10 @@ import { localized } from "@/lib/i18n";
 import { num } from "@/lib/format";
 import { PROMO_PERCENT } from "./OfferPopup";
 
-/** How far a finger has to travel before it counts as a swipe, in px. */
+/** How far a finger has to travel sideways before it counts as a swipe, in px. */
 const SWIPE_PX = 48;
+/** And how much further sideways than down, before it counts as sideways. */
+const AXIS_BIAS = 1.5;
 /** Photographs on the offer slide. Enough to show a spread, few enough to read. */
 const OFFER_PHOTOS = 3;
 
@@ -87,20 +89,34 @@ export default function HomeCarousel({
   // ── Swipe ─────────────────────────────────────────────────────────
   // In Arabic the deck runs right to left, so the gesture that means
   // "onwards" is the mirror of the English one.
-  const dragFrom = useRef<number | null>(null);
+  const dragFrom = useRef<{ id: number; x: number; y: number } | null>(null);
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.pointerType === "mouse") return;
-    dragFrom.current = e.clientX;
+    dragFrom.current = { id: e.pointerId, x: e.clientX, y: e.clientY };
   };
 
-  const onPointerEnd = (e: React.PointerEvent) => {
+  const onPointerUp = (e: React.PointerEvent) => {
     const from = dragFrom.current;
     dragFrom.current = null;
-    if (from === null) return;
-    const dx = e.clientX - from;
-    if (Math.abs(dx) < SWIPE_PX) return;
+    if (!from || from.id !== e.pointerId) return;
+    const dx = e.clientX - from.x;
+    const dy = e.clientY - from.y;
+    // A finger on its way down the page drifts sideways as it goes. That is
+    // a scroll, and the deck stays where it is: only travel that is
+    // decisively sideways — further across than down, and far enough to be
+    // meant — turns a slide.
+    if (Math.abs(dx) < SWIPE_PX || Math.abs(dx) < Math.abs(dy) * AXIS_BIAS) {
+      return;
+    }
     go(index + ((rtl ? dx > 0 : dx < 0) ? 1 : -1));
+  };
+
+  // The browser takes the gesture over the moment it decides the page is
+  // being scrolled, and says so by cancelling the pointer. Whatever the
+  // finger did after that belongs to the scroll, not to us.
+  const onPointerCancel = () => {
+    dragFrom.current = null;
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -129,8 +145,8 @@ export default function HomeCarousel({
         className="overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_20px_50px_-32px_rgba(27,39,51,0.5)]"
         style={{ touchAction: "pan-y" }}
         onPointerDown={onPointerDown}
-        onPointerUp={onPointerEnd}
-        onPointerCancel={onPointerEnd}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerCancel}
       >
         <div
           className="flex ease-out"
