@@ -6,8 +6,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Package,
-  Pause,
-  Play,
   SlidersHorizontal,
   Tag,
 } from "lucide-react";
@@ -16,8 +14,6 @@ import { useI18n } from "@/lib/LanguageProvider";
 import { localized } from "@/lib/i18n";
 import { num } from "@/lib/format";
 
-/** How long each slide holds before the deck moves on. */
-const DWELL_MS = 6000;
 /** How far a finger has to travel before it counts as a swipe, in px. */
 const SWIPE_PX = 48;
 /** At most this many offers get a slide — past that it stops being a deck. */
@@ -46,6 +42,10 @@ interface HomeCarouselProps {
  * The offer slides are built from the catalogue rather than written by hand,
  * so the deck can only ever advertise a discount that exists — steepest
  * first. With nothing on offer it quietly becomes two slides.
+ *
+ * It never moves on its own: the shopper turns it, by swipe, arrow, dot or
+ * arrow key. A slide therefore holds for as long as it is being read, and
+ * nothing is ever pulled out from under someone mid-sentence.
  */
 export default function HomeCarousel({
   products,
@@ -72,15 +72,10 @@ export default function HomeCarousel({
 
   const [wanted, setWanted] = useState(0);
   const index = wanted < count ? wanted : 0;
-  // Someone who has taken hold of the deck — hovering it, tabbing through it,
-  // mid-swipe — is reading at their own pace, and so is anyone who pressed
-  // pause. Either way the timer stops.
-  const [held, setHeld] = useState(false);
-  const [paused, setPaused] = useState(false);
   const [still, setStill] = useState(false);
 
-  // A deck that moves on its own is a problem for anyone who asked the system
-  // not to animate, so for them it simply does not.
+  // The deck does not move by itself, but turning a slide is still a slide of
+  // travel. Anyone who asked the system not to animate gets the cut instead.
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const sync = () => setStill(mq.matches);
@@ -94,12 +89,6 @@ export default function HomeCarousel({
     [count],
   );
 
-  useEffect(() => {
-    if (count < 2 || held || paused || still) return;
-    const timer = setTimeout(() => go(index + 1), DWELL_MS);
-    return () => clearTimeout(timer);
-  }, [count, held, paused, still, index, go]);
-
   // ── Swipe ─────────────────────────────────────────────────────────
   // In Arabic the deck runs right to left, so the gesture that means
   // "onwards" is the mirror of the English one.
@@ -108,13 +97,11 @@ export default function HomeCarousel({
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.pointerType === "mouse") return;
     dragFrom.current = e.clientX;
-    setHeld(true);
   };
 
   const onPointerEnd = (e: React.PointerEvent) => {
     const from = dragFrom.current;
     dragFrom.current = null;
-    setHeld(false);
     if (from === null) return;
     const dx = e.clientX - from;
     if (Math.abs(dx) < SWIPE_PX) return;
@@ -139,10 +126,6 @@ export default function HomeCarousel({
     <section
       aria-roledescription="carousel"
       aria-label={t("home.deck")}
-      onMouseEnter={() => setHeld(true)}
-      onMouseLeave={() => setHeld(false)}
-      onFocus={() => setHeld(true)}
-      onBlur={() => setHeld(false)}
       onKeyDown={onKeyDown}
       className="relative"
     >
@@ -213,7 +196,7 @@ export default function HomeCarousel({
             type="button"
             onClick={() => go(index - 1)}
             aria-label={t("home.prev")}
-            className="hidden h-9 w-9 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition hover:border-brand hover:text-brand active:scale-95 sm:flex"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition hover:border-brand hover:text-brand active:scale-95"
           >
             <ChevronLeft className="h-4 w-4 flip-rtl" />
           </button>
@@ -239,26 +222,10 @@ export default function HomeCarousel({
             type="button"
             onClick={() => go(index + 1)}
             aria-label={t("home.next")}
-            className="hidden h-9 w-9 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition hover:border-brand hover:text-brand active:scale-95 sm:flex"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition hover:border-brand hover:text-brand active:scale-95"
           >
             <ChevronRight className="h-4 w-4 flip-rtl" />
           </button>
-
-          {/* Only worth offering while the deck is actually moving itself. */}
-          {!still && (
-            <button
-              type="button"
-              onClick={() => setPaused((p) => !p)}
-              aria-label={paused ? t("home.play") : t("home.pause")}
-              className="ms-1 flex h-8 w-8 items-center justify-center rounded-full text-ink-3 transition hover:bg-sunken hover:text-ink active:scale-95"
-            >
-              {paused ? (
-                <Play className="h-3.5 w-3.5" />
-              ) : (
-                <Pause className="h-3.5 w-3.5" />
-              )}
-            </button>
-          )}
         </div>
       )}
     </section>
