@@ -361,8 +361,10 @@ const en = {
   // ── Skincare consultation (the home screen's enquiry form) ──
   "consult.eyebrow": "Free skincare consultation",
   "consult.title": "Not sure where to start?",
+  "consult.inviteBody":
+    "Tell us about your skin and we will suggest a routine — free, and no obligation.",
   "consult.body":
-    "Tell us about your skin and leave your number. Someone from the shop will call you back with a routine picked for you — no charge, no obligation.",
+    "Tell us about your skin and leave your number. Someone from the shop will reach you with a routine picked for you — no charge, no obligation.",
   "consult.name": "Your name",
   "consult.namePlaceholder": "e.g. Zainab",
   "consult.phone": "Phone number",
@@ -391,7 +393,7 @@ const en = {
   "consult.required": "Name, phone and skin type are needed.",
   "consult.sentTitle": "Thank you — we have your request",
   "consult.sentBody":
-    "Someone from the shop will call you on the number you gave. If you asked outside opening hours, expect the call the next working day.",
+    "Someone from the shop will reach you on the number you gave. If you asked outside opening hours, expect to hear from us the next working day.",
   "consult.sendAnother": "Send another request",
   "consult.filterWaiting": "Waiting ({n})",
   "consult.filterAll": "All",
@@ -894,8 +896,10 @@ const ar: Record<MessageKey, string> = {
   // ── استشارة العناية بالبشرة ──
   "consult.eyebrow": "استشارة مجانية للعناية بالبشرة",
   "consult.title": "لا تعرف من أين تبدأ؟",
+  "consult.inviteBody":
+    "أخبرنا عن بشرتك ونقترح لك روتيناً مناسباً — مجاناً ودون أي التزام.",
   "consult.body":
-    "أخبرنا عن بشرتك واترك رقمك، وسيتصل بك أحد فريق المتجر ليقترح لك روتيناً مناسباً — مجاناً ودون أي التزام.",
+    "أخبرنا عن بشرتك واترك رقمك، وسيتواصل معك أحد فريق المتجر ليقترح لك روتيناً مناسباً — مجاناً ودون أي التزام.",
   "consult.name": "الاسم",
   "consult.namePlaceholder": "مثلاً: زينب",
   "consult.phone": "رقم الهاتف",
@@ -924,7 +928,7 @@ const ar: Record<MessageKey, string> = {
   "consult.required": "الاسم ورقم الهاتف ونوع البشرة مطلوبة.",
   "consult.sentTitle": "شكراً لك — وصلنا طلبك",
   "consult.sentBody":
-    "سيتصل بك أحد فريق المتجر على الرقم الذي تركته. وإذا أرسلت الطلب خارج أوقات الدوام، فتوقّع الاتصال في يوم العمل التالي.",
+    "سيتواصل معك أحد فريق المتجر على الرقم الذي تركته. وإذا أرسلت الطلب خارج أوقات الدوام، فتوقّع التواصل في يوم العمل التالي.",
   "consult.sendAnother": "إرسال طلب آخر",
   "consult.filterWaiting": "بالانتظار ({n})",
   "consult.filterAll": "الكل",

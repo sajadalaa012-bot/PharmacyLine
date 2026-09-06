@@ -21,6 +21,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import ConsultationForm from "./ConsultationForm";
+import ConsultationInvite from "./ConsultationInvite";
 import HomeCarousel from "./HomeCarousel";
 import ProductCard from "./ProductCard";
 import ProductDetailModal from "./ProductDetailModal";
@@ -125,7 +126,7 @@ function FilterBar({
  * filter page, opened from the store rather than lived in, so it does not
  * earn a permanent seat on a four-item phone bar.
  */
-type Tab = "home" | "browse" | "store" | "cart";
+type Tab = "home" | "browse" | "consult" | "store" | "cart";
 
 const TABS: { id: Tab; icon: typeof Home; key: MessageKey }[] = [
   { id: "home", icon: Home, key: "shop.home" },
@@ -182,10 +183,11 @@ export default function ShopView() {
   }, [load]);
 
   // Home-screen shortcuts (see public/manifest.json) open the app straight on
-  // a tab: /?tab=store, /?tab=cart.
+  // a tab: /?tab=store, /?tab=cart. /?tab=consult is the same door, and gives
+  // the consultation form a link the shop can hand out on its own.
   useEffect(() => {
     const wanted = new URLSearchParams(window.location.search).get("tab");
-    if (wanted === "store" || wanted === "cart") {
+    if (wanted === "store" || wanted === "cart" || wanted === "consult") {
       // Read after mount, not during render: the server has no URL search to
       // read from, and picking the tab while rendering would break hydration.
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -536,10 +538,10 @@ export default function ShopView() {
                 </section>
               )}
 
-              {/* The shop's own offer to help, under the products it is
-                  made of. */}
+              {/* The shop's own offer to help. The form itself is a page of
+                  its own — this is the way in. */}
               <div className="mt-8 px-4">
-                <ConsultationForm />
+                <ConsultationInvite onOpen={() => goTab("consult")} />
               </div>
 
               {/* Small print — the app equivalent of the site footer */}
@@ -549,6 +551,24 @@ export default function ShopView() {
                 </p>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Consultation — a page of its own rather than another panel on the
+            home screen: it is a form somebody sits down to fill in, and it
+            deserves the whole width without the shop scrolling past it. */}
+        {tab === "consult" && (
+          <div className="tab-in mx-auto w-full max-w-3xl px-4 py-6 sm:px-5 sm:py-10">
+            <div className="mb-4 flex justify-end">
+              <button
+                onClick={() => goTab("home")}
+                aria-label={t("common.close")}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-2 transition hover:bg-sunken hover:text-ink"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <ConsultationForm />
           </div>
         )}
 
@@ -654,7 +674,7 @@ export default function ShopView() {
             part of the home view, so it steps aside for Browse. */}
         <section
           className={`shop-hero hidden border-b border-line ${
-            tab === "browse" ? "" : "sm:block"
+            tab === "browse" || tab === "consult" ? "" : "sm:block"
           }`}
         >
           <div className="mx-auto max-w-7xl px-5 py-10 lg:py-14">
@@ -670,7 +690,7 @@ export default function ShopView() {
               />
 
               <div className="mt-8">
-                <ConsultationForm />
+                <ConsultationInvite onOpen={() => goTab("consult")} />
               </div>
             </div>
           </div>
@@ -681,7 +701,7 @@ export default function ShopView() {
           id="catalog"
           className={`mx-auto max-w-7xl scroll-mt-24 px-4 pb-10 pt-4 sm:px-5 sm:py-10 ${
             tab === "store" ? "" : "hidden"
-          } ${tab === "browse" ? "" : "sm:block"}`}
+          } ${tab === "browse" || tab === "consult" ? "" : "sm:block"}`}
         >
           {/* Store search — phone only; the desktop has one in the header. */}
           <div className="tab-in pb-4 sm:hidden">{renderSearch()}</div>
