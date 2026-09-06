@@ -36,8 +36,8 @@ interface HomeCarouselProps {
 }
 
 /**
- * The two things the home screen opens with: the discount that is running,
- * and a word on what the shop stocks.
+ * The two things the home screen opens with: a word on what the shop stocks,
+ * and then the discount that is running.
  *
  * The offer slide is dropped when nothing is actually discounted — an
  * advertisement for offers that do not exist is worse than no advertisement,
@@ -61,9 +61,12 @@ export default function HomeCarousel({
     .filter(isDiscounted)
     .sort((a, b) => discountPercent(b) - discountPercent(a));
 
+  // The brief opens the deck: what the shop is comes before what it is
+  // discounting, so a first-time visitor is told where they are before they
+  // are sold to.
   const slides: Slide[] = [
-    ...(offers.length > 0 ? [{ kind: "promo" } as Slide] : []),
     { kind: "about" },
+    ...(offers.length > 0 ? [{ kind: "promo" } as Slide] : []),
   ];
   const count = slides.length;
 
