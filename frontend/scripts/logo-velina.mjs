@@ -30,12 +30,12 @@ const INK_FLOOR = 35;
 // Cream the wordmark becomes on the dark theme, over the paper it sits on
 // (--color-ink and --color-paper, dark shop).
 const DARK_INK = [242, 237, 227];
-const DARK_PAPER = [22, 19, 14];
+const DARK_PAPER = [16, 23, 32];
 // Where a coloured stroke has feathered this close to the page, the dark cut
 // pulls it down to its own paper for the same reason.
 const FEATHER_FROM = 205;
 // The light shop's paper, behind the mark on the square app icons.
-const PAPER = { r: 245, g: 242, b: 236, alpha: 1 };
+const PAPER = { r: 243, g: 247, b: 251, alpha: 1 };
 
 const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 

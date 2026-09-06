@@ -49,7 +49,7 @@ export const viewport: Viewport = {
   // The storefront's paper. The app opens light whatever the OS prefers, so
   // this is a single colour rather than a pair; ThemeToggle repaints it when
   // someone switches to dark.
-  themeColor: "#f5f2ec",
+  themeColor: "#f3f7fb",
 };
 
 /* Applies the saved theme before first paint to avoid a flash. Light is the

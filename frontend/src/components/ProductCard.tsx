@@ -73,13 +73,13 @@ export default function ProductCard({
   const runningLow = !soldOut && isStockTracked({ stock }) && (stock ?? 0) <= 5;
   // Never let the basket exceed what is on the shelf.
   const atStockLimit = isStockTracked({ stock }) && qty >= (stock ?? 0);
-  // Every item shares the same peach tint (matches the F7 card).
+  // Every item shares the same blush tint (matches the F7 card).
   const tintClass = "tint-2";
 
   return (
     <article
       className={`rise group relative flex flex-col overflow-hidden rounded-2xl ${tintClass} ring-1 ring-black/[0.05]
-                 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_-18px_rgba(34,49,42,0.45)]`}
+                 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_-18px_rgba(27,39,51,0.45)]`}
       style={{ animationDelay: `${Math.min(index * 25, 350)}ms` }}
     >
       {soldOut && (
@@ -91,7 +91,7 @@ export default function ProductCard({
       {/* Offer flag — under the sold-out one when a product is both. */}
       {onOffer && (
         <span
-          className={`label-caps absolute start-2 z-10 rounded-full bg-rose px-2 py-1 text-[10px] text-white shadow-sm ${
+          className={`label-caps absolute start-2 z-10 rounded-full bg-rose px-2 py-1 text-[10px] text-paper shadow-sm ${
             soldOut ? "top-10" : "top-2"
           }`}
         >
@@ -146,7 +146,7 @@ export default function ProductCard({
 
         <h3
           onClick={onOpenDetail ? () => onOpenDetail(product) : undefined}
-          className={`line-clamp-2 font-medium leading-snug text-[#211d17] ${
+          className={`line-clamp-2 font-medium leading-snug text-[#1b2733] ${
             mode === "shop" ? "min-h-10 text-sm" : "min-h-9 text-[13px]"
           } ${onOpenDetail ? "cursor-pointer transition-colors hover:text-brand" : ""}`}
         >
@@ -174,7 +174,7 @@ export default function ProductCard({
                   className={`rounded-md border px-1.5 py-0.5 text-[11px] font-medium leading-tight transition ${
                     chosen
                       ? "border-brand bg-brand/10 text-brand"
-                      : "border-line-strong bg-white/60 text-[#6b6156] hover:border-brand/40"
+                      : "border-line-strong bg-white/60 text-[#5b6b7c] hover:border-brand/40"
                   } ${vOut ? "cursor-not-allowed opacity-40 line-through" : ""}`}
                 >
                   <bdi>{localized(v, "name", lang)}</bdi>
@@ -200,13 +200,13 @@ export default function ProductCard({
           )}
           <p
             className={`font-display text-base font-semibold tracking-tight tabular-nums ${
-              onOffer ? "text-rose" : "text-[#211d17]"
+              onOffer ? "text-rose" : "text-[#1b2733]"
             }`}
           >
             {num(pricing.price)}
             <span
               className={`ms-1 font-sans text-[10px] font-semibold tracking-[0.08em] ${
-                onOffer ? "text-rose/70" : "text-[#8c8073]"
+                onOffer ? "text-rose/70" : "text-[#8294a6]"
               }`}
             >
               {t("common.currency")}

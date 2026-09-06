@@ -210,7 +210,7 @@ export default function ProductDetailModal({
                     <span className="font-display text-base font-semibold text-ink-3 line-through decoration-rose/70 decoration-[1.5px] tabular-nums">
                       {num(pricing.old_price as number)}
                     </span>
-                    <span className="label-caps rounded-full bg-rose px-2 py-0.5 text-[10px] text-white">
+                    <span className="label-caps rounded-full bg-rose px-2 py-0.5 text-[10px] text-paper">
                       {t("offer.percentOff", { n: off })}
                     </span>
                   </>

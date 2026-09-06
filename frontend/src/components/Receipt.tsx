@@ -75,7 +75,7 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
       <div className="w-full max-w-lg">
         <div
           ref={cardRef}
-          className="print-plain pop overflow-hidden rounded-lg border border-line bg-surface shadow-[0_24px_60px_-30px_rgba(34,49,42,0.4)]"
+          className="print-plain pop overflow-hidden rounded-lg border border-line bg-surface shadow-[0_24px_60px_-30px_rgba(27,39,51,0.4)]"
         >
           {/* Masthead */}
           <div className="border-b border-line bg-surface px-8 pb-6 pt-8 text-center print:bg-white">

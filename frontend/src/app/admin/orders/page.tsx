@@ -164,7 +164,7 @@ export default function AdminOrdersPage() {
           onClick={() => setFilter("pending")}
           className={`label-caps rounded-md px-3.5 py-2 transition ${
             filter === "pending"
-              ? "bg-copper text-white"
+              ? "bg-copper text-paper"
               : "border border-line text-ink-2 hover:bg-sunken"
           }`}
         >
@@ -385,7 +385,7 @@ export default function AdminOrdersPage() {
                           <button
                             onClick={() => remove(order)}
                             disabled={deletingId === order.id}
-                            className="flex h-9 items-center gap-2 rounded-md bg-rose px-3.5 text-[13px] font-semibold text-white transition hover:brightness-95 active:scale-[0.98] disabled:opacity-50"
+                            className="flex h-9 items-center gap-2 rounded-md bg-rose px-3.5 text-[13px] font-semibold text-paper transition hover:brightness-95 active:scale-[0.98] disabled:opacity-50"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                             {deletingId === order.id

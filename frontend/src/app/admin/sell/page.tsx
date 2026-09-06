@@ -122,7 +122,7 @@ export default function AdminSellPage() {
         >
           <ShoppingCart className="h-4 w-4" />
           {cart.totalQty > 0 && (
-            <span className="flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-copper px-1 text-[10px] font-bold text-white">
+            <span className="flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-copper px-1 text-[10px] font-bold text-paper">
               {cart.totalQty}
             </span>
           )}

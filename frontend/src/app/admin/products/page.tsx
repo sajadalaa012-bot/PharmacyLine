@@ -203,7 +203,7 @@ export default function AdminProductsPage() {
           onClick={() => setLowStockOnly((v) => !v)}
           className={`label-caps flex h-10 shrink-0 items-center gap-1.5 rounded-md border px-3 transition ${
             lowStockOnly
-              ? "border-copper bg-copper text-white"
+              ? "border-copper bg-copper text-paper"
               : "border-line bg-surface text-ink-2 hover:text-ink"
           }`}
         >
@@ -309,7 +309,7 @@ export default function AdminProductsPage() {
                   }
                   className={`flex h-9 items-center justify-center gap-1 rounded-md border transition ${
                     pendingDelete === p.id
-                      ? "label-caps animate-pulse border-rose bg-rose px-2 text-white"
+                      ? "label-caps animate-pulse border-rose bg-rose px-2 text-paper"
                       : "w-9 border-line text-ink-2 hover:border-rose/40 hover:text-rose"
                   }`}
                 >
@@ -411,7 +411,7 @@ export default function AdminProductsPage() {
                         }
                         className={`flex h-8 items-center justify-center gap-1 rounded-md border transition ${
                           pendingDelete === p.id
-                            ? "label-caps animate-pulse border-rose bg-rose px-2 text-white"
+                            ? "label-caps animate-pulse border-rose bg-rose px-2 text-paper"
                             : "w-8 border-line text-ink-2 hover:border-rose/40 hover:text-rose"
                         }`}
                       >

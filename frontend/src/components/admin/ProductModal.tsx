@@ -458,7 +458,7 @@ export default function ProductModal({
                         type="button"
                         onClick={() => setImageUrl("")}
                         aria-label={t("modal.removePhoto")}
-                        className="absolute end-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose text-white shadow hover:opacity-90"
+                        className="absolute end-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose text-paper shadow hover:opacity-90"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -642,7 +642,7 @@ export default function ProductModal({
                 disabled={isSubmitting}
                 className={`label-caps rounded-md border px-4 py-2.5 transition ${
                   confirmDelete
-                    ? "animate-pulse border-rose bg-rose text-white"
+                    ? "animate-pulse border-rose bg-rose text-paper"
                     : "border-rose/30 bg-rose/10 text-rose hover:bg-rose/20"
                 }`}
               >

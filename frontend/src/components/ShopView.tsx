@@ -448,7 +448,7 @@ export default function ShopView() {
                 {t("common.cart")}
               </span>
               {cart.totalQty > 0 && (
-                <span className="pop flex h-5 min-w-5 items-center justify-center rounded-full bg-copper px-1.5 text-[10px] font-bold text-white">
+                <span className="pop flex h-5 min-w-5 items-center justify-center rounded-full bg-copper px-1.5 text-[10px] font-bold text-paper">
                   {cart.totalQty}
                 </span>
               )}
@@ -660,7 +660,7 @@ export default function ShopView() {
               {offersOnly && (
                 <button
                   onClick={() => setOffersOnly(false)}
-                  className="flex h-9 items-center gap-1.5 rounded-full border border-rose bg-rose px-3.5 text-[13px] font-medium text-white"
+                  className="flex h-9 items-center gap-1.5 rounded-full border border-rose bg-rose px-3.5 text-[13px] font-medium text-paper"
                 >
                   {t("promo.onOffer")}
                   <X className="h-3.5 w-3.5" />
@@ -851,7 +851,7 @@ export default function ShopView() {
                     strokeWidth={active ? 2.4 : 1.9}
                   />
                   {id === "cart" && cart.totalQty > 0 && (
-                    <span className="absolute -end-0.5 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-copper px-1 text-[9px] font-bold text-white">
+                    <span className="absolute -end-0.5 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-copper px-1 text-[9px] font-bold text-paper">
                       {cart.totalQty}
                     </span>
                   )}

@@ -283,7 +283,7 @@ export default function AdminCategoriesPage() {
                 }
                 className={`flex h-8 items-center justify-center gap-1 rounded-md transition ${
                   pendingDelete === cat.id
-                    ? "label-caps animate-pulse bg-rose px-2 text-white"
+                    ? "label-caps animate-pulse bg-rose px-2 text-paper"
                     : "w-8 text-ink-2 hover:bg-rose/15 hover:text-rose"
                 }`}
               >
