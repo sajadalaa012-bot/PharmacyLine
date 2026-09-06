@@ -506,10 +506,17 @@ export default function ShopView() {
 
             {/* Sheet — the rest of the home screen rides up over the canvas */}
             <div className="home-sheet relative -mt-7 bg-paper pb-8 pt-6">
+              {/* The shop's own offer to help, straight under the deck: it is
+                  what to do when the slides have not answered the question.
+                  The form itself is a page of its own — this is the way in. */}
+              <div className="px-4">
+                <ConsultationInvite onOpen={() => goTab("consult")} />
+              </div>
+
               {/* A few real products, so the home screen shows the shop
                   rather than only describing it. */}
               {featured.length > 0 && (
-                <section className="px-4">
+                <section className="mt-8 px-4">
                   <div className="flex items-baseline justify-between gap-4">
                     <h2 className="font-display text-lg font-semibold tracking-tight text-ink">
                       {t("shop.featured")}
@@ -537,12 +544,6 @@ export default function ShopView() {
                   </div>
                 </section>
               )}
-
-              {/* The shop's own offer to help. The form itself is a page of
-                  its own — this is the way in. */}
-              <div className="mt-8 px-4">
-                <ConsultationInvite onOpen={() => goTab("consult")} />
-              </div>
 
               {/* Small print — the app equivalent of the site footer */}
               <div className="mt-8 px-4">
