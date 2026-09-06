@@ -2,7 +2,15 @@
 
 import { useRef, useState } from "react";
 import { Order } from "@/types";
-import { money, num, orderNo, shortDate, shortTime, whatsAppShareUrl } from "@/lib/format";
+import {
+  canWhatsApp,
+  money,
+  num,
+  orderNo,
+  shortDate,
+  shortTime,
+  whatsAppOrderUrl,
+} from "@/lib/format";
 import { Printer, ArrowLeft, MessageCircle, Download } from "lucide-react";
 import { useI18n } from "@/lib/LanguageProvider";
 
@@ -240,7 +248,7 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
           </button>
           {!pending && (
             <a
-              href={whatsAppShareUrl(order)}
+              href={whatsAppOrderUrl(order)}
               target="_blank"
               rel="noopener noreferrer"
               className="flex h-12 items-center justify-center gap-2.5 rounded-md bg-[#25d366]
@@ -248,7 +256,9 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
                          shadow-[0_10px_24px_-10px_#25d366] transition hover:brightness-95 active:scale-[0.99]"
             >
               <MessageCircle className="h-4 w-4" />
-              {t("receipt.whatsapp")}
+              {canWhatsApp(order.customer_phone)
+                ? t("orders.whatsappCustomer")
+                : t("receipt.whatsapp")}
             </a>
           )}
           <button

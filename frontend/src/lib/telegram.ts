@@ -18,7 +18,7 @@
 
 import { getSetting, getStringList, setStringList, setSetting } from "./settings";
 import type { Consultation, Order } from "@/types";
-import { mapsLink } from "./format";
+import { canWhatsApp, mapsLink, waNumber } from "./format";
 
 const API = "https://api.telegram.org";
 
@@ -221,11 +221,17 @@ export function orderToTelegramHtml(order: Order): string {
   if (order.customer_name || order.customer_phone || order.customer_location) {
     lines.push("", "<b>التوصيل:</b>");
     if (order.customer_name) lines.push(`👤 ${esc(order.customer_name)}`);
-    if (order.customer_phone)
+    if (order.customer_phone) {
       // Tappable: a driver should be able to ring the customer from here.
       lines.push(
         `📞 <a href="tel:${encodeURIComponent(order.customer_phone)}">${esc(order.customer_phone)}</a>`,
       );
+      // …and message them, which is how most of them would rather be reached.
+      if (canWhatsApp(order.customer_phone))
+        lines.push(
+          `💬 <a href="https://wa.me/${waNumber(order.customer_phone)}">واتساب</a>`,
+        );
+    }
     if (order.customer_location) {
       lines.push(`📍 ${esc(order.customer_location)}`);
       lines.push(`🗺️ <a href="${esc(mapsLink(order.customer_location))}">فتح الخريطة</a>`);
@@ -362,6 +368,9 @@ export function consultationToTelegramHtml(c: Consultation): string {
     // Tappable: whoever picks this up should be able to ring from here.
     `📞 <a href="tel:${encodeURIComponent(c.phone)}">${esc(c.phone)}</a>`,
   ];
+
+  if (canWhatsApp(c.phone))
+    lines.push(`💬 <a href="https://wa.me/${waNumber(c.phone)}">واتساب</a>`);
 
   if (c.age.trim()) lines.push(`🎂 العمر: ${esc(c.age.trim())}`);
   lines.push(`🧴 نوع البشرة: ${esc(SKIN_TYPE_AR[c.skin_type] ?? c.skin_type)}`);

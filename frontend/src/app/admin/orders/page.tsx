@@ -5,12 +5,14 @@ import Link from "next/link";
 import { Order } from "@/types";
 import { fetchOrders, updateOrder, deleteOrder } from "@/lib/api";
 import {
+  canWhatsApp,
   mapsLink,
   money,
   orderNo,
   shortDate,
   shortTime,
-  whatsAppShareUrl,
+  whatsAppOrderUrl,
+  whatsAppTo,
 } from "@/lib/format";
 import {
   ChevronRight,
@@ -268,6 +270,27 @@ export default function AdminOrdersPage() {
                               {order.customer_phone}
                             </a>
                           )}
+                          {canWhatsApp(order.customer_phone) && (
+                            <a
+                              href={whatsAppTo(
+                                order.customer_phone,
+                                order.customer_name.trim()
+                                  ? t("orders.waGreeting", {
+                                      name: order.customer_name.trim(),
+                                      no: orderNo(order.id),
+                                    })
+                                  : t("orders.waGreetingAnon", {
+                                      no: orderNo(order.id),
+                                    }),
+                              )}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex h-7 w-fit items-center gap-1.5 rounded-md bg-[#25d366] px-2.5 text-[11px] font-semibold text-[#08301b] transition hover:brightness-95 active:scale-[0.98]"
+                            >
+                              <MessageCircle className="h-3 w-3 shrink-0" />
+                              {t("orders.whatsapp")}
+                            </a>
+                          )}
                           {order.customer_location && (
                             <div className="flex items-start gap-1.5">
                               <MapPin className="mt-0.5 h-3 w-3 shrink-0 text-ink-3" />
@@ -366,13 +389,15 @@ export default function AdminOrdersPage() {
                             {t("orders.receipt")}
                           </button>
                           <a
-                            href={whatsAppShareUrl(order)}
+                            href={whatsAppOrderUrl(order)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex h-9 items-center gap-2 rounded-md bg-[#25d366] px-3.5 text-[13px] font-semibold text-[#08301b] transition hover:brightness-95 active:scale-[0.98]"
                           >
                             <MessageCircle className="h-3.5 w-3.5" />
-                            {t("receipt.whatsapp")}
+                            {canWhatsApp(order.customer_phone)
+                              ? t("orders.whatsappCustomer")
+                              : t("receipt.whatsapp")}
                           </a>
                         </>
                       )}

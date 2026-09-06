@@ -123,14 +123,37 @@ export function whatsAppShareUrl(order: Order): string {
 }
 
 /**
- * A WhatsApp link that opens a chat with one number, with a message ready to
- * send. wa.me wants the number in full international form and digits only, so
- * a local Iraqi 07XX… is promoted to 9647XX…; a number already carrying its
+ * A phone number as wa.me wants it: digits only, in full international form.
+ * A local Iraqi 07XX… is promoted to 9647XX…; a number already carrying its
  * country code is left as it is.
  */
-export function whatsAppTo(phone: string, text: string): string {
+export function waNumber(phone: string): string {
   let digits = (phone.match(/\d/g) ?? []).join("");
   if (digits.startsWith("00")) digits = digits.slice(2);
   if (digits.startsWith("0")) digits = `964${digits.slice(1)}`;
-  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+  return digits;
+}
+
+/** Whether a number carries enough digits to open a chat with — checkout's rule. */
+export function canWhatsApp(phone: string | null | undefined): boolean {
+  return (phone?.match(/\d/g)?.length ?? 0) >= 7;
+}
+
+/**
+ * A WhatsApp link that opens a chat with one number, with a message ready to
+ * send.
+ */
+export function whatsAppTo(phone: string, text: string): string {
+  return `https://wa.me/${waNumber(phone)}?text=${encodeURIComponent(text)}`;
+}
+
+/**
+ * The receipt on its way to the customer's own chat. Falls back to WhatsApp's
+ * "send to who?" chooser when the order carries no number to open one with —
+ * a sale rung up at the counter has nobody to reach.
+ */
+export function whatsAppOrderUrl(order: Order): string {
+  return canWhatsApp(order.customer_phone)
+    ? whatsAppTo(order.customer_phone, orderToWhatsAppText(order))
+    : whatsAppShareUrl(order);
 }
