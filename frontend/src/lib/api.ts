@@ -9,6 +9,9 @@ import {
   ProductCategory,
   Order,
   OrderCreate,
+  Consultation,
+  ConsultationCreate,
+  ConsultationStatus,
 } from "@/types";
 import { tt } from "./i18n";
 import { saveMyOrder } from "./myOrders";
@@ -283,4 +286,48 @@ export async function trackOrder(
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(await readError(res, tt("err.lookupFailed")));
   return res.json();
+}
+
+// ── Consultations (shared database via /api) ────────────────────────
+
+/** Ask for a skincare consultation (public — the home screen's form). */
+export async function createConsultation(
+  input: ConsultationCreate,
+): Promise<Consultation> {
+  const res = await fetch("/api/consultations", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new Error(await readError(res, tt("err.sendConsult")));
+  return res.json();
+}
+
+/** Admin: every request, newest first. */
+export async function fetchConsultations(): Promise<Consultation[]> {
+  const res = await fetch("/api/consultations", { cache: "no-store" });
+  bounceIfUnauthorized(res);
+  if (!res.ok) throw new Error(await readError(res, tt("err.loadConsults")));
+  return res.json();
+}
+
+/** Admin: mark one handled, or put it back in the queue. */
+export function updateConsultationStatus(
+  id: number,
+  status: ConsultationStatus,
+): Promise<Consultation> {
+  return adminWrite<Consultation>(
+    `/api/consultations/${id}`,
+    "PUT",
+    tt("err.updateConsult"),
+    { status },
+  );
+}
+
+export function deleteConsultation(id: number): Promise<void> {
+  return adminWrite<void>(
+    `/api/consultations/${id}`,
+    "DELETE",
+    tt("err.deleteConsult"),
+  );
 }

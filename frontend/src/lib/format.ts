@@ -121,3 +121,16 @@ export function orderToWhatsAppText(order: Order): string {
 export function whatsAppShareUrl(order: Order): string {
   return `https://wa.me/?text=${encodeURIComponent(orderToWhatsAppText(order))}`;
 }
+
+/**
+ * A WhatsApp link that opens a chat with one number, with a message ready to
+ * send. wa.me wants the number in full international form and digits only, so
+ * a local Iraqi 07XX… is promoted to 9647XX…; a number already carrying its
+ * country code is left as it is.
+ */
+export function whatsAppTo(phone: string, text: string): string {
+  let digits = (phone.match(/\d/g) ?? []).join("");
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  if (digits.startsWith("0")) digits = `964${digits.slice(1)}`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+}

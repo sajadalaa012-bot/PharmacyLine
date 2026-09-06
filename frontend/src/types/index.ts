@@ -343,3 +343,79 @@ export interface Order extends CustomerDetails {
   status: OrderStatus;
   items: OrderItem[];
 }
+
+// ── Skincare consultation ───────────────────────────────────────────
+//
+// A shopper fills the form on the home screen and the shop calls them back.
+// Nothing here is tied to an order or to a product: it is an enquiry, and the
+// only thing it has to carry is enough to hold a conversation.
+
+/** The five skin types the form offers. Stored as these keys, never as a
+ *  translated label — the shop reads Arabic and the admin may be in English. */
+export const SKIN_TYPES = [
+  "normal",
+  "dry",
+  "oily",
+  "combination",
+  "sensitive",
+] as const;
+export type SkinType = (typeof SKIN_TYPES)[number];
+
+/** What the shopper wants help with. Any number of them, including none. */
+export const SKIN_CONCERNS = [
+  "acne",
+  "darkSpots",
+  "ageing",
+  "dryness",
+  "sensitivity",
+  "pores",
+  "sunDamage",
+] as const;
+export type SkinConcern = (typeof SKIN_CONCERNS)[number];
+
+export type ConsultationStatus = "new" | "done";
+
+/** What the storefront sends. */
+export interface ConsultationCreate {
+  name: string;
+  phone: string;
+  /** Free text rather than a number: "23", "early 30s" and "" are all fine. */
+  age: string;
+  skin_type: SkinType | "";
+  concerns: SkinConcern[];
+  notes: string;
+}
+
+/**
+ * A request as it comes back out of the database. `skin_type` narrows: the
+ * form starts empty and the create type says so, but validation refuses a
+ * request without one, so a saved consultation always has it.
+ */
+export interface Consultation extends Omit<ConsultationCreate, "skin_type"> {
+  id: number;
+  created_at: string;
+  status: ConsultationStatus;
+  skin_type: SkinType;
+}
+
+export const EMPTY_CONSULTATION: ConsultationCreate = {
+  name: "",
+  phone: "",
+  age: "",
+  skin_type: "",
+  concerns: [],
+  notes: "",
+};
+
+/**
+ * True once the form carries enough for the shop to act on it: someone to ask
+ * for, a number to reach them on, and what their skin is like. The phone rule
+ * is the one checkout uses — see hasCustomerDetails.
+ */
+export function hasConsultationDetails(c: ConsultationCreate): boolean {
+  return (
+    c.name.trim() !== "" &&
+    (c.phone.match(/\d/g)?.length ?? 0) >= 7 &&
+    c.skin_type !== ""
+  );
+}

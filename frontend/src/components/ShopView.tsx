@@ -20,6 +20,7 @@ import {
   SlidersHorizontal,
   ChevronDown,
 } from "lucide-react";
+import ConsultationForm from "./ConsultationForm";
 import HomeCarousel from "./HomeCarousel";
 import ProductCard from "./ProductCard";
 import ProductDetailModal from "./ProductDetailModal";
@@ -535,6 +536,12 @@ export default function ShopView() {
                 </section>
               )}
 
+              {/* The shop's own offer to help, under the products it is
+                  made of. */}
+              <div className="mt-8 px-4">
+                <ConsultationForm />
+              </div>
+
               {/* Small print — the app equivalent of the site footer */}
               <div className="mt-8 px-4">
                 <p className="text-center text-[11px] text-ink-3">
@@ -661,6 +668,10 @@ export default function ShopView() {
                 onBrowse={() => goTab("browse")}
                 onOpenProduct={setDetailProduct}
               />
+
+              <div className="mt-8">
+                <ConsultationForm />
+              </div>
             </div>
           </div>
         </section>

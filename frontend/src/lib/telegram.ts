@@ -17,7 +17,7 @@
 // swallowed: a shop whose Telegram is misconfigured still takes orders.
 
 import { getSetting, getStringList, setStringList, setSetting } from "./settings";
-import type { Order } from "@/types";
+import type { Consultation, Order } from "@/types";
 import { mapsLink } from "./format";
 
 const API = "https://api.telegram.org";
@@ -320,5 +320,77 @@ export async function notifyNewOrder(order: Order): Promise<void> {
     }
   } catch (err) {
     console.error("Telegram notify failed:", err);
+  }
+}
+
+// ── Consultations ───────────────────────────────────────────────────
+
+/** Arabic labels for the form's stored keys, since the shop reads Arabic. */
+const SKIN_TYPE_AR: Record<string, string> = {
+  normal: "عادية",
+  dry: "جافة",
+  oily: "دهنية",
+  combination: "مختلطة",
+  sensitive: "حساسة",
+};
+
+const CONCERN_AR: Record<string, string> = {
+  acne: "حب الشباب",
+  darkSpots: "التصبغات والبقع الداكنة",
+  ageing: "التجاعيد وعلامات التقدّم بالعمر",
+  dryness: "الجفاف",
+  sensitivity: "الاحمرار والحساسية",
+  pores: "المسام الواسعة",
+  sunDamage: "أضرار الشمس",
+};
+
+/**
+ * A consultation request as a Telegram message. Short by nature — the whole
+ * point is a name and a number somebody in the shop can ring back.
+ */
+export function consultationToTelegramHtml(c: Consultation): string {
+  const d = new Date(c.created_at);
+  const lines: string[] = [
+    `💬 <b>طلب استشارة — ${esc("velina")}</b>`,
+    `رقم الطلب: <code>${String(c.id).padStart(5, "0")}</code>`,
+    `التاريخ: ${d.toLocaleDateString("en-GB")} — ${d.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })}`,
+    "",
+    `👤 ${esc(c.name)}`,
+    // Tappable: whoever picks this up should be able to ring from here.
+    `📞 <a href="tel:${encodeURIComponent(c.phone)}">${esc(c.phone)}</a>`,
+  ];
+
+  if (c.age.trim()) lines.push(`🎂 العمر: ${esc(c.age.trim())}`);
+  lines.push(`🧴 نوع البشرة: ${esc(SKIN_TYPE_AR[c.skin_type] ?? c.skin_type)}`);
+
+  if (c.concerns.length > 0) {
+    lines.push("", "<b>ما تريد المساعدة به:</b>");
+    for (const k of c.concerns) lines.push(`▪️ ${esc(CONCERN_AR[k] ?? k)}`);
+  }
+
+  if (c.notes.trim()) lines.push("", `📝 ${esc(c.notes.trim())}`);
+
+  return lines.join("\n");
+}
+
+/**
+ * Announce a consultation request. Safe to call and forget, like
+ * notifyNewOrder: the request is already saved, and a Telegram that is down
+ * or unconfigured must never cost the shop an enquiry.
+ */
+export async function notifyNewConsultation(c: Consultation): Promise<void> {
+  try {
+    const outcomes = await sendToAll(consultationToTelegramHtml(c));
+    for (const o of outcomes) {
+      if (!o.ok)
+        console.error(
+          `Telegram: consultation ${c.id} → chat ${o.chatId}: ${o.error}`,
+        );
+    }
+  } catch (err) {
+    console.error("Telegram consultation notify failed:", err);
   }
 }

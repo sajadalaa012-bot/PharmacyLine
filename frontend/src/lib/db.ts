@@ -230,6 +230,27 @@ const SCHEMA_SQL = `
     CREATE INDEX IF NOT EXISTS idx_products_product_category
       ON products (product_category_id);
 
+    -- Skincare consultation requests taken on the storefront's home screen.
+    -- An enquiry, not an order: nothing here references a product or a cart,
+    -- and the shop's side of it is a phone call. concerns is a JSON array of
+    -- the keys in SKIN_CONCERNS, for the same reason products.variants is
+    -- JSON — only ever read and written whole, never queried across rows.
+    CREATE TABLE IF NOT EXISTS consultations (
+      id         BIGSERIAL PRIMARY KEY,
+      name       TEXT NOT NULL,
+      phone      TEXT NOT NULL,
+      age        TEXT NOT NULL DEFAULT '',
+      skin_type  TEXT NOT NULL DEFAULT '',
+      concerns   JSONB NOT NULL DEFAULT '[]'::jsonb,
+      notes      TEXT NOT NULL DEFAULT '',
+      status     TEXT NOT NULL DEFAULT 'new'
+                 CHECK (status IN ('new','done')),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_consultations_created_at
+      ON consultations (created_at DESC);
+
     -- The pharmacy directory and its visit map were removed from the admin.
     -- Their tables are deliberately left alone rather than dropped here: a
     -- schema bootstrap is the wrong place to destroy data someone typed in.
