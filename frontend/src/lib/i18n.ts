@@ -355,13 +355,10 @@ const en = {
   "home.next": "Next slide",
   "home.goTo": "Go to slide {n}",
   "home.viewProduct": "View product",
-  "home.collectionTitle": "Everything in one place",
-  "home.collectionBody":
-    "Browse by brand or by what a product does, tap to see the detail, and build your order in a few taps.",
+  "home.seeAll": "See all",
   "home.statProducts": "Products",
   "home.statBrands": "Brands",
   "home.statCategories": "Categories",
-  "home.statOffers": "On offer",
 
   // ── Searchable dropdown ──
   "dropdown.search": "Search…",
@@ -839,13 +836,10 @@ const ar: Record<MessageKey, string> = {
   "home.next": "الشريحة التالية",
   "home.goTo": "الانتقال إلى الشريحة {n}",
   "home.viewProduct": "عرض المنتج",
-  "home.collectionTitle": "كل ما تحتاجه في مكان واحد",
-  "home.collectionBody":
-    "تصفّح حسب الماركة أو حسب نوع المنتج، اضغط لرؤية التفاصيل، وجهّز طلبك بلمسات قليلة.",
+  "home.seeAll": "عرض الكل",
   "home.statProducts": "منتجات",
   "home.statBrands": "ماركات",
   "home.statCategories": "أقسام",
-  "home.statOffers": "عروض",
 
   // ── Searchable dropdown ──
   "dropdown.search": "بحث…",

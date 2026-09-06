@@ -33,6 +33,9 @@ import { useI18n } from "@/lib/LanguageProvider";
 import { localized, MessageKey } from "@/lib/i18n";
 import { num } from "@/lib/format";
 
+/** Products on the home screen's shelf — a taste of the catalogue, not it. */
+const HOME_ITEMS = 6;
+
 /** The tappable heading that opens or shuts one filter section. */
 function FilterHeader({
   label,
@@ -192,6 +195,14 @@ export default function ShopView() {
   const cart = useCart(load);
 
   const allProducts = categories.flatMap((cat) => cat.products);
+
+  // The home screen shows a handful of the catalogue rather than none of it.
+  // What is on offer leads, since that is what the deck above has just been
+  // advertising; the rest of the row is whatever comes next.
+  const featured = [
+    ...allProducts.filter(isDiscounted),
+    ...allProducts.filter((p) => !isDiscounted(p)),
+  ].slice(0, HOME_ITEMS);
   const byBrand =
     activeCategory === "all"
       ? allProducts
@@ -492,12 +503,44 @@ export default function ShopView() {
 
             {/* Sheet — the rest of the home screen rides up over the canvas */}
             <div className="home-sheet relative -mt-7 bg-paper pb-8 pt-6">
-            {/* Small print — the app equivalent of the site footer */}
-            <div className="px-4">
-              <p className="text-center text-[11px] text-ink-3">
-                {t("shop.copyright")}
-              </p>
-            </div>
+              {/* A few real products, so the home screen shows the shop
+                  rather than only describing it. */}
+              {featured.length > 0 && (
+                <section className="px-4">
+                  <div className="flex items-baseline justify-between gap-4">
+                    <h2 className="font-display text-lg font-semibold tracking-tight text-ink">
+                      {t("shop.featured")}
+                    </h2>
+                    <button
+                      onClick={() => pickCategory("all")}
+                      className="text-xs font-semibold text-brand active:scale-95"
+                    >
+                      {t("home.seeAll")}
+                    </button>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-3">
+                    {featured.map((product, i) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        qtyOf={(vid) => cart.qtyOf(product.id, vid, false)}
+                        mode="shop"
+                        onAdd={cart.add}
+                        onRemove={cart.remove}
+                        onOpenDetail={setDetailProduct}
+                        index={i}
+                      />
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Small print — the app equivalent of the site footer */}
+              <div className="mt-8 px-4">
+                <p className="text-center text-[11px] text-ink-3">
+                  {t("shop.copyright")}
+                </p>
+              </div>
             </div>
           </div>
         )}

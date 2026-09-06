@@ -9,23 +9,21 @@ import {
   SlidersHorizontal,
   Tag,
 } from "lucide-react";
-import { Product, discountPercent, isDiscounted, priceRange } from "@/types";
+import { Product, discountPercent, isDiscounted } from "@/types";
 import { useI18n } from "@/lib/LanguageProvider";
 import { localized } from "@/lib/i18n";
 import { num } from "@/lib/format";
+import { PROMO_PERCENT } from "./OfferPopup";
 
 /** How far a finger has to travel before it counts as a swipe, in px. */
 const SWIPE_PX = 48;
-/** At most this many offers get a slide — past that it stops being a deck. */
-const MAX_OFFERS = 3;
+/** Photographs on the offer slide. Enough to show a spread, few enough to read. */
+const OFFER_PHOTOS = 3;
 
-type Slide =
-  | { kind: "intro" }
-  | { kind: "offer"; product: Product }
-  | { kind: "collection" };
+type Slide = { kind: "promo" } | { kind: "about" };
 
 interface HomeCarouselProps {
-  /** Everything in the catalogue — the deck picks its own offers out of it. */
+  /** Everything in the catalogue — the deck picks its own photos out of it. */
   products: Product[];
   brandCount: number;
   categoryCount: number;
@@ -36,16 +34,15 @@ interface HomeCarouselProps {
 }
 
 /**
- * The home screen's opening deck: what the shop is, what is discounted right
- * now, and what is inside.
+ * The two things the home screen opens with: the discount that is running,
+ * and a word on what the shop stocks.
  *
- * The offer slides are built from the catalogue rather than written by hand,
- * so the deck can only ever advertise a discount that exists — steepest
- * first. With nothing on offer it quietly becomes two slides.
+ * The offer slide is dropped when nothing is actually discounted — an
+ * advertisement for offers that do not exist is worse than no advertisement,
+ * and it is the same rule the popup follows.
  *
- * It never moves on its own: the shopper turns it, by swipe, arrow, dot or
- * arrow key. A slide therefore holds for as long as it is being read, and
- * nothing is ever pulled out from under someone mid-sentence.
+ * The deck never moves on its own: the shopper turns it, by swipe, arrow, dot
+ * or arrow key. A slide holds for as long as it is being read.
  */
 export default function HomeCarousel({
   products,
@@ -60,13 +57,11 @@ export default function HomeCarousel({
 
   const offers = products
     .filter(isDiscounted)
-    .sort((a, b) => discountPercent(b) - discountPercent(a))
-    .slice(0, MAX_OFFERS);
+    .sort((a, b) => discountPercent(b) - discountPercent(a));
 
   const slides: Slide[] = [
-    { kind: "intro" },
-    ...offers.map((product): Slide => ({ kind: "offer", product })),
-    { kind: "collection" },
+    ...(offers.length > 0 ? [{ kind: "promo" } as Slide] : []),
+    { kind: "about" },
   ];
   const count = slides.length;
 
@@ -120,8 +115,6 @@ export default function HomeCarousel({
     }
   };
 
-  const offerCount = products.filter(isDiscounted).length;
-
   return (
     <section
       aria-roledescription="carousel"
@@ -149,33 +142,23 @@ export default function HomeCarousel({
         >
           {slides.map((slide, i) => (
             <div
-              key={
-                slide.kind === "offer" ? `offer-${slide.product.id}` : slide.kind
-              }
+              key={slide.kind}
               className="w-full shrink-0"
               aria-hidden={i !== index}
               inert={i !== index}
             >
-              {slide.kind === "intro" && (
-                <IntroSlide
-                  products={products}
-                  onShopAll={onShopAll}
-                  onBrowse={onBrowse}
-                />
-              )}
-              {slide.kind === "offer" && (
-                <OfferSlide
-                  product={slide.product}
+              {slide.kind === "promo" ? (
+                <PromoSlide
+                  offers={offers}
                   onShopOffers={onShopOffers}
-                  onOpen={() => onOpenProduct(slide.product)}
+                  onOpenProduct={onOpenProduct}
                 />
-              )}
-              {slide.kind === "collection" && (
-                <CollectionSlide
-                  productCount={products.length}
+              ) : (
+                <AboutSlide
+                  products={products}
                   brandCount={brandCount}
                   categoryCount={categoryCount}
-                  offerCount={offerCount}
+                  onShopAll={onShopAll}
                   onBrowse={onBrowse}
                 />
               )}
@@ -202,9 +185,9 @@ export default function HomeCarousel({
           </button>
 
           <div className="flex items-center gap-2">
-            {slides.map((_, i) => (
+            {slides.map((slide, i) => (
               <button
-                key={i}
+                key={slide.kind}
                 type="button"
                 onClick={() => go(i)}
                 aria-label={t("home.goTo", { n: i + 1 })}
@@ -232,7 +215,7 @@ export default function HomeCarousel({
   );
 }
 
-/** The frame every slide is cut to: copy on one side, a picture on the other. */
+/** The frame both slides are cut to: copy on one side, pictures on the other. */
 function SlideFrame({
   children,
   aside,
@@ -260,7 +243,7 @@ function Plate({
 }) {
   return (
     <div
-      className={`flex items-center justify-center overflow-hidden rounded-2xl bg-white p-4 ${className}`}
+      className={`flex items-center justify-center overflow-hidden rounded-2xl bg-white p-3 ${className}`}
     >
       {product.image_url ? (
         /* eslint-disable-next-line @next/next/no-img-element */
@@ -271,26 +254,103 @@ function Plate({
           className="max-h-full max-w-full object-contain"
         />
       ) : (
-        <Package className="h-10 w-10 text-line-strong" />
+        <Package className="h-8 w-8 text-line-strong" />
       )}
     </div>
   );
 }
 
-/** Slide one: what this shop is, and the two ways into it. */
-function IntroSlide({
+/**
+ * The discount, as the shop advertises it. The headline figure is the one the
+ * popup uses — see PROMO_PERCENT — so the two never disagree about what is
+ * being claimed. The photographs are the steepest discounts actually running,
+ * each carrying its own real percentage.
+ */
+function PromoSlide({
+  offers,
+  onShopOffers,
+  onOpenProduct,
+}: {
+  offers: Product[];
+  onShopOffers: () => void;
+  onOpenProduct: (product: Product) => void;
+}) {
+  const { t, lang } = useI18n();
+  const shown = offers.slice(0, OFFER_PHOTOS);
+
+  return (
+    <SlideFrame
+      aside={
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+          {shown.map((p) => {
+            const name = localized(p, "name", lang);
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => onOpenProduct(p)}
+                aria-label={t("product.viewDetails", { name })}
+                className="group/plate relative cursor-zoom-in"
+              >
+                <Plate
+                  product={p}
+                  name={name}
+                  className="h-24 transition-transform duration-300 group-hover/plate:scale-[1.03] sm:h-32"
+                />
+                <span className="label-caps absolute -end-1 -top-1.5 rounded-full bg-rose px-1.5 py-0.5 text-[10px] text-paper shadow-md">
+                  {t("offer.percentOff", { n: discountPercent(p) })}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      }
+    >
+      <span className="label-caps flex items-center gap-1.5 text-rose">
+        <Tag className="h-3.5 w-3.5" />
+        {t("promo.eyebrow")}
+      </span>
+      <h2 className="mt-2 font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-ink sm:text-4xl lg:text-5xl">
+        {t("promo.title", { n: PROMO_PERCENT })}
+      </h2>
+      <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-ink-2 sm:mt-5 sm:text-[15px]">
+        {t("promo.body")}
+      </p>
+      <button
+        onClick={onShopOffers}
+        className="group mt-5 flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:mt-7 sm:h-12 sm:px-7"
+      >
+        {t("promo.cta")}
+        <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
+      </button>
+    </SlideFrame>
+  );
+}
+
+/** What the shop stocks, in a sentence and four numbers. */
+function AboutSlide({
   products,
+  brandCount,
+  categoryCount,
   onShopAll,
   onBrowse,
 }: {
   products: Product[];
+  brandCount: number;
+  categoryCount: number;
   onShopAll: () => void;
   onBrowse: () => void;
 }) {
   const { t, lang } = useI18n();
-  // Three real products stand in for the catalogue. Ones with a picture only
-  // — an empty plate says nothing about what is in the shop.
+  // Real products stand in for the catalogue — ones with a picture only, since
+  // an empty plate says nothing about what is in the shop.
   const shelf = products.filter((p) => p.image_url).slice(0, 3);
+  // A count nobody has filled in yet is left off rather than shown as zero.
+  const stats = [
+    { n: products.length, label: t("home.statProducts") },
+    { n: brandCount, label: t("home.statBrands") },
+    { n: categoryCount, label: t("home.statCategories") },
+  ].filter((s) => s.n > 0);
 
   return (
     <SlideFrame
@@ -307,7 +367,7 @@ function IntroSlide({
             ))}
           </div>
         ) : (
-          <div className="h-24 rounded-2xl bg-sunken sm:h-40" />
+          <div className="h-24 rounded-2xl bg-sunken sm:h-32" />
         )
       }
     >
@@ -320,7 +380,24 @@ function IntroSlide({
       <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-ink-2 sm:mt-5 sm:text-[15px]">
         {t("shop.lede")}
       </p>
-      <div className="mt-5 flex flex-wrap items-center gap-2.5 sm:mt-7 sm:gap-3">
+
+      {stats.length > 0 && (
+        <ul className="mt-4 flex flex-wrap items-center gap-2">
+          {stats.map((s) => (
+            <li
+              key={s.label}
+              className="rounded-full bg-sunken px-3 py-1.5 text-[12px] text-ink-2"
+            >
+              <span className="font-semibold tabular-nums text-ink">
+                {num(s.n)}
+              </span>{" "}
+              {s.label}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="mt-5 flex flex-wrap items-center gap-2.5 sm:mt-6 sm:gap-3">
         <button
           onClick={onShopAll}
           className="group flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:h-12 sm:px-7"
@@ -336,147 +413,6 @@ function IntroSlide({
           {t("shop.ctaBrowse")}
         </button>
       </div>
-    </SlideFrame>
-  );
-}
-
-/** One real discount, priced honestly: what it was, and what it is. */
-function OfferSlide({
-  product,
-  onShopOffers,
-  onOpen,
-}: {
-  product: Product;
-  onShopOffers: () => void;
-  onOpen: () => void;
-}) {
-  const { t, lang } = useI18n();
-  const name = localized(product, "name", lang);
-  const off = discountPercent(product);
-  const { min } = priceRange(product);
-  const was = product.old_price as number;
-
-  return (
-    <SlideFrame
-      aside={
-        <button
-          type="button"
-          onClick={onOpen}
-          aria-label={t("product.viewDetails", { name })}
-          className="group/plate relative block w-full cursor-zoom-in"
-        >
-          <Plate
-            product={product}
-            name={name}
-            className="h-40 w-full transition-transform duration-300 group-hover/plate:scale-[1.02] sm:h-56"
-          />
-          <span className="label-caps absolute -end-1 -top-2 rounded-full bg-rose px-2.5 py-1 text-[11px] text-paper shadow-md">
-            {t("offer.percentOff", { n: off })}
-          </span>
-        </button>
-      }
-    >
-      <span className="label-caps flex items-center gap-1.5 text-rose">
-        <Tag className="h-3.5 w-3.5" />
-        {t("promo.eyebrow")}
-      </span>
-      <h2 className="mt-2 font-display text-[22px] font-semibold leading-tight tracking-tight text-ink sm:text-3xl lg:text-4xl">
-        <bdi>{name}</bdi>
-      </h2>
-
-      <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span className="font-display text-2xl font-semibold tabular-nums text-rose sm:text-3xl">
-          {num(min)}
-          <span className="ms-1 font-sans text-[11px] font-semibold tracking-[0.08em] text-rose/70">
-            {t("common.currency")}
-          </span>
-        </span>
-        <span className="font-display text-base text-ink-3 line-through decoration-rose/70 decoration-[1.5px] tabular-nums">
-          {num(was)}
-        </span>
-      </div>
-
-      <p className="mt-2 text-[13px] leading-relaxed text-ink-2 sm:text-[14px]">
-        {t("offer.youSave", {
-          n: num(was - product.price),
-          currency: t("common.currency"),
-        })}
-      </p>
-
-      <div className="mt-5 flex flex-wrap items-center gap-2.5 sm:mt-6 sm:gap-3">
-        <button
-          onClick={onShopOffers}
-          className="group flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:h-12 sm:px-7"
-        >
-          {t("promo.cta")}
-          <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
-        </button>
-        <button
-          onClick={onOpen}
-          className="flex h-11 items-center rounded-full border border-line-strong px-5 text-sm font-semibold text-ink transition hover:bg-sunken active:scale-[0.98] sm:h-12 sm:px-6"
-        >
-          {t("home.viewProduct")}
-        </button>
-      </div>
-    </SlideFrame>
-  );
-}
-
-/** The closing slide: the size of the shop, in its own numbers. */
-function CollectionSlide({
-  productCount,
-  brandCount,
-  categoryCount,
-  offerCount,
-  onBrowse,
-}: {
-  productCount: number;
-  brandCount: number;
-  categoryCount: number;
-  offerCount: number;
-  onBrowse: () => void;
-}) {
-  const { t } = useI18n();
-  // A count nobody has filled in yet is left off rather than shown as zero.
-  const stats = [
-    { n: productCount, label: t("home.statProducts") },
-    { n: brandCount, label: t("home.statBrands") },
-    { n: categoryCount, label: t("home.statCategories") },
-    { n: offerCount, label: t("home.statOffers") },
-  ].filter((s) => s.n > 0);
-
-  return (
-    <SlideFrame
-      aside={
-        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-          {stats.map((s) => (
-            <div
-              key={s.label}
-              className="rounded-2xl bg-sunken px-4 py-4 text-center sm:py-6"
-            >
-              <p className="font-display text-2xl font-semibold tabular-nums text-brand sm:text-3xl">
-                {num(s.n)}
-              </p>
-              <p className="label-caps mt-1 text-ink-3">{s.label}</p>
-            </div>
-          ))}
-        </div>
-      }
-    >
-      <span className="label-caps text-brand">{t("shop.featured")}</span>
-      <h2 className="mt-2 font-display text-[24px] font-semibold leading-tight tracking-tight text-ink sm:text-4xl">
-        {t("home.collectionTitle")}
-      </h2>
-      <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-ink-2 sm:mt-5 sm:text-[15px]">
-        {t("home.collectionBody")}
-      </p>
-      <button
-        onClick={onBrowse}
-        className="group mt-5 flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:mt-7 sm:h-12 sm:px-7"
-      >
-        {t("shop.ctaBrowse")}
-        <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
-      </button>
     </SlideFrame>
   );
 }
