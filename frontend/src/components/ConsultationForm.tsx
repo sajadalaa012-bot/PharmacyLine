@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Loader2, Sparkles } from "lucide-react";
+import { Check, Loader2, Stethoscope } from "lucide-react";
 import {
   ConsultationCreate,
   EMPTY_CONSULTATION,
@@ -118,7 +118,7 @@ export default function ConsultationForm() {
   return (
     <section className="rounded-3xl border border-line bg-surface p-5 shadow-[0_20px_50px_-32px_rgba(27,39,51,0.5)] sm:p-8">
       <span className="label-caps flex items-center gap-1.5 text-brand">
-        <Sparkles className="h-3.5 w-3.5" />
+        <Stethoscope className="h-3.5 w-3.5" />
         {t("consult.eyebrow")}
       </span>
       <h2 className="mt-2 font-display text-[22px] font-semibold leading-tight tracking-tight text-ink sm:text-3xl">

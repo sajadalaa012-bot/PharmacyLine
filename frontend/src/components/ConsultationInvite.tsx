@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Stethoscope } from "lucide-react";
 import { useI18n } from "@/lib/LanguageProvider";
 
 /**
@@ -25,7 +25,7 @@ export default function ConsultationInvite({
                  transition hover:border-brand/50 hover:bg-brand/10 active:scale-[0.99] sm:p-6"
     >
       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand text-on-brand sm:h-12 sm:w-12">
-        <Sparkles className="h-5 w-5" />
+        <Stethoscope className="h-5 w-5" />
       </span>
 
       <span className="min-w-0 flex-1">
