@@ -17,11 +17,12 @@ import {
   isDiscounted,
   packageContents,
   packageItemCount,
+  HomeDeck,
 } from "@/types";
 import { useI18n } from "@/lib/LanguageProvider";
-import { localized } from "@/lib/i18n";
+import { format, localized } from "@/lib/i18n";
 import { num } from "@/lib/format";
-import { PROMO_PERCENT } from "./OfferPopup";
+
 
 /** How far a finger has to travel sideways before it counts as a swipe, in px. */
 const SWIPE_PX = 48;
@@ -55,8 +56,10 @@ function slideKey(slide: Slide): string {
 interface HomeCarouselProps {
   /** Everything in the catalogue — the deck picks its own photos out of it. */
   products: Product[];
-  /** The packages on sale. Each gets a slide of its own, up to a few. */
+  /** The packages on sale. Each gets a slide of its own. */
   packages: PackageType[];
+  /** The copy the shop has written for the two slides that are not packages. */
+  deck: HomeDeck;
   brandCount: number;
   categoryCount: number;
   onShopAll: () => void;
@@ -87,6 +90,7 @@ interface HomeCarouselProps {
 export default function HomeCarousel({
   products,
   packages,
+  deck,
   brandCount,
   categoryCount,
   onShopAll,
@@ -114,9 +118,11 @@ export default function HomeCarousel({
   // concrete thing to put in front of someone than a percentage — and the
   // general discount ad brings up the rear.
   const slides: Slide[] = [
-    { kind: "about" },
+    ...(deck.brief.enabled ? [{ kind: "about" } as Slide] : []),
     ...promoted.map((pkg): Slide => ({ kind: "package", pkg })),
-    ...(offers.length > 0 ? [{ kind: "promo" } as Slide] : []),
+    ...(deck.offer.enabled && offers.length > 0
+      ? [{ kind: "promo" } as Slide]
+      : []),
   ];
   const count = slides.length;
 
@@ -289,6 +295,7 @@ export default function HomeCarousel({
             >
               {slide.kind === "promo" ? (
                 <PromoSlide
+                  slide={deck.offer}
                   offers={offers}
                   onShopOffers={onShopOffers}
                   onOpenProduct={onOpenProduct}
@@ -304,6 +311,7 @@ export default function HomeCarousel({
                 />
               ) : (
                 <AboutSlide
+                  slide={deck.brief}
                   products={products}
                   brandCount={brandCount}
                   categoryCount={categoryCount}
@@ -417,21 +425,31 @@ function Plate({
 
 /**
  * The discount, as the shop advertises it. The headline figure is the one the
- * popup uses — see PROMO_PERCENT — so the two never disagree about what is
+ * popup uses — both read HomeDeck.offer.percent — so the two never disagree
+ * about what is
  * being claimed. The photographs are the steepest discounts actually running,
  * each carrying its own real percentage.
  */
 function PromoSlide({
+  slide,
   offers,
   onShopOffers,
   onOpenProduct,
 }: {
+  slide: HomeDeck["offer"];
   offers: Product[];
   onShopOffers: () => void;
   onOpenProduct: (product: Product) => void;
 }) {
   const { t, lang } = useI18n();
   const shown = offers.slice(0, OFFER_PHOTOS);
+  // {n} is filled in whether the wording is the shop's or the shipped one, so
+  // a headline it writes can still carry the figure without retyping it.
+  const n = slide.percent;
+  const eyebrow = localized(slide, "eyebrow", lang) || t("promo.eyebrow");
+  const title =
+    format(localized(slide, "title", lang), { n }) || t("promo.title", { n });
+  const body = localized(slide, "body", lang) || t("promo.body");
 
   return (
     <SlideFrame
@@ -463,13 +481,13 @@ function PromoSlide({
     >
       <span className="label-caps flex items-center gap-1.5 text-rose">
         <Tag className="h-3.5 w-3.5" />
-        {t("promo.eyebrow")}
+        {eyebrow}
       </span>
-      <h2 className="mt-2 font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-ink sm:text-4xl lg:text-5xl">
-        {t("promo.title", { n: PROMO_PERCENT })}
+      <h2 className="mt-2 whitespace-pre-line font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-ink sm:text-4xl lg:text-5xl">
+        <bdi>{title}</bdi>
       </h2>
-      <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-ink-2 sm:mt-5 sm:text-[15px]">
-        {t("promo.body")}
+      <p className="mt-3 max-w-lg whitespace-pre-line text-[13px] leading-relaxed text-ink-2 sm:mt-5 sm:text-[15px]">
+        <bdi>{body}</bdi>
       </p>
       <button
         onClick={onShopOffers}
@@ -756,12 +774,14 @@ function PackageSlide({
 
 /** What the shop stocks, in a sentence and four numbers. */
 function AboutSlide({
+  slide,
   products,
   brandCount,
   categoryCount,
   onShopAll,
   onBrowse,
 }: {
+  slide: HomeDeck["brief"];
   products: Product[];
   brandCount: number;
   categoryCount: number;
@@ -769,6 +789,14 @@ function AboutSlide({
   onBrowse: () => void;
 }) {
   const { t, lang } = useI18n();
+  // The shop's own wording where it has written any, the shipped translation
+  // where it has not. See HomeDeck.
+  const eyebrow = localized(slide, "eyebrow", lang) || t("shop.eyebrow");
+  const headline =
+    localized(slide, "title", lang) ||
+    `${t("shop.headline1")}
+${t("shop.headline2")}`;
+  const lede = localized(slide, "body", lang) || t("shop.lede");
   // Real products stand in for the catalogue — ones with a picture only, since
   // an empty plate says nothing about what is in the shop.
   const shelf = products.filter((p) => p.image_url).slice(0, 3);
@@ -798,17 +826,16 @@ function AboutSlide({
         )
       }
     >
-      <span className="label-caps text-brand">{t("shop.eyebrow")}</span>
-      <h2 className="mt-2 font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-ink sm:text-4xl lg:text-5xl">
-        {t("shop.headline1")}
-        <br />
-        {t("shop.headline2")}
+      <span className="label-caps text-brand">{eyebrow}</span>
+      {/* pre-line, so where the headline breaks stays the shop's decision. */}
+      <h2 className="mt-2 whitespace-pre-line font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-ink sm:text-4xl lg:text-5xl">
+        <bdi>{headline}</bdi>
       </h2>
-      <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-ink-2 sm:mt-5 sm:text-[15px]">
-        {t("shop.lede")}
+      <p className="mt-3 max-w-lg whitespace-pre-line text-[13px] leading-relaxed text-ink-2 sm:mt-5 sm:text-[15px]">
+        <bdi>{lede}</bdi>
       </p>
 
-      {stats.length > 0 && (
+      {slide.stats && stats.length > 0 && (
         <ul className="mt-4 flex flex-wrap items-center gap-2">
           {stats.map((s) => (
             <li

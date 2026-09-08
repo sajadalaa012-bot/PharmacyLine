@@ -14,6 +14,7 @@ import {
   ConsultationStatus,
   Package,
   PackageInput,
+  HomeDeck,
 } from "@/types";
 import { tt } from "./i18n";
 import { saveMyOrder } from "./myOrders";
@@ -377,5 +378,24 @@ export function deletePackage(id: number): Promise<void> {
     `/api/packages/${id}`,
     "DELETE",
     tt("err.deletePackage"),
+  );
+}
+
+// ── The home deck (shared database via /api) ────────────────────────
+
+/** The slideshow's copy (public — the storefront reads it with the catalog). */
+export async function fetchHomeDeck(): Promise<HomeDeck> {
+  const res = await fetch("/api/home-deck", { cache: "no-store" });
+  if (!res.ok) throw new Error(await readError(res, tt("err.loadDeck")));
+  return res.json();
+}
+
+/** Admin: replace it. */
+export function updateHomeDeck(deck: HomeDeck): Promise<HomeDeck> {
+  return adminWrite<HomeDeck>(
+    "/api/home-deck",
+    "PUT",
+    tt("err.saveDeck"),
+    deck,
   );
 }

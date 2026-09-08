@@ -10,11 +10,14 @@ import {
   isDiscounted,
   packageLineId,
   packageAsProduct,
+  HomeDeck,
+  DEFAULT_DECK,
 } from "@/types";
 import {
   fetchProducts,
   fetchProductCategories,
   fetchPackages,
+  fetchHomeDeck,
 } from "@/lib/api";
 import { useCart } from "@/lib/useCart";
 import {
@@ -159,6 +162,7 @@ export default function ShopView() {
   const [offersOnly, setOffersOnly] = useState(false);
   const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
   const [packages, setPackages] = useState<Package[]>([]);
+  const [deck, setDeck] = useState<HomeDeck>(DEFAULT_DECK);
   const [query, setQuery] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -172,7 +176,7 @@ export default function ShopView() {
 
   const load = useCallback(async () => {
     try {
-      const [cats, types, pkgs] = await Promise.all([
+      const [cats, types, pkgs, deckCopy] = await Promise.all([
         fetchProducts(),
         // A shop that has never set a category still works; the filter just
         // has nothing to offer, so this must not take the catalogue down.
@@ -180,10 +184,14 @@ export default function ShopView() {
         // Same again: a shop with no packages is the normal case, and the
         // deck simply runs without those slides.
         fetchPackages().catch(() => [] as Package[]),
+        // Same again: the deck has built-in copy to fall back on, so failing
+        // to read the shop's own wording must not take the storefront down.
+        fetchHomeDeck().catch(() => DEFAULT_DECK),
       ]);
       setCategories(cats);
       setProductCategories(types);
       setPackages(pkgs);
+      setDeck(deckCopy);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -518,6 +526,7 @@ export default function ShopView() {
                 <HomeCarousel
                   products={allProducts}
                   packages={packages}
+                  deck={deck}
                   brandCount={categories.length}
                   categoryCount={productCategories.length}
                   onShopAll={() => pickCategory("all")}
@@ -710,6 +719,7 @@ export default function ShopView() {
               <HomeCarousel
                 products={allProducts}
                 packages={packages}
+                deck={deck}
                 brandCount={categories.length}
                 categoryCount={productCategories.length}
                 onShopAll={goToCatalog}
@@ -908,7 +918,7 @@ export default function ShopView() {
           something to advertise — an ad for offers that do not exist is
           worse than no ad. */}
       {tab === "home" && hasOffers && (
-        <OfferPopup onShop={showOffers} />
+        <OfferPopup onShop={showOffers} percent={deck.offer.percent} />
       )}
 
       {/* ── Tab bar — phone only ────────────────────────────────────── */}

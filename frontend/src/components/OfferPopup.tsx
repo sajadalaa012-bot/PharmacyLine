@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { X, Tag } from "lucide-react";
 import { useI18n } from "@/lib/LanguageProvider";
 
-/** The headline figure. One place to change what the ad claims. */
+/** The headline figure when the shop has not set one. See HomeDeck. */
 export const PROMO_PERCENT = 40;
 
 const DISMISSED_KEY = "offer-popup-dismissed";
@@ -17,6 +17,8 @@ function today(): string {
 interface OfferPopupProps {
   /** Take the shopper to the products that are actually on offer. */
   onShop: () => void;
+  /** What the ad claims. The deck's figure, so the two cannot disagree. */
+  percent?: number;
 }
 
 /**
@@ -30,7 +32,10 @@ interface OfferPopupProps {
  * Whether there is anything to advertise is the caller's business — see
  * where this is rendered in ShopView.
  */
-export default function OfferPopup({ onShop }: OfferPopupProps) {
+export default function OfferPopup({
+  onShop,
+  percent = PROMO_PERCENT,
+}: OfferPopupProps) {
   const { t } = useI18n();
   const [show, setShow] = useState(false);
 
@@ -75,7 +80,7 @@ export default function OfferPopup({ onShop }: OfferPopupProps) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={t("promo.title", { n: PROMO_PERCENT })}
+        aria-label={t("promo.title", { n: percent })}
         className="pop relative w-full max-w-sm overflow-hidden rounded-2xl border border-line-strong bg-surface shadow-2xl"
       >
         <button
@@ -91,14 +96,14 @@ export default function OfferPopup({ onShop }: OfferPopupProps) {
         <div className="flex flex-col items-center bg-brand px-6 py-8 text-center text-on-brand">
           <Tag className="h-6 w-6 opacity-80" />
           <p className="mt-3 font-display text-5xl font-semibold leading-none tracking-tight tabular-nums">
-            {PROMO_PERCENT}%
+            {percent}%
           </p>
           <p className="label-caps mt-2 opacity-90">{t("promo.eyebrow")}</p>
         </div>
 
         <div className="px-6 py-6 text-center">
           <h2 className="font-display text-xl font-semibold tracking-tight text-ink">
-            {t("promo.title", { n: PROMO_PERCENT })}
+            {t("promo.title", { n: percent })}
           </h2>
           <p className="mt-2 text-[13px] leading-relaxed text-ink-2">
             {t("promo.body")}

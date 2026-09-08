@@ -557,3 +557,60 @@ export function packageImage(
   );
   return withPhoto?.product.image_url ?? "";
 }
+
+// ── The home deck ───────────────────────────────────────────────────
+//
+// The slideshow the home screen opens with. Packages bring their own slides
+// and are edited on the Packages page; the two that are not packages — the
+// brief and the discount ad — are edited here.
+//
+// Every copy field works the same way: blank means "use the built-in wording",
+// which is the shipped translation in the reader's language. So a shop that
+// never opens this page keeps the copy it has today in both languages, and one
+// that writes its own gets exactly what it wrote. That is why these are not
+// seeded with the current English text: seeding it would silently throw away
+// the Arabic.
+
+/** One editable slide. `_ar` twins fall back to the base field, as everywhere. */
+export interface DeckSlide {
+  /** Off the deck entirely while false. */
+  enabled: boolean;
+  eyebrow: string;
+  eyebrow_ar: string;
+  /** The headline. Line breaks are kept. */
+  title: string;
+  title_ar: string;
+  body: string;
+  body_ar: string;
+}
+
+export interface HomeDeck {
+  brief: DeckSlide & {
+    /** The product / brand / category counts under the lede. */
+    stats: boolean;
+  };
+  offer: DeckSlide & {
+    /**
+     * The figure the ad claims, e.g. 40 for "Discounts up to 40%". Written
+     * into both the slide and the popup, so the two cannot disagree — and
+     * substituted for {n} in a title the shop writes itself.
+     */
+    percent: number;
+  };
+}
+
+const BLANK_SLIDE = {
+  enabled: true,
+  eyebrow: "",
+  eyebrow_ar: "",
+  title: "",
+  title_ar: "",
+  body: "",
+  body_ar: "",
+};
+
+/** What a shop that has never touched the page gets: today's deck, unchanged. */
+export const DEFAULT_DECK: HomeDeck = {
+  brief: { ...BLANK_SLIDE, stats: true },
+  offer: { ...BLANK_SLIDE, percent: 40 },
+};

@@ -413,6 +413,36 @@ const en = {
   // ── Packages ──
   // A set of products sold together for one price. Storefront first, then
   // the back office where they are put together and priced.
+  // ── The home slideshow (back office) ──
+  "nav.homeSlides": "Home slides",
+  "deck.subtitle":
+    "The slideshow the home screen opens with. Packages bring their own slides; these are the two that do not.",
+  "deck.blankHint":
+    "Every box is optional. Leave one blank and the slide keeps the wording the shop already uses, in both languages.",
+  "deck.brief": "The brief",
+  "deck.briefHint": "The first slide — what the shop is.",
+  "deck.offer": "The discount ad",
+  "deck.offerHint":
+    "The last slide. It only appears while something is actually on offer.",
+  "deck.packages": "Packages",
+  "deck.packagesHint": "One slide each, between the two. Edited with the package itself.",
+  "deck.eyebrow": "Small line above",
+  "deck.eyebrowAr": "Small line, Arabic",
+  "deck.headline": "Headline",
+  "deck.headlineAr": "Headline, Arabic",
+  "deck.headlineHint": "Press Enter for a line break. {n} is replaced by the discount figure.",
+  "deck.body": "Sentence below",
+  "deck.bodyAr": "Sentence below, Arabic",
+  "deck.stats": "Show the counts",
+  "deck.statsHint": "The product, brand and category totals under the sentence.",
+  "deck.percent": "Discount figure",
+  "deck.percentHint": "What the ad claims, here and in the popup. Written into {n}.",
+  "deck.shown": "Shown",
+  "deck.hiddenSlide": "Hidden",
+  "deck.saved": "Saved",
+  "deck.reset": "Reset",
+  "deck.resetHint": "Clear every box back to the built-in wording. Save to apply.",
+
   "pkg.eyebrow": "Package",
   "pkg.whatsInside": "What's inside",
   "pkg.timesQty": "× {n}",
@@ -578,6 +608,8 @@ const en = {
   "err.updateConsult": "Failed to update the request.",
   "err.deleteConsult": "Failed to delete the request.",
   "err.packageNameRequired": "A package name is required.",
+  "err.loadDeck": "Failed to load the home slides.",
+  "err.saveDeck": "Failed to save the home slides.",
   "err.loadPackages": "Failed to load the packages.",
   "err.savePackage": "Failed to save the package.",
   "err.deletePackage": "Failed to delete the package.",
@@ -1009,6 +1041,35 @@ const ar: Record<MessageKey, string> = {
   "home.statCategories": "أقسام",
 
   // ── الحقائب ──
+  // ── شرائح الصفحة الرئيسية (لوحة الإدارة) ──
+  "nav.homeSlides": "شرائح الرئيسية",
+  "deck.subtitle":
+    "العرض المتحرك الذي تفتح به الصفحة الرئيسية. الحقائب لها شرائحها الخاصة، وهاتان الشريحتان ما عداها.",
+  "deck.blankHint":
+    "كل الحقول اختيارية. اترك أيّاً منها فارغاً لتبقى الشريحة على النص الحالي، باللغتين.",
+  "deck.brief": "التعريف",
+  "deck.briefHint": "الشريحة الأولى — ما هو هذا المتجر.",
+  "deck.offer": "إعلان الخصم",
+  "deck.offerHint": "الشريحة الأخيرة. لا تظهر إلا إذا كان هناك عرض فعلي.",
+  "deck.packages": "الحقائب",
+  "deck.packagesHint": "شريحة لكل حقيبة، بين الاثنتين. تُحرَّر مع الحقيبة نفسها.",
+  "deck.eyebrow": "السطر الصغير فوق",
+  "deck.eyebrowAr": "السطر الصغير بالعربية",
+  "deck.headline": "العنوان",
+  "deck.headlineAr": "العنوان بالعربية",
+  "deck.headlineHint": "اضغط Enter لسطر جديد. ويُستبدل {n} برقم الخصم.",
+  "deck.body": "الجملة تحته",
+  "deck.bodyAr": "الجملة تحته بالعربية",
+  "deck.stats": "إظهار الأعداد",
+  "deck.statsHint": "أعداد المنتجات والماركات والأقسام تحت الجملة.",
+  "deck.percent": "رقم الخصم",
+  "deck.percentHint": "ما يعلنه الإعلان، هنا وفي النافذة المنبثقة. يُكتب مكان {n}.",
+  "deck.shown": "ظاهرة",
+  "deck.hiddenSlide": "مخفية",
+  "deck.saved": "تم الحفظ",
+  "deck.reset": "استعادة",
+  "deck.resetHint": "إفراغ كل الحقول والعودة للنص الأصلي. اضغط حفظ للتطبيق.",
+
   "pkg.eyebrow": "حقيبة",
   "pkg.whatsInside": "ماذا تحتوي",
   "pkg.timesQty": "× {n}",
@@ -1171,6 +1232,8 @@ const ar: Record<MessageKey, string> = {
   "err.updateConsult": "تعذّر تحديث الطلب.",
   "err.deleteConsult": "تعذّر حذف الطلب.",
   "err.packageNameRequired": "اسم الحقيبة مطلوب.",
+  "err.loadDeck": "تعذّر تحميل شرائح الصفحة الرئيسية.",
+  "err.saveDeck": "تعذّر حفظ شرائح الصفحة الرئيسية.",
   "err.loadPackages": "تعذّر تحميل الحقائب.",
   "err.savePackage": "تعذّر حفظ الحقيبة.",
   "err.deletePackage": "تعذّر حذف الحقيبة.",
@@ -1229,7 +1292,9 @@ const MESSAGES: Record<Lang, Record<MessageKey, string>> = { en, ar };
 /** Values substituted into {placeholders}. */
 export type Vars = Record<string, string | number>;
 
-function format(template: string, vars?: Vars): string {
+/** Fill {placeholders} in a string. Exported for copy the admin writes,
+ *  which carries the same placeholders as the shipped translations. */
+export function format(template: string, vars?: Vars): string {
   if (!vars) return template;
   return template.replace(/\{(\w+)\}/g, (whole, key: string) =>
     key in vars ? String(vars[key]) : whole,
