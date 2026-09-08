@@ -9,6 +9,7 @@ import {
   packageAsProduct,
   packageContents,
   packageItemCount,
+  packageImage,
 } from "@/types";
 import { Package, Plus, Minus, ChevronDown, Boxes } from "lucide-react";
 import { useI18n } from "@/lib/LanguageProvider";
@@ -50,6 +51,8 @@ export default function PackageCard({
   const name = localized(pkg, "name", lang);
   const blurb = localized(pkg, "description", lang);
   const contents = packageContents(pkg, products);
+  // Falls back to a photo from the contents when the package has none.
+  const photo = packageImage(pkg, products);
   const count = packageItemCount(pkg);
 
   // The same offer rule as a product: a "was" price only counts when it is
@@ -84,10 +87,10 @@ export default function PackageCard({
         {/* Photo — a plate the same shape as a product card's, so a row of
             packages and a row of products read as the same shop. */}
         <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-2 sm:h-28 sm:w-28">
-          {pkg.image_url ? (
+          {photo ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
-              src={pkg.image_url}
+              src={photo}
               alt={name}
               loading="lazy"
               className="max-h-full max-w-full object-contain"

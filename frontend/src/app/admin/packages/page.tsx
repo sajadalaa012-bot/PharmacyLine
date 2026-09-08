@@ -8,6 +8,7 @@ import {
   isDiscounted,
   packageItemCount,
   packageValue,
+  packageImage,
 } from "@/types";
 import {
   fetchAllPackages,
@@ -192,16 +193,17 @@ export default function AdminPackagesPage() {
             const count = packageItemCount(pkg);
             const separately = packageValue(pkg, products);
             const onOffer = isDiscounted(pkg);
+            const photo = packageImage(pkg, products);
             return (
               <li
                 key={pkg.id}
                 className="flex items-center gap-3 px-3 py-3 transition-colors hover:bg-sunken/40 sm:px-4"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-white">
-                  {pkg.image_url ? (
+                  {photo ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
-                      src={pkg.image_url}
+                      src={photo}
                       alt=""
                       className="h-full w-full object-contain p-1"
                     />

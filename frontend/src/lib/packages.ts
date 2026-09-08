@@ -206,27 +206,93 @@ export function validatePackage(body: unknown): PackageInput {
 // ── Seeding (once per database) ─────────────────────────────────────
 
 /**
- * The two the shop asked for. They are seeded empty and hidden: a package
- * with no contents and no price is not something a shopper should ever meet,
- * so the admin fills them in and switches them on. Names only — everything
- * else is the shop's to decide.
+ * The packages a new shop opens with — ready to sell rather than blank, so
+ * the home page has something on it the day the feature lands.
+ *
+ * `old_price` is each kit's contents at the catalogue's own prices, and the
+ * price under it is the shop's. The product ids are the seeded catalogue's
+ * (data/catalog.json), which carries explicit ids, so they are stable; an id
+ * that has since been deleted simply drops out of the contents rather than
+ * breaking the package. Everything here is the shop's to re-price, re-fill or
+ * delete — this is a starting point, not a fixture.
  */
-const STARTER_PACKAGES: { name: string; name_ar: string }[] = [
-  { name: "Back to School", name_ar: "العودة إلى المدرسة" },
-  { name: "College", name_ar: "الجامعة" },
+const STARTER_PACKAGES: (Omit<PackageInput, "display_order"> & {
+  name_ar: string;
+})[] = [
+  {
+    // Teenage skin, four steps: wash, patch, spot-treat, protect.
+    name: "Back to School",
+    name_ar: "العودة إلى المدرسة",
+    description: "A simple morning and night routine for teenage skin.",
+    description_ar: "روتين بسيط صباحاً ومساءً لبشرة المراهقين.",
+    image_url: "",
+    price: 37000,
+    old_price: 44250,
+    active: true,
+    items: [
+      { product_id: 98, quantity: 1 }, // COSRX Low pH Good Morning Cleanser
+      { product_id: 95, quantity: 1 }, // COSRX Acne Pimple Master Patch
+      { product_id: 52, quantity: 1 }, // La Roche-Posay Effaclar Duo+ M
+      { product_id: 99, quantity: 1 }, // COSRX Aloe Soothing Sun SPF 50+
+    ],
+  },
+  {
+    // Busy adult skin: pores and oil under control, and never skip the SPF.
+    name: "College",
+    name_ar: "الجامعة",
+    description: "Clear pores, steady hydration, and sunscreen every day.",
+    description_ar: "مسام نظيفة، ترطيب ثابت، وواقٍ شمسي كل يوم.",
+    image_url: "",
+    price: 55000,
+    old_price: 66000,
+    active: true,
+    items: [
+      { product_id: 69, quantity: 1 }, // SKIN1004 Centella Ampoule Foam
+      { product_id: 124, quantity: 1 }, // The Ordinary Niacinamide 10% + Zinc
+      { product_id: 100, quantity: 1 }, // COSRX Snail 96 Mucin Essence
+      { product_id: 59, quantity: 1 }, // Beauty of Joseon Relief Sun
+      { product_id: 95, quantity: 1 }, // COSRX Acne Pimple Master Patch
+    ],
+  },
+  {
+    // The routine the shop gets asked for by name, in one box.
+    name: "Glass Skin Starter",
+    name_ar: "بداية البشرة الصافية",
+    description: "The full K-beauty routine, from double cleanse to SPF.",
+    description_ar: "روتين الكيبيوتي الكامل، من التنظيف المزدوج حتى واقي الشمس.",
+    image_url: "",
+    price: 63000,
+    old_price: 76500,
+    active: true,
+    items: [
+      { product_id: 63, quantity: 1 }, // Beauty of Joseon Cleansing Oil
+      { product_id: 69, quantity: 1 }, // SKIN1004 Centella Ampoule Foam
+      { product_id: 62, quantity: 1 }, // Beauty of Joseon Ginseng Toner
+      { product_id: 100, quantity: 1 }, // COSRX Snail 96 Mucin Essence
+      { product_id: 59, quantity: 1 }, // Beauty of Joseon Relief Sun
+    ],
+  },
 ];
 
-/** Set once the starters have been offered, so deleting one is permanent. */
-const SEED_FLAG = "packages_seeded";
+/**
+ * Set once the starters have been offered, so deleting one is permanent.
+ *
+ * Bumped to v2 when the starters went from empty placeholders to real,
+ * priced kits. The v1 flag is left in place; nothing reads it any more.
+ */
+const SEED_FLAG = "packages_seeded_v2";
+
+/** The v1 starters, which were seeded blank. Cleared by seedPackages below. */
+const V1_STARTER_NAMES = ["Back to School", "College"];
 
 let seedPromise: Promise<void> | null = null;
 
 /**
- * Puts the two starter packages in an empty table, exactly once per database.
+ * Puts the starter packages in an empty table, exactly once per database.
  *
  * Guarded by a flag in app_settings rather than by the table being empty: an
- * admin who deletes both should get an empty Packages page, not the pair back
- * on the next cold start. The advisory lock is there because cold starts
+ * admin who deletes them all should get an empty Packages page, not the set
+ * back on the next cold start. The advisory lock is there because cold starts
  * arrive in bursts and two instances must not both seed.
  */
 async function seedPackages(): Promise<void> {
@@ -250,6 +316,24 @@ async function seedPackages(): Promise<void> {
       return;
     }
 
+    // v1 seeded "Back to School" and "College" as blank placeholders. If they
+    // are still exactly as they were seeded — no price, nothing in them, never
+    // switched on — they are this code's own leftovers rather than anything
+    // the shop typed, and the priced versions below replace them. Every
+    // condition has to hold, so a placeholder somebody has started filling in
+    // is left alone and blocks the seed on the count check that follows.
+    await client.query(
+      `DELETE FROM packages
+       WHERE name = ANY($1::text[])
+         AND price = 0
+         AND old_price IS NULL
+         AND NOT active
+         AND items = '[]'::jsonb
+         AND image_url = ''
+         AND description = ''`,
+      [V1_STARTER_NAMES],
+    );
+
     // Never overwrite a table someone has already put packages in — the flag
     // could be missing on a database that predates it.
     const count = await client.query<{ n: string }>(
@@ -257,15 +341,7 @@ async function seedPackages(): Promise<void> {
     );
     if (Number(count.rows[0].n) === 0) {
       for (const [i, p] of STARTER_PACKAGES.entries()) {
-        const values = packageValues({
-          name: p.name,
-          name_ar: p.name_ar,
-          image_url: "",
-          price: 0,
-          active: false,
-          display_order: i + 1,
-          items: [],
-        });
+        const values = packageValues({ ...p, display_order: i + 1 });
         const placeholders = values.map((_, n) => `$${n + 1}`).join(",");
         await client.query(
           `INSERT INTO packages (${PACKAGE_FIELDS.join(", ")})

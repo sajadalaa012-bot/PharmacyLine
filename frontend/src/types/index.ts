@@ -540,3 +540,20 @@ export function packageValue(
 export function packageItemCount(pkg: Pick<Package, "items">): number {
   return pkg.items.reduce((sum, it) => sum + Math.max(1, it.quantity), 0);
 }
+
+/**
+ * The picture to show for a package: its own, or failing that the first photo
+ * among its contents. A kit assembled out of products the shop has already
+ * photographed should not need a photo shoot of its own before it can go on
+ * the home page — and setting a photo on the package still wins.
+ */
+export function packageImage(
+  pkg: Pick<Package, "image_url" | "items">,
+  products: Product[],
+): string {
+  if (pkg.image_url) return pkg.image_url;
+  const withPhoto = packageContents(pkg, products).find(
+    (c) => c.product.image_url,
+  );
+  return withPhoto?.product.image_url ?? "";
+}
