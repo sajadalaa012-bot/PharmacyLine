@@ -414,6 +414,8 @@ const en = {
   // A set of products sold together for one price. Storefront first, then
   // the back office where they are put together and priced.
   "pkg.title": "Packages",
+  "pkg.eyebrow": "Package",
+  "pkg.inCart": "{n} in your cart",
   "pkg.lede": "Everything you need, together for less.",
   "pkg.whatsInside": "What's inside",
   "pkg.itemsCount": "{n} items",
@@ -1009,6 +1011,8 @@ const ar: Record<MessageKey, string> = {
 
   // ── الحقائب ──
   "pkg.title": "الحقائب",
+  "pkg.eyebrow": "حقيبة",
+  "pkg.inCart": "{n} في سلّتك",
   "pkg.lede": "كل ما تحتاجه، مجتمعاً بسعر أقل.",
   "pkg.whatsInside": "ماذا تحتوي",
   "pkg.itemsCount": "{n} منتجات",

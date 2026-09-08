@@ -3,13 +3,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
+  Boxes,
   ChevronLeft,
   ChevronRight,
   Package,
   SlidersHorizontal,
   Tag,
 } from "lucide-react";
-import { Product, discountPercent, isDiscounted } from "@/types";
+import {
+  Product,
+  Package as PackageType,
+  discountPercent,
+  isDiscounted,
+  packageContents,
+  packageItemCount,
+} from "@/types";
 import { useI18n } from "@/lib/LanguageProvider";
 import { localized } from "@/lib/i18n";
 import { num } from "@/lib/format";
@@ -21,39 +29,65 @@ const SWIPE_PX = 48;
 const AXIS_BIAS = 1.5;
 /** Photographs on the offer slide. Enough to show a spread, few enough to read. */
 const OFFER_PHOTOS = 3;
+/**
+ * Packages the deck will advertise. The shelf further down the home screen
+ * carries all of them; the deck is the shop window, and a window with eight
+ * things in it is not a window. First by display order, which is the order
+ * the admin arranges.
+ */
+const MAX_PACKAGE_SLIDES = 3;
 
-type Slide = { kind: "promo" } | { kind: "about" };
+type Slide =
+  | { kind: "promo" }
+  | { kind: "about" }
+  | { kind: "package"; pkg: PackageType };
+
+/** Stable per slide — package slides all share a `kind`. */
+function slideKey(slide: Slide): string {
+  return slide.kind === "package" ? `package-${slide.pkg.id}` : slide.kind;
+}
 
 interface HomeCarouselProps {
   /** Everything in the catalogue — the deck picks its own photos out of it. */
   products: Product[];
+  /** The packages on sale. Each gets a slide of its own, up to a few. */
+  packages: PackageType[];
   brandCount: number;
   categoryCount: number;
   onShopAll: () => void;
   onShopOffers: () => void;
   onBrowse: () => void;
   onOpenProduct: (product: Product) => void;
+  /** Puts one package in the basket, straight off the slide. */
+  onAddPackage: (pkg: PackageType) => void;
+  /** How many of one package are already in the basket. */
+  packageQty: (pkg: PackageType) => number;
 }
 
 /**
- * The two things the home screen opens with: a word on what the shop stocks,
- * and then the discount that is running.
+ * What the home screen opens with: a word on what the shop stocks, then the
+ * packages it has put together, then the discount that is running.
  *
- * The offer slide is dropped when nothing is actually discounted — an
- * advertisement for offers that do not exist is worse than no advertisement,
- * and it is the same rule the popup follows.
+ * Slides that have nothing to say are dropped rather than shown empty — the
+ * offer slide when nothing is actually discounted, a package slide when there
+ * is no package or it has not been priced. An advertisement for something
+ * that does not exist is worse than no advertisement, and it is the same rule
+ * the popup follows.
  *
  * The deck never moves on its own: the shopper turns it, by swipe, arrow, dot
  * or arrow key. A slide holds for as long as it is being read.
  */
 export default function HomeCarousel({
   products,
+  packages,
   brandCount,
   categoryCount,
   onShopAll,
   onShopOffers,
   onBrowse,
   onOpenProduct,
+  onAddPackage,
+  packageQty,
 }: HomeCarouselProps) {
   const { t, rtl } = useI18n();
 
@@ -61,11 +95,20 @@ export default function HomeCarousel({
     .filter(isDiscounted)
     .sort((a, b) => discountPercent(b) - discountPercent(a));
 
+  // A package nobody has priced is not something to advertise, whatever the
+  // shelf below does with it.
+  const promoted = packages
+    .filter((p) => p.price > 0)
+    .slice(0, MAX_PACKAGE_SLIDES);
+
   // The brief opens the deck: what the shop is comes before what it is
-  // discounting, so a first-time visitor is told where they are before they
-  // are sold to.
+  // selling, so a first-time visitor is told where they are before they are
+  // sold to. Packages come next — a named kit at a fixed price is a more
+  // concrete thing to put in front of someone than a percentage — and the
+  // general discount ad brings up the rear.
   const slides: Slide[] = [
     { kind: "about" },
+    ...promoted.map((pkg): Slide => ({ kind: "package", pkg })),
     ...(offers.length > 0 ? [{ kind: "promo" } as Slide] : []),
   ];
   const count = slides.length;
@@ -161,7 +204,7 @@ export default function HomeCarousel({
         >
           {slides.map((slide, i) => (
             <div
-              key={slide.kind}
+              key={slideKey(slide)}
               className="w-full shrink-0"
               aria-hidden={i !== index}
               inert={i !== index}
@@ -170,6 +213,14 @@ export default function HomeCarousel({
                 <PromoSlide
                   offers={offers}
                   onShopOffers={onShopOffers}
+                  onOpenProduct={onOpenProduct}
+                />
+              ) : slide.kind === "package" ? (
+                <PackageSlide
+                  pkg={slide.pkg}
+                  products={products}
+                  qty={packageQty(slide.pkg)}
+                  onAdd={onAddPackage}
                   onOpenProduct={onOpenProduct}
                 />
               ) : (
@@ -206,7 +257,7 @@ export default function HomeCarousel({
           <div className="flex items-center gap-2">
             {slides.map((slide, i) => (
               <button
-                key={slide.kind}
+                key={slideKey(slide)}
                 type="button"
                 onClick={() => go(i)}
                 aria-label={t("home.goTo", { n: i + 1 })}
@@ -342,6 +393,159 @@ function PromoSlide({
         {t("promo.cta")}
         <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
       </button>
+    </SlideFrame>
+  );
+}
+
+/**
+ * One package, as a billboard. The aside is the kit itself — the photographs
+ * of what is actually in it — which answers "what am I buying" without the
+ * shopper having to open anything, and is the whole reason a package deserves
+ * a slide rather than a line of text.
+ *
+ * The button adds it to the basket outright. The shelf below the deck offers
+ * the same package with its contents listed in words; anyone who wants to
+ * read the list first has it, and anyone who recognises the kit from the
+ * photographs can buy it from here.
+ */
+function PackageSlide({
+  pkg,
+  products,
+  qty,
+  onAdd,
+  onOpenProduct,
+}: {
+  pkg: PackageType;
+  products: Product[];
+  qty: number;
+  onAdd: (pkg: PackageType) => void;
+  onOpenProduct: (product: Product) => void;
+}) {
+  const { t, lang } = useI18n();
+  const name = localized(pkg, "name", lang);
+  const blurb = localized(pkg, "description", lang);
+  const contents = packageContents(pkg, products);
+  const count = packageItemCount(pkg);
+  // Only what has a photograph: an empty plate says nothing about the kit.
+  const shown = contents.filter((c) => c.product.image_url).slice(0, 3);
+
+  const onOffer = isDiscounted(pkg);
+  const saving = onOffer ? (pkg.old_price as number) - pkg.price : 0;
+
+  const chips = [
+    count > 0
+      ? count === 1
+        ? t("pkg.oneItem")
+        : t("pkg.itemsCount", { n: count })
+      : null,
+    saving > 0
+      ? t("pkg.save", { n: `${num(saving)} ${t("common.currency")}` })
+      : null,
+  ].filter(Boolean) as string[];
+
+  return (
+    <SlideFrame
+      aside={
+        shown.length > 0 ? (
+          <div
+            className={`grid gap-2.5 sm:gap-3 ${
+              shown.length === 1
+                ? "grid-cols-1"
+                : shown.length === 2
+                  ? "grid-cols-2"
+                  : "grid-cols-3"
+            }`}
+          >
+            {shown.map(({ product }, i) => {
+              const itemName = localized(product, "name", lang);
+              return (
+                <button
+                  key={product.id}
+                  type="button"
+                  onClick={() => onOpenProduct(product)}
+                  aria-label={t("product.viewDetails", { name: itemName })}
+                  className="group/plate cursor-zoom-in"
+                >
+                  <Plate
+                    product={product}
+                    name={itemName}
+                    className={`h-24 transition-transform duration-300 group-hover/plate:scale-[1.03] sm:h-32 ${
+                      i === 1 && shown.length === 3 ? "sm:-translate-y-3" : ""
+                    }`}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex h-24 items-center justify-center rounded-2xl bg-sunken sm:h-32">
+            <Boxes className="h-8 w-8 text-line-strong" />
+          </div>
+        )
+      }
+    >
+      <span className="label-caps flex items-center gap-1.5 text-brand">
+        <Boxes className="h-3.5 w-3.5" />
+        {t("pkg.eyebrow")}
+      </span>
+      <h2 className="mt-2 font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-ink sm:text-4xl lg:text-5xl">
+        <bdi>{name}</bdi>
+      </h2>
+      {blurb && (
+        <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-ink-2 sm:mt-4 sm:text-[15px]">
+          <bdi>{blurb}</bdi>
+        </p>
+      )}
+
+      {chips.length > 0 && (
+        <ul className="mt-4 flex flex-wrap items-center gap-2">
+          {chips.map((c) => (
+            <li
+              key={c}
+              className="rounded-full bg-sunken px-3 py-1.5 text-[12px] font-medium text-ink-2"
+            >
+              {c}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* The price, in the "was … now …" the cards use. */}
+      <div className="mt-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+        {onOffer && (
+          <span className="font-display text-base font-semibold text-ink-3 line-through decoration-rose/70 decoration-[1.5px] tabular-nums">
+            {num(pkg.old_price as number)}
+          </span>
+        )}
+        <p
+          className={`font-display text-2xl font-semibold tracking-tight tabular-nums sm:text-3xl ${
+            onOffer ? "text-rose" : "text-ink"
+          }`}
+        >
+          {num(pkg.price)}
+          <span
+            className={`ms-1.5 font-sans text-[11px] font-semibold tracking-[0.08em] ${
+              onOffer ? "text-rose/70" : "text-ink-3"
+            }`}
+          >
+            {t("common.currency")}
+          </span>
+        </p>
+      </div>
+
+      <button
+        onClick={() => onAdd(pkg)}
+        className="group mt-5 flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:mt-6 sm:h-12 sm:px-7"
+      >
+        {t("pkg.addToCart")}
+        <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
+      </button>
+
+      {qty > 0 && (
+        <p className="mt-2.5 text-[12px] font-semibold text-brand">
+          {t("pkg.inCart", { n: qty })}
+        </p>
+      )}
     </SlideFrame>
   );
 }

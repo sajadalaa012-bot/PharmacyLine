@@ -9,6 +9,7 @@ import {
   priceRange,
   isDiscounted,
   packageLineId,
+  packageAsProduct,
 } from "@/types";
 import {
   fetchProducts,
@@ -383,6 +384,13 @@ export default function ShopView() {
     />
   );
 
+  // A package reaches the basket as a single line, by borrowing a product id
+  // of its own. Both the deck and the shelf below it go through these, so the
+  // two always agree about what is in the basket. See packageAsProduct.
+  const addPackage = (pkg: Package) => cart.add(packageAsProduct(pkg));
+  const packageQty = (pkg: Package) =>
+    cart.qtyOf(packageLineId(pkg.id), undefined, false);
+
   /**
    * The packages shelf. Rendered on the phone's home tab and again in the
    * desktop hero — one definition rather than two copies, the way cartPanel
@@ -405,7 +413,7 @@ export default function ShopView() {
               key={pkg.id}
               pkg={pkg}
               products={allProducts}
-              qty={cart.qtyOf(packageLineId(pkg.id), undefined, false)}
+              qty={packageQty(pkg)}
               onAdd={cart.add}
               onRemove={cart.remove}
               index={i}
@@ -533,17 +541,21 @@ export default function ShopView() {
             <section className="home-canvas home-canvas-hero px-4 pb-12 pt-4">
               {renderSearch()}
 
-              {/* The deck says what the shop is and what is discounted, in
-                  place of a headline that could only say the first. */}
+              {/* The deck says what the shop is, what it has put together,
+                  and what is discounted — in place of a headline that could
+                  only say the first. */}
               <div className="mt-5">
                 <HomeCarousel
                   products={allProducts}
+                  packages={packages}
                   brandCount={categories.length}
                   categoryCount={productCategories.length}
                   onShopAll={() => pickCategory("all")}
                   onShopOffers={showOffers}
                   onBrowse={() => goTab("browse")}
                   onOpenProduct={setDetailProduct}
+                  onAddPackage={addPackage}
+                  packageQty={packageQty}
                 />
               </div>
             </section>
@@ -731,12 +743,15 @@ export default function ShopView() {
             <div className="rise">
               <HomeCarousel
                 products={allProducts}
+                packages={packages}
                 brandCount={categories.length}
                 categoryCount={productCategories.length}
                 onShopAll={goToCatalog}
                 onShopOffers={showOffers}
                 onBrowse={() => goTab("browse")}
                 onOpenProduct={setDetailProduct}
+                onAddPackage={addPackage}
+                packageQty={packageQty}
               />
 
               <div className="mt-8">
