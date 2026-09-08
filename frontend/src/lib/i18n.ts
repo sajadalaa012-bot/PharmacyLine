@@ -413,19 +413,12 @@ const en = {
   // ── Packages ──
   // A set of products sold together for one price. Storefront first, then
   // the back office where they are put together and priced.
-  "pkg.title": "Packages",
   "pkg.eyebrow": "Package",
   "pkg.inCart": "{n} in your cart",
-  "pkg.lede": "Everything you need, together for less.",
-  "pkg.whatsInside": "What's inside",
   "pkg.itemsCount": "{n} items",
   "pkg.oneItem": "1 item",
   "pkg.addToCart": "Add the package",
   "pkg.save": "Save {n}",
-  "pkg.timesQty": "× {n}",
-  "pkg.showContents": "Show what's inside {name}",
-  "pkg.hideContents": "Hide what's inside {name}",
-  "pkg.emptyNote": "Ask us what this package includes.",
 
   // ── Packages (back office) ──
   "nav.packages": "Packages",
@@ -1010,19 +1003,12 @@ const ar: Record<MessageKey, string> = {
   "home.statCategories": "أقسام",
 
   // ── الحقائب ──
-  "pkg.title": "الحقائب",
   "pkg.eyebrow": "حقيبة",
   "pkg.inCart": "{n} في سلّتك",
-  "pkg.lede": "كل ما تحتاجه، مجتمعاً بسعر أقل.",
-  "pkg.whatsInside": "ماذا تحتوي",
   "pkg.itemsCount": "{n} منتجات",
   "pkg.oneItem": "منتج واحد",
   "pkg.addToCart": "أضف الحقيبة",
   "pkg.save": "توفير {n}",
-  "pkg.timesQty": "× {n}",
-  "pkg.showContents": "عرض محتويات {name}",
-  "pkg.hideContents": "إخفاء محتويات {name}",
-  "pkg.emptyNote": "اسألنا عمّا تحتويه هذه الحقيبة.",
 
   // ── الحقائب (لوحة الإدارة) ──
   "nav.packages": "الحقائب",

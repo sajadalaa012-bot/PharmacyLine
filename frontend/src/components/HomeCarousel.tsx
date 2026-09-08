@@ -27,15 +27,20 @@ import { PROMO_PERCENT } from "./OfferPopup";
 const SWIPE_PX = 48;
 /** And how much further sideways than down, before it counts as sideways. */
 const AXIS_BIAS = 1.5;
+/** How far a finger moves before the deck commits to sideways or down. */
+const AXIS_LOCK_PX = 6;
+/**
+ * How much of a drag past the first or last slide actually shows. There is
+ * nothing to bring on from either end, so the track follows the finger part
+ * of the way and springs back — the deck saying "that's the end" by feel.
+ */
+const EDGE_RESISTANCE = 0.32;
+/** The snap after a finger lets go. Decelerates hard, so it settles rather
+ *  than coasting to a stop. */
+const SNAP_MS = 460;
+const SNAP_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
 /** Photographs on the offer slide. Enough to show a spread, few enough to read. */
 const OFFER_PHOTOS = 3;
-/**
- * Packages the deck will advertise. The shelf further down the home screen
- * carries all of them; the deck is the shop window, and a window with eight
- * things in it is not a window. First by display order, which is the order
- * the admin arranges.
- */
-const MAX_PACKAGE_SLIDES = 3;
 
 type Slide =
   | { kind: "promo" }
@@ -95,11 +100,10 @@ export default function HomeCarousel({
     .filter(isDiscounted)
     .sort((a, b) => discountPercent(b) - discountPercent(a));
 
-  // A package nobody has priced is not something to advertise, whatever the
-  // shelf below does with it.
-  const promoted = packages
-    .filter((p) => p.price > 0)
-    .slice(0, MAX_PACKAGE_SLIDES);
+  // Every package the shop is selling, in the order the admin arranged them.
+  // The deck is the only place packages appear, so nothing is held back here
+  // — except one nobody has priced, which is not something to advertise.
+  const promoted = packages.filter((p) => p.price > 0);
 
   // The brief opens the deck: what the shop is comes before what it is
   // selling, so a first-time visitor is told where they are before they are
@@ -127,35 +131,69 @@ export default function HomeCarousel({
     return () => mq.removeEventListener("change", sync);
   }, []);
 
+  // Clamped, not wrapped. Wrapping looked like the deck lurching backwards
+  // through every slide it had just come forward through, which with a
+  // package apiece is a long way to lurch.
   const go = useCallback(
-    (next: number) => setWanted(((next % count) + count) % count),
+    (next: number) => setWanted(Math.min(count - 1, Math.max(0, next))),
     [count],
   );
 
   // ── Swipe ─────────────────────────────────────────────────────────
-  // In Arabic the deck runs right to left, so the gesture that means
+  // The track follows the finger rather than waiting for it to let go, so a
+  // half-swipe shows half the next slide and you can see what you are about
+  // to get. In Arabic the deck runs right to left, so the gesture that means
   // "onwards" is the mirror of the English one.
-  const dragFrom = useRef<{ id: number; x: number; y: number } | null>(null);
+  const forward = rtl ? 1 : -1;
+  const dragFrom = useRef<{
+    id: number;
+    x: number;
+    y: number;
+    /** Locked on the first real movement and never revisited. */
+    axis: "undecided" | "x" | "y";
+  } | null>(null);
+  /** How far the finger has carried the track, in px. 0 whenever none is down. */
+  const [drag, setDrag] = useState(0);
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.pointerType === "mouse") return;
-    dragFrom.current = { id: e.pointerId, x: e.clientX, y: e.clientY };
+    dragFrom.current = {
+      id: e.pointerId,
+      x: e.clientX,
+      y: e.clientY,
+      axis: "undecided",
+    };
   };
 
-  const onPointerUp = (e: React.PointerEvent) => {
+  const onPointerMove = (e: React.PointerEvent) => {
     const from = dragFrom.current;
-    dragFrom.current = null;
     if (!from || from.id !== e.pointerId) return;
     const dx = e.clientX - from.x;
     const dy = e.clientY - from.y;
-    // A finger on its way down the page drifts sideways as it goes. That is
-    // a scroll, and the deck stays where it is: only travel that is
-    // decisively sideways — further across than down, and far enough to be
-    // meant — turns a slide.
-    if (Math.abs(dx) < SWIPE_PX || Math.abs(dx) < Math.abs(dy) * AXIS_BIAS) {
-      return;
+
+    // A finger on its way down the page drifts sideways as it goes. That is a
+    // scroll, so the choice is made once, at the first real movement, and
+    // stuck to: a deck that started following a finger halfway through a
+    // scroll would feel like it was grabbing at the page.
+    if (from.axis === "undecided") {
+      if (Math.abs(dx) < AXIS_LOCK_PX && Math.abs(dy) < AXIS_LOCK_PX) return;
+      from.axis = Math.abs(dx) > Math.abs(dy) * AXIS_BIAS ? "x" : "y";
+      // Ours now — keep the moves coming even if the finger leaves the deck.
+      if (from.axis === "x") e.currentTarget.setPointerCapture(e.pointerId);
     }
-    go(index + ((rtl ? dx > 0 : dx < 0) ? 1 : -1));
+    if (from.axis === "x") setDrag(dx);
+  };
+
+  const settle = (e: React.PointerEvent) => {
+    const from = dragFrom.current;
+    dragFrom.current = null;
+    setDrag(0);
+    if (!from || from.id !== e.pointerId || from.axis !== "x") return;
+    const dx = e.clientX - from.x;
+    // Short of the threshold the track springs back to where it was, which
+    // setDrag(0) above has already asked for.
+    if (Math.abs(dx) < SWIPE_PX) return;
+    go(index + (dx * forward > 0 ? 1 : -1));
   };
 
   // The browser takes the gesture over the moment it decides the page is
@@ -163,7 +201,16 @@ export default function HomeCarousel({
   // finger did after that belongs to the scroll, not to us.
   const onPointerCancel = () => {
     dragFrom.current = null;
+    setDrag(0);
   };
+
+  // Neither end has anything to bring on, so a drag past them is resisted.
+  const straining =
+    (index === 0 && drag * forward < 0) ||
+    (index === count - 1 && drag * forward > 0);
+  const offset = straining ? drag * EDGE_RESISTANCE : drag;
+  // Built by hand rather than interpolated: calc() will not take "+ -12px".
+  const nudge = `${offset < 0 ? "-" : "+"} ${Math.abs(offset)}px`;
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     const forward = rtl ? "ArrowLeft" : "ArrowRight";
@@ -191,15 +238,25 @@ export default function HomeCarousel({
         className="overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_20px_50px_-32px_rgba(27,39,51,0.5)]"
         style={{ touchAction: "pan-y" }}
         onPointerDown={onPointerDown}
-        onPointerUp={onPointerUp}
+        onPointerMove={onPointerMove}
+        onPointerUp={settle}
         onPointerCancel={onPointerCancel}
       >
         <div
-          className="flex ease-out"
+          className="flex"
           style={{
-            transform: `translateX(${rtl ? "" : "-"}${index * 100}%)`,
+            // translate3d, not translateX: it puts the track on a layer of
+            // its own, so following a finger is the compositor's job rather
+            // than a repaint per frame.
+            transform: `translate3d(calc(${rtl ? "" : "-"}${
+              index * 100
+            }% ${nudge}), 0, 0)`,
             transitionProperty: "transform",
-            transitionDuration: still ? "0ms" : "520ms",
+            // No transition while a finger is on it — the track is meant to
+            // be under the finger, not chasing it.
+            transitionDuration: still || drag !== 0 ? "0ms" : `${SNAP_MS}ms`,
+            transitionTimingFunction: SNAP_EASE,
+            willChange: "transform",
           }}
         >
           {slides.map((slide, i) => (
@@ -245,16 +302,21 @@ export default function HomeCarousel({
 
       {count > 1 && (
         <div className="mt-4 flex items-center justify-center gap-3">
+          {/* The deck no longer wraps, so the ends say so rather than
+              quietly doing nothing. */}
           <button
             type="button"
             onClick={() => go(index - 1)}
+            disabled={index === 0}
             aria-label={t("home.prev")}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition hover:border-brand hover:text-brand active:scale-95"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition hover:border-brand hover:text-brand active:scale-95 disabled:pointer-events-none disabled:opacity-30"
           >
             <ChevronLeft className="h-4 w-4 flip-rtl" />
           </button>
 
-          <div className="flex items-center gap-2">
+          {/* Wraps: the deck carries a slide per package now, and a shop with
+              a dozen of them must not push the arrows off the screen. */}
+          <div className="flex max-w-full flex-wrap items-center justify-center gap-2">
             {slides.map((slide, i) => (
               <button
                 key={slideKey(slide)}
@@ -274,8 +336,9 @@ export default function HomeCarousel({
           <button
             type="button"
             onClick={() => go(index + 1)}
+            disabled={index === count - 1}
             aria-label={t("home.next")}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition hover:border-brand hover:text-brand active:scale-95"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition hover:border-brand hover:text-brand active:scale-95 disabled:pointer-events-none disabled:opacity-30"
           >
             <ChevronRight className="h-4 w-4 flip-rtl" />
           </button>

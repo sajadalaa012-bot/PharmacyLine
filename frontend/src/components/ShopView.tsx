@@ -30,7 +30,6 @@ import {
 import ConsultationForm from "./ConsultationForm";
 import ConsultationInvite from "./ConsultationInvite";
 import HomeCarousel from "./HomeCarousel";
-import PackageCard from "./PackageCard";
 import ProductCard from "./ProductCard";
 import ProductDetailModal from "./ProductDetailModal";
 import CartPanel from "./CartPanel";
@@ -177,7 +176,7 @@ export default function ShopView() {
         // has nothing to offer, so this must not take the catalogue down.
         fetchProductCategories().catch(() => [] as ProductCategory[]),
         // Same again: a shop with no packages is the normal case, and the
-        // home screen simply leaves the shelf out.
+        // deck simply runs without those slides.
         fetchPackages().catch(() => [] as Package[]),
       ]);
       setCategories(cats);
@@ -391,38 +390,6 @@ export default function ShopView() {
   const packageQty = (pkg: Package) =>
     cart.qtyOf(packageLineId(pkg.id), undefined, false);
 
-  /**
-   * The packages shelf. Rendered on the phone's home tab and again in the
-   * desktop hero — one definition rather than two copies, the way cartPanel
-   * is shared. Nothing at all when the shop has no packages switched on.
-   */
-  const packagesShelf =
-    packages.length === 0 ? null : (
-      <section className="px-4 sm:px-0">
-        <div className="flex items-baseline justify-between gap-4">
-          <h2 className="font-display text-lg font-semibold tracking-tight text-ink sm:text-xl">
-            {t("pkg.title")}
-          </h2>
-          <p className="truncate text-xs text-ink-3">{t("pkg.lede")}</p>
-        </div>
-        {/* One per row on a phone — a package card carries a list, so it
-            needs the width. Two up from `sm`, where there is room. */}
-        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {packages.map((pkg, i) => (
-            <PackageCard
-              key={pkg.id}
-              pkg={pkg}
-              products={allProducts}
-              qty={packageQty(pkg)}
-              onAdd={cart.add}
-              onRemove={cart.remove}
-              index={i}
-            />
-          ))}
-        </div>
-      </section>
-    );
-
   const renderSearch = (className = "") => (
     <div className={`relative ${className}`}>
       <Search className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
@@ -568,11 +535,6 @@ export default function ShopView() {
               <div className="px-4">
                 <ConsultationInvite onOpen={() => goTab("consult")} />
               </div>
-
-              {/* Packages, above the loose products: a kit is the shop's own
-                  recommendation, and it answers the same question the
-                  consultation above it does — "just tell me what to buy". */}
-              {packagesShelf && <div className="mt-8">{packagesShelf}</div>}
 
               {/* A few real products, so the home screen shows the shop
                   rather than only describing it. */}
@@ -757,8 +719,6 @@ export default function ShopView() {
               <div className="mt-8">
                 <ConsultationInvite onOpen={() => goTab("consult")} />
               </div>
-
-              {packagesShelf && <div className="mt-10">{packagesShelf}</div>}
             </div>
           </div>
         </section>
