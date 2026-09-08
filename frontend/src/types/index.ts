@@ -419,3 +419,124 @@ export function hasConsultationDetails(c: ConsultationCreate): boolean {
     c.skin_type !== ""
   );
 }
+
+// ── Packages ────────────────────────────────────────────────────────
+//
+// A package is a set of catalog products sold together for one price the shop
+// sets by hand — a back-to-school kit, a college kit. It is not a product and
+// it is not a category: it owns nothing, it only points at products, so
+// editing or repricing a product changes what the package is worth without
+// anybody having to touch the package.
+
+/** One line of a package: a catalog product, and how many of it are in. */
+export interface PackageItem {
+  /** References Product.id. A product that has since been deleted is simply
+   *  dropped when the contents are resolved — see packageContents. */
+  product_id: number;
+  quantity: number;
+}
+
+export interface Package {
+  id: number;
+  name: string;
+  /** Arabic name; falls back to `name`. */
+  name_ar?: string;
+  /** A line about who the package is for. Optional. */
+  description?: string;
+  description_ar?: string;
+  image_url: string;
+  /**
+   * What the whole package sells for. Set by hand in the admin rather than
+   * derived from the contents: the point of a package is that it costs less
+   * than its parts, and by how much is the shop's decision.
+   */
+  price: number;
+  /**
+   * The struck-through "was" price. The admin fills it from the contents at
+   * full price with one tap (see packageValue), but it stays a stored number:
+   * a saving that silently re-computed itself whenever a product was repriced
+   * would be a different promise from the one the shopper was shown.
+   */
+  old_price?: number;
+  /** Off the storefront while false. The admin always sees it. */
+  active: boolean;
+  display_order: number;
+  items: PackageItem[];
+}
+
+/** The editable payload for creating or updating a package. */
+export type PackageInput = Omit<Package, "id">;
+
+/**
+ * The product id a package borrows on a cart or order line.
+ *
+ * Cart lines, order lines and receipts all identify what was bought by
+ * `product_id`, and a package has to travel through every one of them. Real
+ * product ids are always positive, so a package takes the negative of its own
+ * id: the two can never collide, `order_items.product_id` has no foreign key
+ * to defend, and nothing downstream of the cart needs to know packages exist.
+ */
+export function packageLineId(packageId: number): number {
+  return -packageId;
+}
+
+/** The code a package carries on the receipt. */
+export function packageCode(pkg: Pick<Package, "id">): string {
+  return `PKG${pkg.id}`;
+}
+
+/**
+ * A package dressed as a product, so it can go through the cart, the checkout
+ * and the receipt on the same rails as everything else. It has no variants
+ * and no stock — a package is sold as itself, and what limits it is whether
+ * its contents are on the shelf, which the shop judges rather than the app.
+ */
+export function packageAsProduct(pkg: Package): Product {
+  return {
+    id: packageLineId(pkg.id),
+    name: pkg.name,
+    name_ar: pkg.name_ar,
+    code: packageCode(pkg),
+    price: pkg.price,
+    old_price: pkg.old_price,
+    image_url: pkg.image_url,
+    // Packages sit outside the brand/category grouping entirely.
+    category_id: 0,
+    description: pkg.description,
+    description_ar: pkg.description_ar,
+  };
+}
+
+/**
+ * What is actually in a package right now, resolved against the catalog.
+ * A line whose product has since been deleted is dropped rather than shown as
+ * a blank: the package keeps selling, it just lists one thing fewer.
+ */
+export function packageContents(
+  pkg: Pick<Package, "items">,
+  products: Product[],
+): { product: Product; quantity: number }[] {
+  const byId = new Map(products.map((p) => [p.id, p]));
+  const out: { product: Product; quantity: number }[] = [];
+  for (const item of pkg.items) {
+    const product = byId.get(item.product_id);
+    if (product) out.push({ product, quantity: Math.max(1, item.quantity) });
+  }
+  return out;
+}
+
+/** What the contents would cost bought separately, at today's prices. */
+export function packageValue(
+  pkg: Pick<Package, "items">,
+  products: Product[],
+): number {
+  return packageContents(pkg, products).reduce(
+    (sum, { product, quantity }) => sum + product.price * quantity,
+    0,
+  );
+}
+
+/** How many items a package holds, counting quantities. */
+export function packageItemCount(pkg: Pick<Package, "items">): number {
+  return pkg.items.reduce((sum, it) => sum + Math.max(1, it.quantity), 0);
+}

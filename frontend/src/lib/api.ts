@@ -12,6 +12,8 @@ import {
   Consultation,
   ConsultationCreate,
   ConsultationStatus,
+  Package,
+  PackageInput,
 } from "@/types";
 import { tt } from "./i18n";
 import { saveMyOrder } from "./myOrders";
@@ -329,5 +331,51 @@ export function deleteConsultation(id: number): Promise<void> {
     `/api/consultations/${id}`,
     "DELETE",
     tt("err.deleteConsult"),
+  );
+}
+
+// ── Packages (shared database via /api) ─────────────────────────────
+
+/** The packages on sale (public). Only the ones switched on come back. */
+export async function fetchPackages(): Promise<Package[]> {
+  const res = await fetch("/api/packages", { cache: "no-store" });
+  if (!res.ok) throw new Error(await readError(res, tt("err.loadPackages")));
+  return res.json();
+}
+
+/** Every package including the hidden ones (admin). */
+export async function fetchAllPackages(): Promise<Package[]> {
+  const res = await fetch("/api/packages?all=1", { cache: "no-store" });
+  bounceIfUnauthorized(res);
+  if (!res.ok) throw new Error(await readError(res, tt("err.loadPackages")));
+  return res.json();
+}
+
+export function createPackage(input: PackageInput): Promise<Package> {
+  return adminWrite<Package>(
+    "/api/packages",
+    "POST",
+    tt("err.savePackage"),
+    input,
+  );
+}
+
+export function updatePackage(
+  id: number,
+  input: PackageInput,
+): Promise<Package> {
+  return adminWrite<Package>(
+    `/api/packages/${id}`,
+    "PUT",
+    tt("err.savePackage"),
+    input,
+  );
+}
+
+export function deletePackage(id: number): Promise<void> {
+  return adminWrite<void>(
+    `/api/packages/${id}`,
+    "DELETE",
+    tt("err.deletePackage"),
   );
 }
