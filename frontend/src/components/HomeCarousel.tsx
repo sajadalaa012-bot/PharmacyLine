@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ArrowRight,
   Boxes,
@@ -28,46 +28,20 @@ import {
   photoPair,
   hasPhoto,
 } from "@/types";
+import useEmblaCarousel from "embla-carousel-react";
 import BannerPhoto from "./BannerPhoto";
 import { useI18n } from "@/lib/LanguageProvider";
 import { format, localized } from "@/lib/i18n";
 import { num } from "@/lib/format";
 
 
-/** How far a finger has to travel sideways before it counts as a swipe, in px. */
-const SWIPE_PX = 48;
-/** And how much further sideways than down, before it counts as sideways. */
-const AXIS_BIAS = 1.5;
-/** How far a finger moves before the deck commits to sideways or down. */
-const AXIS_LOCK_PX = 6;
-/**
- * How much of a drag past the first or last slide actually shows. There is
- * nothing to bring on from either end, so the track follows the finger part
- * of the way and springs back - the deck saying "that's the end" by feel.
- */
-const EDGE_RESISTANCE = 0.32;
-/**
- * The snap after a finger lets go. It carries on at about the speed the
- * finger left it at, between these two bounds, so a flick lands fast and a
- * slow drag settles slowly.
- */
-const SNAP_MIN_MS = 180;
-const SNAP_MAX_MS = 460;
-/** The pace of a turn nobody threw, an arrow key or a dot: a whole slide of
- *  travel in this long. */
-const SNAP_REST_MS = 420;
-/** Decelerates hard, so the track settles rather than coasting to a stop. */
-const SNAP_EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
-/** A flick: this fast at the moment of release turns the slide however short
- *  the swipe was, in px per ms. */
-const FLICK_SPEED = 0.4;
-/** A finger that has been still this long before lifting threw nothing,
- *  whatever it was doing before that. */
-const FLICK_STALE_MS = 90;
-/** Speed is measured over a window this wide. The gap between two touch
- *  events is sometimes a fraction of a millisecond, and dividing by it gives
- *  a number that says more about the touchscreen than about the hand. */
-const SPEED_WINDOW_MS = 24;
+/** How far a finger travels before it is dragging the deck rather than
+ *  pressing what it came down on, in px. */
+const DRAG_THRESHOLD = 8;
+/** The pace of a turn nobody threw: an arrow, a dot, an arrow key. Embla's
+ *  own unit, where higher is slower and 25 is its default. A thrown slide
+ *  ignores this and travels at the speed it was thrown. */
+const SNAP_DURATION = 22;
 /** Photographs on the offer slide. Enough to show a spread, few enough to read. */
 const OFFER_PHOTOS = 3;
 
@@ -157,8 +131,6 @@ export default function HomeCarousel({
   ];
   const count = slides.length;
 
-  const [wanted, setWanted] = useState(0);
-  const index = wanted < count ? wanted : 0;
   const [still, setStill] = useState(false);
 
   // The deck does not move by itself, but turning a slide is still a slide of
@@ -171,220 +143,48 @@ export default function HomeCarousel({
     return () => mq.removeEventListener("change", sync);
   }, []);
 
+  // ── Swipe ─────────────────────────────────────────────────────────
+  //
+  // Embla drives the track rather than a swipe written here. The one written
+  // here read pointer events off the deck's frame, and a finger that came
+  // down on a button, a pill or a bottle - which is most of what a slide is -
+  // had its swipe swallowed by whatever it landed on: only the bare
+  // photograph could be dragged. Embla listens for the touch at the root and
+  // decides for itself whether it became a drag or stayed a tap, so the whole
+  // slide is draggable and the buttons on it still take their presses.
+  //
   // Clamped, not wrapped. Wrapping looked like the deck lurching backwards
   // through every slide it had just come forward through, which with a
   // package apiece is a long way to lurch.
-  const go = useCallback(
-    (next: number) => setWanted(Math.min(count - 1, Math.max(0, next))),
-    [count],
-  );
+  const [deckRef, embla] = useEmblaCarousel({
+    direction: rtl ? "rtl" : "ltr",
+    align: "start",
+    containScroll: "trimSnaps",
+    dragThreshold: DRAG_THRESHOLD,
+    duration: SNAP_DURATION,
+    // Nothing to drag between when there is one slide.
+    watchDrag: count > 1,
+  });
 
-  // ── Swipe ─────────────────────────────────────────────────────────
-  // The track follows the finger rather than waiting for it to let go, so a
-  // half-swipe shows half the next slide and you can see what you are about
-  // to get. In Arabic the deck runs right to left, so the gesture that means
-  // "onwards" is the mirror of the English one.
-  //
-  // The finger's movement is written straight to the track's own style, once
-  // a frame, and never held in state. A drag is sixty renders a second
-  // otherwise, and this deck carries a slide per package: re-rendering that
-  // lot between one frame and the next is what made a swipe stutter on a
-  // phone. State holds where the deck has come to rest, and nothing else.
-  const forward = rtl ? 1 : -1;
-  const track = useRef<HTMLDivElement | null>(null);
-
-  /** Where the track sits when no finger is on it. */
-  const restAt = useCallback(
-    (i: number) => `translate3d(${rtl ? "" : "-"}${i * 100}%, 0, 0)`,
-    [rtl],
-  );
-
-  const dragFrom = useRef<{
-    id: number;
-    x: number;
-    y: number;
-    /** Locked on the first real movement and never revisited. */
-    axis: "undecided" | "x" | "y";
-    /** Where the speed was last measured from, and when. */
-    lastX: number;
-    lastAt: number;
-    /** How fast the finger is going, px per ms, signed. */
-    speed: number;
-  } | null>(null);
-
-  /** The frame the next paint is waiting on, and how far the finger has
-   *  carried the track when it comes. */
-  const frame = useRef(0);
-  const carried = useRef(0);
-
-  useEffect(
-    () => () => {
-      if (frame.current) cancelAnimationFrame(frame.current);
-    },
-    [],
-  );
-
-  // Neither end has anything to bring on, so a drag past them is resisted:
-  // the track follows the finger part of the way and springs back, the deck
-  // saying "that is the end" by feel.
-  const resisted = useCallback(
-    (dx: number) => {
-      const straining =
-        (index === 0 && dx * forward < 0) ||
-        (index === count - 1 && dx * forward > 0);
-      return straining ? dx * EDGE_RESISTANCE : dx;
-    },
-    [index, count, forward],
-  );
-
-  /** Puts the track under the finger. Runs once a frame at most. */
-  const paint = useCallback(() => {
-    frame.current = 0;
-    const el = track.current;
-    if (!el || !dragFrom.current) return;
-    const offset = resisted(carried.current);
-    // Built by hand rather than interpolated: calc() will not take "+ -12px".
-    const nudge = `${offset < 0 ? "-" : "+"} ${Math.abs(offset)}px`;
-    el.style.transitionDuration = "0ms";
-    // translate3d, not translateX: it keeps the track on a layer of its own,
-    // so following a finger is the compositor's job rather than a repaint.
-    el.style.transform = `translate3d(calc(${rtl ? "" : "-"}${
-      index * 100
-    }% ${nudge}), 0, 0)`;
-  }, [index, resisted, rtl]);
-
-  /**
-   * Sends the track to where it is going, at about the speed the finger left
-   * it at. A flick with most of a slide still to cross gets there quickly; a
-   * slow drag let go an inch from home ambles the last inch. One fixed
-   * duration for every snap is what makes a deck feel rubbery: the less there
-   * is left to travel, the more plainly it is ignoring the hand that threw it.
-   */
-  const glide = useCallback(
-    (next: number, offset: number, speed: number) => {
-      const el = track.current;
-      if (!el) return;
-      const width = el.clientWidth || 1;
-      const left = Math.abs(offset - (next - index) * width * forward);
-      const pace = Math.max(
-        width / SNAP_REST_MS,
-        Math.min(Math.abs(speed), width / SNAP_MIN_MS),
-      );
-      const ms = still
-        ? 0
-        : Math.round(Math.min(SNAP_MAX_MS, Math.max(SNAP_MIN_MS, left / pace)));
-      el.style.transitionDuration = `${ms}ms`;
-      el.style.transform = restAt(next);
-    },
-    [index, forward, still, restAt],
-  );
-
-  /**
-   * A snap borrows the track's transition for its own duration. This hands it
-   * back once the track has landed, so that a dot or an arrow pressed
-   * afterwards moves at the resting pace rather than at the pace of whatever
-   * the last finger did.
-   */
-  const onTransitionEnd = (e: React.TransitionEvent<HTMLDivElement>) => {
-    if (e.target !== e.currentTarget || e.propertyName !== "transform") return;
-    e.currentTarget.style.transitionDuration = still
-      ? "0ms"
-      : `${SNAP_REST_MS}ms`;
-  };
-
-  const onPointerDown = (e: React.PointerEvent) => {
-    if (e.pointerType === "mouse") return;
-    dragFrom.current = {
-      id: e.pointerId,
-      x: e.clientX,
-      y: e.clientY,
-      axis: "undecided",
-      lastX: e.clientX,
-      lastAt: e.timeStamp,
-      speed: 0,
+  // Where the deck has come to rest. Embla is the one that knows: a thrown
+  // slide can carry past its neighbour, and the dots have to say which slide
+  // is actually being shown rather than which one was asked for.
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    if (!embla) return;
+    const sync = () => setIndex(embla.selectedScrollSnap());
+    sync();
+    embla.on("select", sync).on("reInit", sync);
+    return () => {
+      embla.off("select", sync).off("reInit", sync);
     };
-  };
+  }, [embla]);
 
-  const onPointerMove = (e: React.PointerEvent) => {
-    const from = dragFrom.current;
-    if (!from || from.id !== e.pointerId) return;
-    const dx = e.clientX - from.x;
-    const dy = e.clientY - from.y;
-
-    // A finger on its way down the page drifts sideways as it goes. That is a
-    // scroll, so the choice is made once, at the first real movement, and
-    // stuck to: a deck that started following a finger halfway through a
-    // scroll would feel like it was grabbing at the page.
-    if (from.axis === "undecided") {
-      if (Math.abs(dx) < AXIS_LOCK_PX && Math.abs(dy) < AXIS_LOCK_PX) return;
-      from.axis = Math.abs(dx) > Math.abs(dy) * AXIS_BIAS ? "x" : "y";
-      // Ours now - keep the moves coming even if the finger leaves the deck.
-      if (from.axis === "x") e.currentTarget.setPointerCapture(e.pointerId);
-    }
-    if (from.axis !== "x") return;
-
-    const gap = e.timeStamp - from.lastAt;
-    if (gap >= SPEED_WINDOW_MS) {
-      from.speed = (e.clientX - from.lastX) / gap;
-      from.lastX = e.clientX;
-      from.lastAt = e.timeStamp;
-    }
-
-    carried.current = dx;
-    if (!frame.current) frame.current = requestAnimationFrame(paint);
-  };
-
-  /**
-   * When the last sideways drag finished. A slide is a button now - the whole
-   * photograph opens the package - so a swipe that happens to end on one
-   * would otherwise land as a press the moment the finger lifts. Anything
-   * that got as far as locking to the x axis was a swipe, not a tap, and the
-   * click it produces is swallowed below.
-   */
-  const draggedAt = useRef(0);
-
-  const settle = (e: React.PointerEvent) => {
-    const from = dragFrom.current;
-    dragFrom.current = null;
-    if (frame.current) {
-      cancelAnimationFrame(frame.current);
-      frame.current = 0;
-    }
-    if (!from || from.id !== e.pointerId || from.axis !== "x") return;
-    draggedAt.current = Date.now();
-
-    const dx = e.clientX - from.x;
-    const speed = e.timeStamp - from.lastAt > FLICK_STALE_MS ? 0 : from.speed;
-    // Two ways to turn a slide: carry it far enough that the next one is
-    // already coming into view, or throw it. The throw is what a thumb
-    // actually does, and making it travel the full 48px first is what made
-    // the deck feel like it was arguing with the hand.
-    const flick =
-      Math.abs(speed) >= FLICK_SPEED && Math.abs(dx) >= AXIS_LOCK_PX;
-    const turn = flick || Math.abs(dx) >= SWIPE_PX;
-    const step = (flick ? speed : dx) * forward > 0 ? 1 : -1;
-    // Clamped, not wrapped, the same as `go`.
-    const next = turn ? Math.min(count - 1, Math.max(0, index + step)) : index;
-
-    // Sent on its way here rather than left to the render: a swipe that turns
-    // no slide changes no state at all, and the track still has to be brought
-    // home.
-    glide(next, resisted(dx), speed);
-    setWanted(next);
-  };
-
-  // The browser takes the gesture over the moment it decides the page is
-  // being scrolled, and says so by cancelling the pointer. Whatever the
-  // finger did after that belongs to the scroll, not to us.
-  const onPointerCancel = () => {
-    const from = dragFrom.current;
-    dragFrom.current = null;
-    if (frame.current) {
-      cancelAnimationFrame(frame.current);
-      frame.current = 0;
-    }
-    if (from?.axis === "x") glide(index, resisted(carried.current), 0);
-  };
+  /** A turn asked for rather than thrown. Reduced motion gets the cut. */
+  const go = useCallback(
+    (next: number) => embla?.scrollTo(next, still),
+    [embla, still],
+  );
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     const forward = rtl ? "ArrowLeft" : "ArrowRight";
@@ -405,46 +205,20 @@ export default function HomeCarousel({
       onKeyDown={onKeyDown}
       className="relative"
     >
-      {/* The window the track runs behind. `touch-action: pan-y` leaves a
-          vertical scroll of the page to the browser while a sideways drag
-          belongs to us. */}
+      {/* The window the track runs behind, and the frame Embla watches for a
+          touch. It watches the whole of it, so a drag can start on anything
+          the slide is made of. */}
       <div
+        ref={deckRef}
         className="overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_20px_50px_-32px_rgba(27,39,51,0.5)]"
-        style={{ touchAction: "pan-y" }}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={settle}
-        onPointerCancel={onPointerCancel}
-        // Caught on the way down, before it reaches whatever was under the
-        // finger when it stopped. See draggedAt.
-        onClickCapture={(e) => {
-          if (Date.now() - draggedAt.current < 350) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        }}
       >
-        <div
-          ref={track}
-          className="flex"
-          onTransitionEnd={onTransitionEnd}
-          style={{
-            // translate3d, not translateX: it puts the track on a layer of
-            // its own, so a turn is the compositor's job rather than a
-            // repaint per frame.
-            transform: restAt(index),
-            transitionProperty: "transform",
-            // What a dot or an arrow key gets. A finger overwrites this on
-            // the element itself, and the snap that follows hands it back.
-            transitionDuration: still ? "0ms" : `${SNAP_REST_MS}ms`,
-            transitionTimingFunction: SNAP_EASE,
-            willChange: "transform",
-          }}
-        >
+        {/* `touch-pan-y` leaves a vertical scroll of the page to the browser
+            while a sideways drag belongs to the deck. */}
+        <div className="flex touch-pan-y">
           {slides.map((slide, i) => (
             <div
               key={slideKey(slide)}
-              className="w-full shrink-0"
+              className="min-w-0 shrink-0 grow-0 basis-full"
               aria-hidden={i !== index}
               inert={i !== index}
             >
