@@ -30,8 +30,8 @@ interface PackageModalProps {
 /**
  * Where a package is put together and priced.
  *
- * The one thing this screen is really for is the price. Everything above it —
- * the contents, and the "bought separately" total that follows from them — is
+ * The one thing this screen is really for is the price. Everything above it -
+ * the contents, and the "bought separately" total that follows from them - is
  * there so the number typed at the bottom can be an informed one: a package
  * is a discount, and you cannot set a discount without knowing what the
  * things are worth apart.
@@ -96,7 +96,7 @@ export default function PackageModal({
 
   // ── Contents ──
   const chosen = new Set(items.map((it) => it.product_id));
-  /** Only what isn't already in — a product can't be two lines of one kit. */
+  /** Only what isn't already in - a product can't be two lines of one kit. */
   const options = products
     .filter((p) => !chosen.has(p.id))
     .map((p) => ({
@@ -315,7 +315,7 @@ export default function PackageModal({
               </p>
             </div>
 
-            {/* Stays on the placeholder after every pick — it is an "add"
+            {/* Stays on the placeholder after every pick - it is an "add"
                 control, not a field holding one value. */}
             <div>
               <label className={labelCls}>{t("pkg.addProduct")}</label>
@@ -418,7 +418,7 @@ export default function PackageModal({
                     step="any"
                     value={oldPrice}
                     onChange={(e) => setOldPrice(e.target.value)}
-                    placeholder="—"
+                    placeholder="-"
                     dir="ltr"
                     className={inputCls}
                   />

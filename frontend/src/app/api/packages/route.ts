@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 // The storefront reads this on every load and must only ever see packages
 // that are switched on. The admin asks for all of them with ?all=1, and only
-// gets them with a session — a hidden package is a price that isn't public
+// gets them with a session - a hidden package is a price that isn't public
 // yet, so the flag is authorised rather than trusted.
 export async function GET(req: NextRequest) {
   const wantsAll = req.nextUrl.searchParams.get("all") === "1";

@@ -246,7 +246,7 @@ export default function AdminOrdersPage() {
 
                 {open && (
                   <div className="fade-in border-t border-line bg-sunken/30 px-5 py-4 ps-12">
-                    {/* Who to deliver to — the first thing staff need here */}
+                    {/* Who to deliver to - the first thing staff need here */}
                     <div className="mb-3 rounded-md border border-line bg-surface p-3">
                       <p className="label-caps mb-1.5 text-ink-3">
                         {t("checkout.customer")}

@@ -7,7 +7,7 @@ import { useI18n } from "@/lib/LanguageProvider";
 export interface DropdownOption {
   value: string;
   label: string;
-  /** Shown greyed at the end of the row — a count, a hint, anything short. */
+  /** Shown greyed at the end of the row - a count, a hint, anything short. */
   meta?: string;
   /** Extra text the search box matches on but never displays. */
   keywords?: string;
@@ -61,7 +61,7 @@ export default function Dropdown({
   }, [open]);
 
   // Put the caret in the filter box on open so you can just start typing.
-  // (The query itself is cleared by the toggle handler, not here — resetting
+  // (The query itself is cleared by the toggle handler, not here - resetting
   // state from an effect would re-render the list a second time for nothing.)
   useEffect(() => {
     if (open && searchable) searchRef.current?.focus();

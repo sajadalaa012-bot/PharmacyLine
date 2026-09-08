@@ -1,6 +1,6 @@
 import { getActiveLang, tt } from "./i18n";
 
-/** Western digits in both languages — Iraqi price lists are written this way,
+/** Western digits in both languages - Iraqi price lists are written this way,
  *  and it keeps `tabular-nums` alignment working across a mixed-language UI. */
 export function num(n: number): string {
   return n.toLocaleString("en-US", { maximumFractionDigits: 0 });
@@ -53,7 +53,7 @@ const iqd = (n: number) => `${num(n)} د.ع`;
 /** Coordinates anywhere in a delivery location, as the cart's "use my
  *  location" button writes them. */
 const PIN = /(-?\d{1,2}\.\d{3,})\s*,\s*(-?\d{1,3}\.\d{3,})/;
-/** The same pin where that button puts it — at the end, after the address. */
+/** The same pin where that button puts it - at the end, after the address. */
 const PIN_AT_END = /(\s*·)?\s*-?\d{1,2}\.\d{3,}\s*,\s*-?\d{1,3}\.\d{3,}\s*$/;
 
 /**
@@ -74,28 +74,28 @@ export function mapsLink(location: string): string {
 export function orderToWhatsAppText(order: Order): string {
   const d = new Date(order.created_at);
   const lines: string[] = [
-    "🧾 *فاتورة — velina*",
+    "🧾 *فاتورة - velina*",
     `رقم الطلب: ${String(order.id).padStart(5, "0")}`,
-    `التاريخ: ${d.toLocaleDateString("en-GB")} — ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`,
+    `التاريخ: ${d.toLocaleDateString("en-GB")} - ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`,
     "",
     "*المنتجات:*",
   ];
 
   for (const it of order.items) {
     const bonus = it.is_free ? " 🎁 (مجاني)" : "";
-    const option = it.variant_name ? ` — ${it.variant_name}` : "";
+    const option = it.variant_name ? ` - ${it.variant_name}` : "";
     lines.push(`▪️ [${it.product_code}] ${it.product_name}${option}${bonus}`);
     lines.push(`   الكمية: ${it.quantity} × ${iqd(it.unit_price)} = ${iqd(it.subtotal)}`);
   }
 
-  // Delivery block — the driver reads this message, so it goes near the top
+  // Delivery block - the driver reads this message, so it goes near the top
   // of the totals rather than buried under the notes.
   if (order.customer_name || order.customer_phone || order.customer_location) {
     lines.push("", "*التوصيل:*");
     if (order.customer_name) lines.push(`👤 ${order.customer_name}`);
     if (order.customer_phone) lines.push(`📞 ${order.customer_phone}`);
     if (order.customer_location) {
-      // The address in words, then a tappable map — never the bare numbers,
+      // The address in words, then a tappable map - never the bare numbers,
       // which are no use to whoever is driving.
       const address = order.customer_location.replace(PIN_AT_END, "").trim();
       if (address) lines.push(`📍 ${address}`);
@@ -134,7 +134,7 @@ export function waNumber(phone: string): string {
   return digits;
 }
 
-/** Whether a number carries enough digits to open a chat with — checkout's rule. */
+/** Whether a number carries enough digits to open a chat with - checkout's rule. */
 export function canWhatsApp(phone: string | null | undefined): boolean {
   return (phone?.match(/\d/g)?.length ?? 0) >= 7;
 }
@@ -149,7 +149,7 @@ export function whatsAppTo(phone: string, text: string): string {
 
 /**
  * The receipt on its way to the customer's own chat. Falls back to WhatsApp's
- * "send to who?" chooser when the order carries no number to open one with —
+ * "send to who?" chooser when the order carries no number to open one with -
  * a sale rung up at the counter has nobody to reach.
  */
 export function whatsAppOrderUrl(order: Order): string {

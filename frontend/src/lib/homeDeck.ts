@@ -1,4 +1,4 @@
-// Server-side read and write for the home deck — the slideshow's own copy.
+// Server-side read and write for the home deck - the slideshow's own copy.
 //
 // One row in app_settings holding JSON, rather than a table: it is a single
 // record that is always read and written whole, and it is configuration
@@ -20,10 +20,10 @@ const KEY = "home_deck";
 
 /** Long enough for a real headline, short enough to stay a headline. */
 const MAX_LINE = 300;
-/** The lede under it — a sentence or two, not an essay. */
+/** The lede under it - a sentence or two, not an essay. */
 const MAX_BODY = 1000;
 /** An uploaded photo arrives as a base64 data URL, downscaled by the editor.
- *  Matches the ceiling a product image gets — see lib/catalog.ts. */
+ *  Matches the ceiling a product image gets - see lib/catalog.ts. */
 const MAX_IMAGE_URL = 3_000_000;
 
 function text(v: unknown, max: number): string {
@@ -66,8 +66,8 @@ function percent(v: unknown): number {
 
 /**
  * Reads whatever is stored and fills in the rest from the defaults. Never
- * throws and never returns a partial record: a malformed row — hand-edited,
- * or written by an older build — has to degrade into today's deck rather
+ * throws and never returns a partial record: a malformed row - hand-edited,
+ * or written by an older build - has to degrade into today's deck rather
  * than take the storefront down.
  */
 export function parseDeck(raw: unknown): HomeDeck {

@@ -17,7 +17,7 @@ import { useI18n } from "@/lib/LanguageProvider";
 import { MessageKey } from "@/lib/i18n";
 
 // Same maps the form uses, so the back office reads a request in whatever
-// language the admin is browsing in — the stored keys carry no words.
+// language the admin is browsing in - the stored keys carry no words.
 const SKIN_TYPE_LABEL: Record<SkinType, MessageKey> = {
   normal: "consult.skinNormal",
   dry: "consult.skinDry",

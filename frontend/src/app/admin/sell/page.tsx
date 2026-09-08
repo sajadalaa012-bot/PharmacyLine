@@ -158,7 +158,7 @@ export default function AdminSellPage() {
                     <ProductCard
                       key={product.id}
                       product={product}
-                      // Paid and bonus together — the counter wants to see
+                      // Paid and bonus together - the counter wants to see
                       // how many of this option are going out of the door.
                       qtyOf={(vid) => cart.qtyOf(product.id, vid)}
                       mode="pos"

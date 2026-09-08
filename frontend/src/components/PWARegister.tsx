@@ -6,7 +6,7 @@ export default function PWARegister() {
   useEffect(() => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => {
-        /* PWA is progressive enhancement — ignore registration failures */
+        /* PWA is progressive enhancement - ignore registration failures */
       });
     }
   }, []);

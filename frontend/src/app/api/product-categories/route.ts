@@ -10,7 +10,7 @@ import { isAdminRequest } from "@/lib/serverAuth";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Product types — Serum, Cleanser, Sunscreen. Not to be confused with
+// Product types - Serum, Cleanser, Sunscreen. Not to be confused with
 // /api/categories, which is the shop's brands. See lib/catalog.ts.
 
 // Public: the storefront's category filter reads this on every load.

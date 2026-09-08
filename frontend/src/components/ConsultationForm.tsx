@@ -15,7 +15,7 @@ import { createConsultation } from "@/lib/api";
 import { useI18n } from "@/lib/LanguageProvider";
 import { MessageKey } from "@/lib/i18n";
 
-// The stored keys carry no words of their own — these map them to copy, in
+// The stored keys carry no words of their own - these map them to copy, in
 // whichever language the shopper is reading. Written out rather than built
 // from a template so a missing string is a compile error, like every other
 // lookup in the dictionary.
@@ -47,7 +47,7 @@ const field =
  *
  * The shop's side of this is a phone call, so the form asks for the least
  * that makes one worth making: who to ask for, a number to reach them on, and
- * what their skin is like. Everything else is optional — an enquiry that
+ * what their skin is like. Everything else is optional - an enquiry that
  * stalls on a question nobody wanted to answer is an enquiry the shop never
  * gets.
  */

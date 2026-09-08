@@ -2,7 +2,7 @@
 // Postgres database, so what an admin edits is what every visitor sees.
 //
 // The database is the source of truth. `data/catalog.json` is only the seed
-// for an empty database — once a row exists, the JSON is never read again and
+// for an empty database - once a row exists, the JSON is never read again and
 // editing it changes nothing. To start over from the JSON, empty both tables
 // (`TRUNCATE products, categories RESTART IDENTITY;`) and reload.
 
@@ -50,7 +50,7 @@ function num(v: unknown, fallback = 0): number {
 
 type Row = Record<string, unknown>;
 
-/** Empty strings are absent copy — the storefront falls back on them. */
+/** Empty strings are absent copy - the storefront falls back on them. */
 function opt(v: unknown): string | undefined {
   const s = typeof v === "string" ? v : "";
   return s === "" ? undefined : s;
@@ -92,7 +92,7 @@ function mapProductCategory(r: Row): ProductCategory {
 
 /**
  * The stored options, defensively. `jsonb` comes back already parsed, but a
- * row written before the column existed — or by hand — could hold anything,
+ * row written before the column existed - or by hand - could hold anything,
  * and a malformed option must not take the whole catalog down.
  */
 function mapVariants(v: unknown): ProductVariant[] | undefined {
@@ -171,7 +171,7 @@ function productValues(p: ProductInput): unknown[] {
 
 /**
  * An uploaded image is a base64 data URL living in the product row. Slicing an
- * over-long one to fit — the way every other field is handled — would store a
+ * over-long one to fit - the way every other field is handled - would store a
  * truncated, unreadable image, so this refuses instead of trimming.
  */
 function imageUrl(v: unknown): string {
@@ -194,7 +194,7 @@ function optionalNum(v: unknown): number | undefined {
 
 /**
  * The options an admin submitted. Nameless rows are dropped rather than
- * rejected — the editor keeps a blank row at the bottom for the next one, and
+ * rejected - the editor keeps a blank row at the bottom for the next one, and
  * saving with it still empty is not an error. Ids are generated for rows that
  * arrive without one and de-duplicated, because a repeated id would make two
  * options share a cart line.
@@ -360,7 +360,7 @@ async function seedCatalog(): Promise<void> {
     }
 
     // The rows above carry explicit ids, which leaves both identity sequences
-    // still at 1 — the next insert would collide. Move them past the seed.
+    // still at 1 - the next insert would collide. Move them past the seed.
     for (const t of ["categories", "products"]) {
       await client.query(
         `SELECT setval(pg_get_serial_sequence('${t}', 'id'),
@@ -384,7 +384,7 @@ export function ensureCatalog(): Promise<void> {
       .then(backfillProductCategories)
       .then(rebrandCatalogCopy)
       .catch((err) => {
-        // Don't cache a failure — a transient database blip would otherwise
+        // Don't cache a failure - a transient database blip would otherwise
         // leave this instance permanently unable to serve the catalog.
         seedPromise = null;
         throw err;
@@ -450,7 +450,7 @@ export async function createProduct(input: ProductInput): Promise<Product> {
   return mapProduct(res.rows[0]);
 }
 
-/** Replaces every field of a product — the admin form always sends them all. */
+/** Replaces every field of a product - the admin form always sends them all. */
 export async function updateProduct(
   id: number,
   input: ProductInput,
@@ -531,7 +531,7 @@ export async function updateProductCategory(
 }
 
 /**
- * Deleting a category does not delete its products — the column is
+ * Deleting a category does not delete its products - the column is
  * ON DELETE SET NULL, so they simply go back to being untyped.
  */
 export async function deleteProductCategory(id: number): Promise<boolean> {

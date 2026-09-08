@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Sun, Moon } from "lucide-react";
 import { useI18n } from "@/lib/LanguageProvider";
 
-/** The paper each theme sits on — also what the browser paints its chrome. */
+/** The paper each theme sits on - also what the browser paints its chrome. */
 const PAPER = { light: "#f3f7fb", dark: "#101720" };
 
 /** Repaint the status bar / browser chrome to match the theme in force. */

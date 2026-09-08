@@ -44,7 +44,7 @@ export async function PUT(
   }
 }
 
-// Admin only. Unlike a brand, this is allowed while products still use it —
+// Admin only. Unlike a brand, this is allowed while products still use it -
 // the column is ON DELETE SET NULL, so they go back to being untyped rather
 // than being deleted along with it.
 export async function DELETE(

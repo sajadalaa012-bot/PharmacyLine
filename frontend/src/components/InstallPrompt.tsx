@@ -14,7 +14,7 @@ const DISMISSED_KEY = "install-prompt-dismissed";
 
 /**
  * Invitation to keep the shop on the home screen, shown once the browser says
- * the app is installable — and on iOS, where no such event exists, as the
+ * the app is installable - and on iOS, where no such event exists, as the
  * Share-sheet recipe instead. Dismissing it is remembered.
  */
 export default function InstallPrompt() {
@@ -43,7 +43,7 @@ export default function InstallPrompt() {
       /Safari/.test(navigator.userAgent);
     if (ios) {
       // Platform and display mode are browser-only facts, so they can only be
-      // read after mount — the server has no user agent to render from.
+      // read after mount - the server has no user agent to render from.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsIOS(true);
       setShow(true);
@@ -66,7 +66,7 @@ export default function InstallPrompt() {
     try {
       localStorage.setItem(DISMISSED_KEY, "1");
     } catch {
-      /* private mode — the banner simply returns next visit */
+      /* private mode - the banner simply returns next visit */
     }
   };
 

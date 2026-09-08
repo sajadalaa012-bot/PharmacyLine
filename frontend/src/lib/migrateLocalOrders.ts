@@ -1,6 +1,6 @@
 // One-time recovery: older app versions saved orders in this device's local
 // storage (IndexedDB). This reads those and uploads them to the shared
-// database so they appear in the admin everywhere. Safe to run repeatedly —
+// database so they appear in the admin everywhere. Safe to run repeatedly -
 // each order carries a stable idempotency key, so it can't be duplicated.
 
 import { getAll, STORE } from "./localdb";
@@ -96,7 +96,7 @@ export async function migrateLocalOrders(): Promise<number> {
         recovered++;
       }
     } catch {
-      // network hiccup — leave it un-done so it retries next open
+      // network hiccup - leave it un-done so it retries next open
     }
   }
 

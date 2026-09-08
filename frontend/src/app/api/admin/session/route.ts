@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     authenticated: isAdminRequest(req),
     // Whether the built-in fallback credentials are in force. A warning flag
-    // only — never the credentials themselves.
+    // only - never the credentials themselves.
     defaultCredentials: USING_DEFAULT_CREDENTIALS,
   });
 }

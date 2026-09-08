@@ -28,7 +28,7 @@ const ADMIN_PASSWORD =
 
 /**
  * True when no admin credentials were configured at all, so the fallbacks in
- * this file — which are committed to a public repo — are what is guarding the
+ * this file - which are committed to a public repo - are what is guarding the
  * back office. Surfaced on the login screen so it can't go unnoticed.
  */
 export const USING_DEFAULT_CREDENTIALS =

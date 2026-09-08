@@ -22,7 +22,7 @@ interface ProductCardProps {
   product: Product;
   /**
    * How many of one option are in the basket. A lookup rather than a number
-   * because the card picks the option itself — the parent has no way to know
+   * because the card picks the option itself - the parent has no way to know
    * which one is showing.
    */
   qtyOf: (variantId?: string) => number;
@@ -88,7 +88,7 @@ export default function ProductCard({
         </span>
       )}
 
-      {/* Offer flag — under the sold-out one when a product is both. */}
+      {/* Offer flag - under the sold-out one when a product is both. */}
       {onOffer && (
         <span
           className={`label-caps absolute start-2 z-10 rounded-full bg-rose px-2 py-1 text-[10px] text-paper shadow-sm ${
@@ -106,7 +106,7 @@ export default function ProductCard({
         </span>
       )}
 
-      {/* Image — floats on a clean white plate framed by the pastel card.
+      {/* Image - floats on a clean white plate framed by the pastel card.
           Tapping it opens the product detail view (when enabled). */}
       <button
         type="button"

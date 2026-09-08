@@ -1,5 +1,5 @@
 // Small server-side key/value store for things an admin configures at
-// runtime — settings that would otherwise need a redeploy to change.
+// runtime - settings that would otherwise need a redeploy to change.
 //
 // Deliberately not a place for secrets you can keep in the environment: the
 // Telegram bot token is read from TELEGRAM_BOT_TOKEN first and only falls back
@@ -35,7 +35,7 @@ export async function setSetting(
   );
 }
 
-/** A setting holding a JSON array of strings — returns [] for anything else. */
+/** A setting holding a JSON array of strings - returns [] for anything else. */
 export async function getStringList(key: string): Promise<string[]> {
   const raw = await getSetting(key);
   if (!raw) return [];

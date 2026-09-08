@@ -1,4 +1,4 @@
-// Server-side data access and validation for packages — a set of catalog
+// Server-side data access and validation for packages - a set of catalog
 // products sold together for one price the shop sets by hand.
 //
 // Nothing the client sends is trusted: copy is trimmed and capped, the price
@@ -22,7 +22,7 @@ export class PackageError extends Error {
 
 // ── Field limits ────────────────────────────────────────────────────
 // Mirrors lib/catalog.ts: long enough for real copy, short enough that a
-// column can't be used as a dumping ground. image_url is the outlier —
+// column can't be used as a dumping ground. image_url is the outlier -
 // uploads arrive as base64 data URLs, downscaled by the admin before sending.
 const MAX_NAME = 300;
 const MAX_TEXT = 5000;
@@ -41,7 +41,7 @@ function num(v: unknown, fallback = 0): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
-/** Empty strings are absent copy — the storefront falls back on them. */
+/** Empty strings are absent copy - the storefront falls back on them. */
 function opt(v: unknown): string | undefined {
   const s = typeof v === "string" ? v : "";
   return s === "" ? undefined : s;
@@ -125,7 +125,7 @@ function packageValues(p: PackageInput): unknown[] {
 
 /**
  * An uploaded image is a base64 data URL living in the package row. Slicing
- * an over-long one to fit — the way every other field is handled — would
+ * an over-long one to fit - the way every other field is handled - would
  * store a truncated, unreadable image, so this refuses instead of trimming.
  */
 function imageUrl(v: unknown): string {
@@ -141,7 +141,7 @@ function imageUrl(v: unknown): string {
 
 /**
  * The contents an admin submitted. Lines without a product are dropped rather
- * than rejected — the editor lets you add a row before picking what goes in
+ * than rejected - the editor lets you add a row before picking what goes in
  * it, and saving with one still empty is not an error. A product listed twice
  * is merged into one line, because two lines for the same thing would show
  * the shopper the same item twice.
@@ -206,7 +206,7 @@ export function validatePackage(body: unknown): PackageInput {
 // ── Seeding (once per database) ─────────────────────────────────────
 
 /**
- * The packages a new shop opens with — ready to sell rather than blank, so
+ * The packages a new shop opens with - ready to sell rather than blank, so
  * the home page has something on it the day the feature lands.
  *
  * `old_price` is each kit's contents at the catalogue's own prices, and the
@@ -214,7 +214,7 @@ export function validatePackage(body: unknown): PackageInput {
  * (data/catalog.json), which carries explicit ids, so they are stable; an id
  * that has since been deleted simply drops out of the contents rather than
  * breaking the package. Everything here is the shop's to re-price, re-fill or
- * delete — this is a starting point, not a fixture.
+ * delete - this is a starting point, not a fixture.
  */
 const STARTER_PACKAGES: (Omit<PackageInput, "display_order"> & {
   name_ar: string;
@@ -317,8 +317,8 @@ async function seedPackages(): Promise<void> {
     }
 
     // v1 seeded "Back to School" and "College" as blank placeholders. If they
-    // are still exactly as they were seeded — no price, nothing in them, never
-    // switched on — they are this code's own leftovers rather than anything
+    // are still exactly as they were seeded - no price, nothing in them, never
+    // switched on - they are this code's own leftovers rather than anything
     // the shop typed, and the priced versions below replace them. Every
     // condition has to hold, so a placeholder somebody has started filling in
     // is left alone and blocks the seed on the count check that follows.
@@ -334,7 +334,7 @@ async function seedPackages(): Promise<void> {
       [V1_STARTER_NAMES],
     );
 
-    // Never overwrite a table someone has already put packages in — the flag
+    // Never overwrite a table someone has already put packages in - the flag
     // could be missing on a database that predates it.
     const count = await client.query<{ n: string }>(
       "SELECT COUNT(*) AS n FROM packages",
@@ -372,7 +372,7 @@ function ensurePackages(): Promise<void> {
     seedPromise = ensureSchema()
       .then(seedPackages)
       .catch((err) => {
-        // Don't cache a failure — a transient database blip would otherwise
+        // Don't cache a failure - a transient database blip would otherwise
         // leave this instance permanently unable to serve packages.
         seedPromise = null;
         throw err;

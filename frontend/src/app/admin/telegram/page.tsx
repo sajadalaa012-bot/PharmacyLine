@@ -37,7 +37,7 @@ interface Chat {
  * Where the shop's Telegram connection is set up.
  *
  * The awkward part of connecting a bot is that it cannot start a conversation
- * — somebody has to message it first, and only then does a chat id exist to
+ * - somebody has to message it first, and only then does a chat id exist to
  * send to. So the page is built around that: send a message, press Find, pick
  * the chat off a list. Nobody has to know what a chat id is.
  */

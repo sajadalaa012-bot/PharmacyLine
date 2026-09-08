@@ -5,7 +5,7 @@
 // The chosen language is stored in a cookie rather than localStorage so the
 // server render already knows it: the root layout reads the cookie, stamps
 // lang/dir on <html>, and seeds this provider. That means no hydration
-// mismatch on translated text and no flash of the wrong language — the
+// mismatch on translated text and no flash of the wrong language - the
 // trade-off localStorage alone cannot make, because the server cannot read it.
 
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
@@ -22,7 +22,7 @@ import {
 interface LanguageContext {
   lang: Lang;
   dir: "rtl" | "ltr";
-  /** True while reading Arabic — handy for direction-dependent layout. */
+  /** True while reading Arabic - handy for direction-dependent layout. */
   rtl: boolean;
   setLang: (lang: Lang) => void;
   toggleLang: () => void;
@@ -39,7 +39,7 @@ function persist(lang: Lang) {
   try {
     localStorage.setItem(LANG_KEY, lang);
   } catch {
-    // Private mode / storage disabled — the cookie alone is enough.
+    // Private mode / storage disabled - the cookie alone is enough.
   }
 }
 

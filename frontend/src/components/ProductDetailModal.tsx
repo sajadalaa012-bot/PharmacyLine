@@ -32,7 +32,7 @@ import {
 
 interface ProductDetailModalProps {
   product: Product;
-  /** How many of one option are in the basket — the modal picks the option. */
+  /** How many of one option are in the basket - the modal picks the option. */
   qtyOf: (variantId?: string) => number;
   onClose: () => void;
   onAdd: (product: Product, variant?: ProductVariant | null) => void;
@@ -156,7 +156,7 @@ export default function ProductDetailModal({
         {/* Body */}
         <div className="flex-1 overflow-y-auto">
           <div className="flex flex-col gap-5 p-5 sm:flex-row">
-            {/* Image — tap to magnify */}
+            {/* Image - tap to magnify */}
             <button
               type="button"
               onClick={() => product.image_url && setZoomOpen(true)}
@@ -189,7 +189,7 @@ export default function ProductDetailModal({
                 <bdi>{name}</bdi>
               </h3>
 
-              {/* Price — "was … now …" while the product is on offer. */}
+              {/* Price - "was … now …" while the product is on offer. */}
               <div className="mt-2 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
                 <p
                   className={`font-display text-2xl font-semibold tracking-tight tabular-nums ${
@@ -226,7 +226,7 @@ export default function ProductDetailModal({
                 </p>
               )}
 
-              {/* Options, as tappable chips — the whole set is visible at
+              {/* Options, as tappable chips - the whole set is visible at
                   once here, where there is room for it. */}
               {variants.length > 0 && (
                 <div className="mt-4">
@@ -253,7 +253,7 @@ export default function ProductDetailModal({
                         >
                           <bdi>{localized(v, "name", lang)}</bdi>
                           {/* Only worth showing when the options differ in
-                              price — otherwise it is the same number twice. */}
+                              price - otherwise it is the same number twice. */}
                           {v.price != null && (
                             <span className="ms-1.5 text-[11px] text-ink-3 tabular-nums">
                               {num(variantPricing(product, v).price)}
@@ -371,7 +371,7 @@ export default function ProductDetailModal({
         </div>
       </div>
 
-      {/* Magnify viewer — a zoomable/pannable full-screen photo */}
+      {/* Magnify viewer - a zoomable/pannable full-screen photo */}
       {zoomOpen && product.image_url && (
         <ImageZoom
           src={product.image_url}

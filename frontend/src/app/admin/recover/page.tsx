@@ -15,7 +15,7 @@ import { num } from "@/lib/format";
  * Publishes catalog edits that are stranded in this browser.
  *
  * Before the catalog moved into the shared database, the admin saved products
- * to IndexedDB — so anything edited then is invisible to every other device.
+ * to IndexedDB - so anything edited then is invisible to every other device.
  * This shows what it would take to make the database match this browser and
  * writes nothing until that plan is confirmed, because matching it means
  * deleting server rows this device doesn't have.
@@ -49,7 +49,7 @@ export default function RecoverPage() {
     load();
   }, [load]);
 
-  /** The refresh button — unlike mounting, this wants the spinner back. */
+  /** The refresh button - unlike mounting, this wants the spinner back. */
   const reload = () => {
     setLoading(true);
     load();

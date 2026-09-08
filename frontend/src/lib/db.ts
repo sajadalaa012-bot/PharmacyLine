@@ -1,4 +1,4 @@
-// Postgres access for the shop — the catalog, the orders, the handful of
+// Postgres access for the shop - the catalog, the orders, the handful of
 // settings an admin changes at runtime. One pooled connection reused across
 // warm serverless invocations; all queries are parameterized.
 
@@ -26,7 +26,7 @@ function makePool(): Pool {
     ssl: useSSL ? { rejectUnauthorized: false } : undefined,
     // A serverless instance serves one request at a time, and the widest
     // thing any request does is listCatalog's two parallel queries. Holding
-    // more than that open only spends the database's connection limit — and a
+    // more than that open only spends the database's connection limit - and a
     // burst of cold starts is exactly when that limit bites.
     max: 3,
     // Fail fast rather than hang until the platform kills the function: a
@@ -38,7 +38,7 @@ function makePool(): Pool {
 
   // Hosted Postgres drops idle connections routinely, and node-postgres
   // reports that as an 'error' event on the pool. With no listener, Node
-  // re-raises it as an uncaught exception and takes down the whole function —
+  // re-raises it as an uncaught exception and takes down the whole function -
   // including whatever request happened to be in flight.
   pool.on("error", (err) => {
     console.error("Postgres pool error on an idle client:", err);
@@ -62,7 +62,7 @@ function isConnectFault(err: unknown): boolean {
   const e = err as { code?: string; message?: string } | null;
   switch (e?.code) {
     case "53300": // too_many_connections
-    case "57P03": // cannot_connect_now — the server is still coming up
+    case "57P03": // cannot_connect_now - the server is still coming up
     case "ECONNREFUSED":
     case "ECONNRESET":
     case "ETIMEDOUT":
@@ -184,7 +184,7 @@ const SCHEMA_SQL = `
 
     -- The "was" price of a product on offer. NULL is the normal case: no
     -- offer, one price. Added after the catalog was already live, so it is
-    -- nullable rather than defaulted — see isDiscounted().
+    -- nullable rather than defaulted - see isDiscounted().
     ALTER TABLE products ADD COLUMN IF NOT EXISTS old_price NUMERIC(14,2);
 
     -- The options a product is sold in (size, flavour, shade). A JSON array
@@ -234,7 +234,7 @@ const SCHEMA_SQL = `
     -- An enquiry, not an order: nothing here references a product or a cart,
     -- and the shop's side of it is a phone call. concerns is a JSON array of
     -- the keys in SKIN_CONCERNS, for the same reason products.variants is
-    -- JSON — only ever read and written whole, never queried across rows.
+    -- JSON - only ever read and written whole, never queried across rows.
     CREATE TABLE IF NOT EXISTS consultations (
       id         BIGSERIAL PRIMARY KEY,
       name       TEXT NOT NULL,
@@ -252,12 +252,12 @@ const SCHEMA_SQL = `
       ON consultations (created_at DESC);
 
     -- Packages: a set of catalog products sold together for one price the
-    -- shop sets by hand — a back-to-school kit, a college kit.
+    -- shop sets by hand - a back-to-school kit, a college kit.
     --
     -- items is a JSON array of {product_id, quantity}, for the same reason
     -- products.variants is JSON: it is only ever read and written with the
     -- package that owns it, never queried across packages. Deliberately NOT a
-    -- join table with foreign keys — a package points at the catalog, it does
+    -- join table with foreign keys - a package points at the catalog, it does
     -- not own any of it, and deleting a product should never be blocked by,
     -- or cascade into, a package that happened to mention it. A line whose
     -- product is gone is dropped when the contents are resolved.
@@ -340,7 +340,7 @@ async function initSchema(): Promise<void> {
     if ((await recordedHash(client)) === SCHEMA_HASH) return;
 
     // Cold starts arrive in bursts, and concurrent CREATE TABLE / ALTER TABLE
-    // race each other in Postgres — "tuple concurrently updated", duplicate
+    // race each other in Postgres - "tuple concurrently updated", duplicate
     // pg_type rows, deadlocks. That is what made one visitor in twenty see
     // "the shop could not load" while everyone else got in. One instance runs
     // the DDL; the rest wait here and then find the hash already recorded.

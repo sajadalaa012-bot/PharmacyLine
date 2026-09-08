@@ -15,7 +15,7 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// The Telegram connection, set up from /admin/telegram. Admin only — the bot
+// The Telegram connection, set up from /admin/telegram. Admin only - the bot
 // token is a credential, and the chat list says where a shop's orders go.
 
 /** Everything the setup page renders: token state, bot identity, destinations. */
@@ -35,7 +35,7 @@ async function status() {
   return {
     configured: true,
     fromEnv: tokenIsFromEnv(),
-    // Never the token itself — it only ever travels into this app, not out.
+    // Never the token itself - it only ever travels into this app, not out.
     maskedToken: maskToken(token),
     chatIds,
     bot: info.ok ? info.bot : null,

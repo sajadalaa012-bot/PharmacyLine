@@ -23,7 +23,7 @@ const DONE_FLAG = "product_categories_backfilled";
  * The types, in the order they are tried and the order they are shown.
  *
  * Order is load-bearing: a "Sun Cream" is a sunscreen, not a moisturiser, so
- * sunscreen is tested first. The broad ones — cream, serum — come last, after
+ * sunscreen is tested first. The broad ones - cream, serum - come last, after
  * every more specific reading has had its chance.
  */
 const TYPES: { name: string; name_ar: string; match: RegExp }[] = [
@@ -63,7 +63,7 @@ export function classify(name: string): string | null {
 export async function backfillProductCategories(): Promise<void> {
   if (await getSetting(DONE_FLAG)) return;
 
-  // Only ever add to the list — a category the admin renamed or deleted is
+  // Only ever add to the list - a category the admin renamed or deleted is
   // their decision, so an existing name is left exactly as it is. This also
   // handles TYPES naming a type twice (Serum has a strong pass and a
   // last-resort one): the second mention finds the first already there.

@@ -46,7 +46,7 @@ import { useI18n } from "@/lib/LanguageProvider";
 import { localized, MessageKey } from "@/lib/i18n";
 import { num } from "@/lib/format";
 
-/** Products on the home screen's shelf — a taste of the catalogue, not it. */
+/** Products on the home screen's shelf - a taste of the catalogue, not it. */
 const HOME_ITEMS = 6;
 
 /** The tappable heading that opens or shuts one filter section. */
@@ -91,7 +91,7 @@ function FilterHeader({
  * One dimension of the Browse page: a bar of chips you swipe along.
  *
  * Kept on a single line rather than wrapped, so opening a section adds one
- * row to the page however many brands it holds — thirty-one wrapped chips
+ * row to the page however many brands it holds - thirty-one wrapped chips
  * would push the second section off the screen entirely. Each chip carries
  * its count, so the bar says what it is worth tapping without opening it.
  */
@@ -154,7 +154,7 @@ export default function ShopView() {
   const [activeCategory, setActiveCategory] = useState<number | "all">("all");
   const [activeType, setActiveType] = useState<number | "all">("all");
   // Browse opens with both lists shut: two headings you can take in at a
-  // glance, rather than forty rows to scroll past. Each opens on its own —
+  // glance, rather than forty rows to scroll past. Each opens on its own -
   // opening one does not shut the other.
   const [openCategory, setOpenCategory] = useState(false);
   const [openBrand, setOpenBrand] = useState(false);
@@ -304,7 +304,7 @@ export default function ShopView() {
 
   const goToCatalog = () => {
     goTab("store");
-    // Desktop keeps its single scrolling page — bring the grid into view.
+    // Desktop keeps its single scrolling page - bring the grid into view.
     document
       .getElementById("catalog")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -461,7 +461,7 @@ export default function ShopView() {
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-5 sm:py-4">
-          {/* Logo — the wordmark is near-black, so the dark theme gets its
+          {/* Logo - the wordmark is near-black, so the dark theme gets its
               own cream cut of the same mark (see scripts/logo-velina.mjs) */}
           <button
             onClick={() => goTab("home")}
@@ -482,7 +482,7 @@ export default function ShopView() {
             />
           </button>
 
-          {/* Desktop search — center */}
+          {/* Desktop search - center */}
           {renderSearch("mx-auto hidden w-full max-w-md sm:block")}
 
           {/* Utilities */}
@@ -511,16 +511,16 @@ export default function ShopView() {
 
       {/* ── Scrolling region ────────────────────────────────────────── */}
       <div ref={bodyRef} className="app-body">
-        {/* Home tab — phone only. A front screen, not a landing page. */}
+        {/* Home tab - phone only. A front screen, not a landing page. */}
         {tab === "home" && (
           <div className="tab-in sm:hidden">
-            {/* Canvas — search and the shop's opening line, on the same dark
+            {/* Canvas - search and the shop's opening line, on the same dark
                 ground as the bar above it */}
             <section className="home-canvas home-canvas-hero px-4 pb-12 pt-4">
               {renderSearch()}
 
               {/* The deck says what the shop is, what it has put together,
-                  and what is discounted — in place of a headline that could
+                  and what is discounted - in place of a headline that could
                   only say the first. */}
               <div className="mt-5">
                 <HomeCarousel
@@ -541,11 +541,11 @@ export default function ShopView() {
               </div>
             </section>
 
-            {/* Sheet — the rest of the home screen rides up over the canvas */}
+            {/* Sheet - the rest of the home screen rides up over the canvas */}
             <div className="home-sheet relative -mt-7 bg-paper pb-8 pt-6">
               {/* The shop's own offer to help, straight under the deck: it is
                   what to do when the slides have not answered the question.
-                  The form itself is a page of its own — this is the way in. */}
+                  The form itself is a page of its own - this is the way in. */}
               <div className="px-4">
                 <ConsultationInvite onOpen={() => goTab("consult")} />
               </div>
@@ -582,7 +582,7 @@ export default function ShopView() {
                 </section>
               )}
 
-              {/* Small print — the app equivalent of the site footer */}
+              {/* Small print - the app equivalent of the site footer */}
               <div className="mt-8 px-4">
                 <p className="text-center text-[11px] text-ink-3">
                   {t("shop.copyright")}
@@ -592,7 +592,7 @@ export default function ShopView() {
           </div>
         )}
 
-        {/* Consultation — a page of its own rather than another panel on the
+        {/* Consultation - a page of its own rather than another panel on the
             home screen: it is a form somebody sits down to fill in, and it
             deserves the whole width without the shop scrolling past it. */}
         {tab === "consult" && (
@@ -610,7 +610,7 @@ export default function ShopView() {
           </div>
         )}
 
-        {/* Browse — the filter page. Both dimensions in full, so a shopper
+        {/* Browse - the filter page. Both dimensions in full, so a shopper
             picks from the whole list rather than scrolling a strip. Shown on
             the phone as a tab and on the desktop as its own section. */}
         {tab === "browse" && (
@@ -703,12 +703,12 @@ export default function ShopView() {
           </div>
         )}
 
-        {/* Cart tab — phone only; the desktop uses the drawer. */}
+        {/* Cart tab - phone only; the desktop uses the drawer. */}
         {tab === "cart" && (
           <div className="tab-in h-full sm:hidden">{cartPanel}</div>
         )}
 
-        {/* Hero — desktop only; the phone has its home tab instead. It is
+        {/* Hero - desktop only; the phone has its home tab instead. It is
             part of the home view, so it steps aside for Browse. */}
         <section
           className={`shop-hero hidden border-b border-line ${
@@ -740,14 +740,14 @@ export default function ShopView() {
           </div>
         </section>
 
-        {/* Catalog — the store tab on a phone, the page body on desktop */}
+        {/* Catalog - the store tab on a phone, the page body on desktop */}
         <main
           id="catalog"
           className={`mx-auto max-w-7xl scroll-mt-24 px-4 pb-10 pt-4 sm:px-5 sm:py-10 ${
             tab === "store" ? "" : "hidden"
           } ${tab === "browse" || tab === "consult" ? "" : "sm:block"}`}
         >
-          {/* Store search — phone only; the desktop has one in the header. */}
+          {/* Store search - phone only; the desktop has one in the header. */}
           <div className="tab-in pb-4 sm:hidden">{renderSearch()}</div>
 
           <div className="mb-5 space-y-4 sm:mb-6">
@@ -892,7 +892,7 @@ export default function ShopView() {
           )}
         </main>
 
-        {/* Footer — desktop only */}
+        {/* Footer - desktop only */}
         <footer className="hidden border-t border-line bg-surface sm:block">
           <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-5 py-10 sm:flex-row sm:items-center">
             <div>
@@ -917,13 +917,13 @@ export default function ShopView() {
       <InstallPrompt />
 
       {/* The discount ad. Only over the home screen, and only when there is
-          something to advertise — an ad for offers that do not exist is
+          something to advertise - an ad for offers that do not exist is
           worse than no ad. */}
       {tab === "home" && hasOffers && (
         <OfferPopup onShop={showOffers} percent={deck.offer.percent} />
       )}
 
-      {/* ── Tab bar — phone only ────────────────────────────────────── */}
+      {/* ── Tab bar - phone only ────────────────────────────────────── */}
       <nav
         className="z-40 shrink-0 border-t border-line bg-surface/95 backdrop-blur-md sm:hidden"
         style={{ paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))" }}
@@ -967,7 +967,7 @@ export default function ShopView() {
         </div>
       </nav>
 
-      {/* Cart — side drawer on desktop */}
+      {/* Cart - side drawer on desktop */}
       {cartOpen && (
         <div className="fade-in fixed inset-0 z-50 hidden justify-end bg-ink/45 backdrop-blur-[2px] sm:flex">
           <div className="flex-1" onClick={() => setCartOpen(false)} />
@@ -987,7 +987,7 @@ export default function ShopView() {
         </div>
       )}
 
-      {/* Package detail — opened from a slide in the deck. Rendered before
+      {/* Package detail - opened from a slide in the deck. Rendered before
           the product view on purpose: tapping one of the contents opens that
           product on top of this, and closing it comes back here. */}
       {detailPackage && (
@@ -1003,7 +1003,7 @@ export default function ShopView() {
         />
       )}
 
-      {/* Product detail — opened by tapping a product card */}
+      {/* Product detail - opened by tapping a product card */}
       {detailProduct && (
         <ProductDetailModal
           product={detailProduct}

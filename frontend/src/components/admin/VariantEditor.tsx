@@ -19,7 +19,7 @@ function newId(): string {
 }
 
 /**
- * The options a product is sold in — sizes, flavours, shades.
+ * The options a product is sold in - sizes, flavours, shades.
  *
  * Every field except the name is an override: left blank, the option inherits
  * the product's own price, offer and stock. That keeps a same-price set (two
@@ -77,7 +77,7 @@ export default function VariantEditor({
           key={v.id}
           className="rounded-lg border border-line bg-sunken/60 p-3"
         >
-          {/* Row header — position, reorder, delete */}
+          {/* Row header - position, reorder, delete */}
           <div className="mb-2.5 flex items-center gap-1.5">
             <span className="label-caps flex h-5 min-w-5 items-center justify-center rounded-sm bg-brand/10 px-1 text-[10px] text-brand tabular-nums">
               {i + 1}
@@ -118,7 +118,7 @@ export default function VariantEditor({
             </div>
           </div>
 
-          {/* Names — English drives the shop, Arabic falls back to it. */}
+          {/* Names - English drives the shop, Arabic falls back to it. */}
           <div className="grid grid-cols-2 gap-2.5">
             <div>
               <label className={labelCls}>{t("variants.name")}</label>
@@ -144,7 +144,7 @@ export default function VariantEditor({
             </div>
           </div>
 
-          {/* Overrides — every one of these may be left blank. */}
+          {/* Overrides - every one of these may be left blank. */}
           <div className="mt-2.5 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
             <div>
               <label className={labelCls}>{t("variants.codeSuffix")}</label>

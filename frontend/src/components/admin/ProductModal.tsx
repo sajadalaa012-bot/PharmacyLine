@@ -21,7 +21,7 @@ interface ProductModalProps {
   onClose: () => void;
   /** null/undefined = create mode */
   product?: Product | null;
-  /** The shop's brands — what the catalogue is grouped by. */
+  /** The shop's brands - what the catalogue is grouped by. */
   categories: Category[];
   /** The product types: Serum, Cleanser, … Optional on a product. */
   productCategories: ProductCategory[];
@@ -56,7 +56,7 @@ export default function ProductModal({
   const [benefits, setBenefits] = useState("");
   const [ingredients, setIngredients] = useState("");
   const [usage, setUsage] = useState("");
-  // Blank means "not tracked" — see Product.stock.
+  // Blank means "not tracked" - see Product.stock.
   const [stock, setStock] = useState("");
   // The options this product is sold in. Empty = sold as itself.
   const [variants, setVariants] = useState<ProductVariant[]>([]);
@@ -167,7 +167,7 @@ export default function ProductModal({
 
     // Options: a half-filled row is a mistake worth pointing at, since a
     // nameless option would simply be dropped on save and the admin would
-    // wonder where it went. A completely blank row is fine — it is just the
+    // wonder where it went. A completely blank row is fine - it is just the
     // row they added and changed their mind about.
     const filled = variants.filter(
       (v) =>
@@ -246,7 +246,7 @@ export default function ProductModal({
   };
 
   // What the offer will look like on the storefront, as the two numbers are
-  // typed — so a wrong way round pair is obvious before it is saved.
+  // typed - so a wrong way round pair is obvious before it is saved.
   const previewNew = parseFloat(price);
   const previewOld = parseFloat(oldPrice);
   const offerPreview =
@@ -337,7 +337,7 @@ export default function ProductModal({
               </div>
             </div>
 
-            {/* Offer — the old price shoppers see struck through. */}
+            {/* Offer - the old price shoppers see struck through. */}
             <div>
               <label className="label-caps mb-1.5 block text-ink-3">
                 {t("modal.oldPriceIqd")}

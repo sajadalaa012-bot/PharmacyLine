@@ -96,7 +96,7 @@ export default function Receipt({ order, onBack, backLabel }: ReceiptProps) {
                 {orderNo(order.id)}
               </span>
               <span>
-                {shortDate(order.created_at)} — {shortTime(order.created_at)}
+                {shortDate(order.created_at)} - {shortTime(order.created_at)}
               </span>
             </div>
             {pending && (

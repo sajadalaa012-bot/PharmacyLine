@@ -39,7 +39,7 @@ const AXIS_LOCK_PX = 6;
 /**
  * How much of a drag past the first or last slide actually shows. There is
  * nothing to bring on from either end, so the track follows the finger part
- * of the way and springs back — the deck saying "that's the end" by feel.
+ * of the way and springs back - the deck saying "that's the end" by feel.
  */
 const EDGE_RESISTANCE = 0.32;
 /** The snap after a finger lets go. Decelerates hard, so it settles rather
@@ -54,13 +54,13 @@ type Slide =
   | { kind: "about" }
   | { kind: "package"; pkg: PackageType };
 
-/** Stable per slide — package slides all share a `kind`. */
+/** Stable per slide - package slides all share a `kind`. */
 function slideKey(slide: Slide): string {
   return slide.kind === "package" ? `package-${slide.pkg.id}` : slide.kind;
 }
 
 interface HomeCarouselProps {
-  /** Everything in the catalogue — the deck picks its own photos out of it. */
+  /** Everything in the catalogue - the deck picks its own photos out of it. */
   products: Product[];
   /** The packages on sale. Each gets a slide of its own. */
   packages: PackageType[];
@@ -76,7 +76,7 @@ interface HomeCarouselProps {
   onOpenProduct: (product: Product) => void;
   /** Puts one package in the basket, straight off the slide. */
   onAddPackage: (pkg: PackageType) => void;
-  /** Opens one package in full — its description and everything in it. */
+  /** Opens one package in full - its description and everything in it. */
   onOpenPackage: (pkg: PackageType) => void;
   /** How many of one package are already in the basket. */
   packageQty: (pkg: PackageType) => number;
@@ -86,7 +86,7 @@ interface HomeCarouselProps {
  * What the home screen opens with: a word on what the shop stocks, then the
  * packages it has put together, then the discount that is running.
  *
- * Slides that have nothing to say are dropped rather than shown empty — the
+ * Slides that have nothing to say are dropped rather than shown empty - the
  * offer slide when nothing is actually discounted, a package slide when there
  * is no package or it has not been priced. An advertisement for something
  * that does not exist is worse than no advertisement, and it is the same rule
@@ -118,13 +118,13 @@ export default function HomeCarousel({
 
   // Every package the shop is selling, in the order the admin arranged them.
   // The deck is the only place packages appear, so nothing is held back here
-  // — except one nobody has priced, which is not something to advertise.
+  // - except one nobody has priced, which is not something to advertise.
   const promoted = packages.filter((p) => p.price > 0);
 
   // The brief opens the deck: what the shop is comes before what it is
   // selling, so a first-time visitor is told where they are before they are
-  // sold to. Packages come next — a named kit at a fixed price is a more
-  // concrete thing to put in front of someone than a percentage — and the
+  // sold to. Packages come next - a named kit at a fixed price is a more
+  // concrete thing to put in front of someone than a percentage - and the
   // general discount ad brings up the rear.
   const slides: Slide[] = [
     ...(deck.brief.enabled ? [{ kind: "about" } as Slide] : []),
@@ -196,15 +196,15 @@ export default function HomeCarousel({
     if (from.axis === "undecided") {
       if (Math.abs(dx) < AXIS_LOCK_PX && Math.abs(dy) < AXIS_LOCK_PX) return;
       from.axis = Math.abs(dx) > Math.abs(dy) * AXIS_BIAS ? "x" : "y";
-      // Ours now — keep the moves coming even if the finger leaves the deck.
+      // Ours now - keep the moves coming even if the finger leaves the deck.
       if (from.axis === "x") e.currentTarget.setPointerCapture(e.pointerId);
     }
     if (from.axis === "x") setDrag(dx);
   };
 
   /**
-   * When the last sideways drag finished. A slide is a button now — the whole
-   * photograph opens the package — so a swipe that happens to end on one
+   * When the last sideways drag finished. A slide is a button now - the whole
+   * photograph opens the package - so a swipe that happens to end on one
    * would otherwise land as a press the moment the finger lifts. Anything
    * that got as far as locking to the x axis was a swipe, not a tap, and the
    * click it produces is swallowed below.
@@ -288,7 +288,7 @@ export default function HomeCarousel({
               index * 100
             }% ${nudge}), 0, 0)`,
             transitionProperty: "transform",
-            // No transition while a finger is on it — the track is meant to
+            // No transition while a finger is on it - the track is meant to
             // be under the finger, not chasing it.
             transitionDuration: still || drag !== 0 ? "0ms" : `${SNAP_MS}ms`,
             transitionTimingFunction: SNAP_EASE,
@@ -411,7 +411,7 @@ function SlideFrame({
  *
  * A picture somebody chose for a slide is the slide, so it gets the whole
  * frame rather than a third of it beside the words. Every slide can be either
- * shape — a package uses this when it has its own photo, and the brief and
+ * shape - a package uses this when it has its own photo, and the brief and
  * the discount ad when the shop uploads one.
  */
 function PhotoSlide({
@@ -430,7 +430,7 @@ function PhotoSlide({
   alt: string;
   icon?: typeof Tag;
   eyebrow: string;
-  /** A second pill beside the eyebrow — the discount figure, usually. */
+  /** A second pill beside the eyebrow - the discount figure, usually. */
   badge?: React.ReactNode;
   title: string;
   body?: string;
@@ -455,7 +455,7 @@ function PhotoSlide({
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/20" />
 
       {/* The photograph lies under the copy rather than over it, so the
-          buttons still take their own taps — and a swipe that happens to end
+          buttons still take their own taps - and a swipe that happens to end
           here is swallowed by the deck rather than counted as a press. */}
       {onPress && (
         <button
@@ -558,11 +558,11 @@ const PILL_ICONS = [Droplet, Sun, Sparkles, Leaf];
  *
  * Every colour here is fixed rather than themed. It is a printed
  * advertisement more than a piece of the interface, and it is meant to read
- * the same in both themes — the way the tinted product cards already do.
+ * the same in both themes - the way the tinted product cards already do.
  *
  * The photographs stand on frosted plinths rather than being cut out of their
- * backgrounds. The catalogue is shot on real surfaces — beige, grey, lavender
- * — as opaque JPEGs, so there is nothing to cut out; a plinth is the honest
+ * backgrounds. The catalogue is shot on real surfaces - beige, grey, lavender
+ * - as opaque JPEGs, so there is nothing to cut out; a plinth is the honest
  * way to stand one of those on a coloured ground.
  */
 function PromoSlide({
@@ -574,7 +574,7 @@ function PromoSlide({
 }: {
   slide: HomeDeck["offer"];
   offers: Product[];
-  /** Names the benefit pills — the types the reduced products actually are. */
+  /** Names the benefit pills - the types the reduced products actually are. */
   categories: ProductCategory[];
   onShopOffers: () => void;
   onOpenProduct: (product: Product) => void;
@@ -659,7 +659,7 @@ function PromoSlide({
         </div>
 
         {/* ── What is actually reduced. Above the copy on a phone, beside it
-            from `sm` up — the arrangement is the hook, the words are the
+            from `sm` up - the arrangement is the hook, the words are the
             argument, and on a narrow screen the hook comes first. */}
         <div className="order-1 flex items-end justify-center gap-3 sm:order-2 sm:gap-4">
           {shown.map((p, i) => {
@@ -704,8 +704,8 @@ function PromoSlide({
 }
 
 /**
- * One package, as a billboard. The aside is the kit itself — the photographs
- * of what is actually in it — which answers "what am I buying" without the
+ * One package, as a billboard. The aside is the kit itself - the photographs
+ * of what is actually in it - which answers "what am I buying" without the
  * shopper having to open anything, and is the whole reason a package deserves
  * a slide rather than a line of text.
  *
@@ -752,7 +752,7 @@ function PackageSlide({
       : null,
   ].filter(Boolean) as string[];
 
-  // The photograph the shop uploaded for this package — its own, never one
+  // The photograph the shop uploaded for this package - its own, never one
   // borrowed from the contents. A picture chosen for the kit is a picture of
   // the kit, so it gets the whole slide and the copy sits on top of it. With
   // none uploaded the slide falls back to the frame the rest of the deck
@@ -981,7 +981,7 @@ function BlushGround({ photo }: { photo?: string }) {
  * A frosted stand for one product photograph, echoing the stone plinths the
  * shop's own photography uses.
  *
- * The catalogue is shot on real surfaces — beige, grey, lavender — as opaque
+ * The catalogue is shot on real surfaces - beige, grey, lavender - as opaque
  * JPEGs, so a product cannot be cut out and floated on the blush the way a
  * studio composite would. A plinth is the honest way to stand one of those on
  * a coloured ground, and it matches the photography rather than fighting it.
@@ -1023,7 +1023,7 @@ function AboutSlide({
 }: {
   slide: HomeDeck["brief"];
   products: Product[];
-  /** Names the pills — what the shop actually sells, from the catalogue. */
+  /** Names the pills - what the shop actually sells, from the catalogue. */
   categories: ProductCategory[];
   brandCount: number;
   categoryCount: number;
@@ -1040,7 +1040,7 @@ function AboutSlide({
     `${t("shop.headline1")}\n${t("shop.headline2")}`;
   const lede = localized(slide, "body", lang) || t("shop.lede");
 
-  // Real products stand in for the catalogue — ones with a picture only,
+  // Real products stand in for the catalogue - ones with a picture only,
   // since an empty plinth says nothing about what is in the shop.
   const shelf = products.filter((p) => p.image_url).slice(0, 3);
 

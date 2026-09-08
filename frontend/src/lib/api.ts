@@ -1,5 +1,5 @@
 // Data layer. Everything lives in the shared Postgres database behind the
-// /api routes: products, categories and orders alike. That is the point —
+// /api routes: products, categories and orders alike. That is the point -
 // what an admin edits on one device is what every visitor sees on theirs.
 
 import {
@@ -56,7 +56,7 @@ async function adminWrite<T>(
 
 // ── Products & Categories (shared database) ─────────────────────────
 
-/** The whole shop. Public — the storefront calls this on every load. */
+/** The whole shop. Public - the storefront calls this on every load. */
 export async function fetchProducts(): Promise<Category[]> {
   const res = await fetch("/api/catalog", { cache: "no-store" });
   if (!res.ok) throw new Error(await readError(res, tt("err.loadProducts")));
@@ -65,7 +65,7 @@ export async function fetchProducts(): Promise<Category[]> {
 
 // ── Product categories (the product type, not the brand) ────────────
 
-/** Public — the storefront's category filter reads this alongside the catalog. */
+/** Public - the storefront's category filter reads this alongside the catalog. */
 export async function fetchProductCategories(): Promise<ProductCategory[]> {
   const res = await fetch("/api/product-categories", { cache: "no-store" });
   if (!res.ok) throw new Error(await readError(res, tt("err.loadProducts")));
@@ -255,7 +255,7 @@ export async function fetchOrder(orderId: number): Promise<Order> {
   return res.json();
 }
 
-/** Replace an order — used to approve or edit (admin). */
+/** Replace an order - used to approve or edit (admin). */
 export async function updateOrder(
   orderId: number,
   order: OrderCreate,
@@ -293,7 +293,7 @@ export async function trackOrder(
 
 // ── Consultations (shared database via /api) ────────────────────────
 
-/** Ask for a skincare consultation (public — the home screen's form). */
+/** Ask for a skincare consultation (public - the home screen's form). */
 export async function createConsultation(
   input: ConsultationCreate,
 ): Promise<Consultation> {
@@ -383,7 +383,7 @@ export function deletePackage(id: number): Promise<void> {
 
 // ── The home deck (shared database via /api) ────────────────────────
 
-/** The slideshow's copy (public — the storefront reads it with the catalog). */
+/** The slideshow's copy (public - the storefront reads it with the catalog). */
 export async function fetchHomeDeck(): Promise<HomeDeck> {
   const res = await fetch("/api/home-deck", { cache: "no-store" });
   if (!res.ok) throw new Error(await readError(res, tt("err.loadDeck")));

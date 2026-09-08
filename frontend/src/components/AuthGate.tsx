@@ -85,7 +85,7 @@ function LoginScreen({
             </p>
             <p className="mt-1 text-sm text-ink-3">{t("auth.title")}</p>
           </div>
-          {/* Reachable before signing in — the gate is the first screen staff meet. */}
+          {/* Reachable before signing in - the gate is the first screen staff meet. */}
           <LanguageToggle />
         </div>
 

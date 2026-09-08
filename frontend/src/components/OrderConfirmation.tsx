@@ -10,7 +10,7 @@ interface OrderConfirmationProps {
   onBack: () => void;
 }
 
-/** What customers see after placing an order — no receipt, no actions.
+/** What customers see after placing an order - no receipt, no actions.
  *  The full receipt lives in the admin, where orders are reviewed and approved. */
 export default function OrderConfirmation({ order, onBack }: OrderConfirmationProps) {
   const { t } = useI18n();

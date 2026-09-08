@@ -13,7 +13,7 @@ interface CartPanelProps {
   onCustomerChange: (field: keyof CustomerDetails, value: string) => void;
   discount: number;
   onDiscountChange: (discount: number) => void;
-  /** Addressed by line key — a product bought in two options is two lines. */
+  /** Addressed by line key - a product bought in two options is two lines. */
   onQtyChange: (key: string, qty: number) => void;
   onUnitPriceChange?: (key: string, price: number) => void;
   onSubmit: () => void;
@@ -27,7 +27,7 @@ interface CartPanelProps {
 
 /**
  * The order, on one screen. Everything except the list of items is fixed
- * furniture — heading, delivery details, note, total, and the button that
+ * furniture - heading, delivery details, note, total, and the button that
  * places the order are all visible at once, so nobody has to scroll to find
  * out whether they can check out. Only the items scroll, and only when there
  * are more of them than the middle of the panel can hold.
@@ -86,7 +86,7 @@ export default function CartPanel({
         )}
       </div>
 
-      {/* Items — the one part that scrolls */}
+      {/* Items - the one part that scrolls */}
       <div className="scroll-thin min-h-0 flex-1 overflow-y-auto px-4 py-2">
         {items.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 py-6 text-center">
@@ -139,7 +139,7 @@ export default function CartPanel({
                     }}
                     onBlur={(e) => {
                       // A request above the stock ceiling is clamped upstream,
-                      // which leaves the state unchanged — so React has no
+                      // which leaves the state unchanged - so React has no
                       // re-render to correct the box with, and it would keep
                       // showing the rejected number. Put the real quantity back.
                       e.target.value = String(item.quantity);
@@ -188,7 +188,7 @@ export default function CartPanel({
         )}
       </div>
 
-      {/* Who it's for, where it goes, and anything to add — one row each */}
+      {/* Who it's for, where it goes, and anything to add - one row each */}
       <div className="shrink-0 space-y-2 border-t border-line px-4 py-2.5">
         <div className="grid grid-cols-2 gap-2">
           <input

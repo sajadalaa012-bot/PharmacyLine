@@ -41,7 +41,7 @@ const NAV: { href: string; label: MessageKey; icon: typeof Package }[] = [
   { href: "/admin/recover", label: "nav.recover", icon: Upload },
 ];
 
-/** The rail contents — shared by the desktop sidebar and the mobile drawer. */
+/** The rail contents - shared by the desktop sidebar and the mobile drawer. */
 function SideNavContent({
   pathname,
   onNavigate,

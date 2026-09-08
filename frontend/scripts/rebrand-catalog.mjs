@@ -1,7 +1,7 @@
 // One-off: rebrands AL-MASA to velina in the live catalog's product copy.
 //
 // NOTE: the app now does this itself, once, on the first request after a
-// deploy — see rebrandCatalogCopy in lib/rebrandCatalog.ts, which runs from
+// deploy - see rebrandCatalogCopy in lib/rebrandCatalog.ts, which runs from
 // the catalog bootstrap and needs no connection string. This script is kept
 // for running the same rewrite by hand, and for its dry run: it is the only
 // one of the two that will show you what is about to change before it does.
@@ -11,7 +11,7 @@
 // the rename still reading "AL-MASA". This rewrites those rows in place.
 //
 // It touches nothing else: only the two description columns, only the exact
-// brand phrases below, and only where they still occur — a description an
+// brand phrases below, and only where they still occur - a description an
 // admin has rewritten by hand keeps whatever they wrote.
 //
 // Dry run (prints what would change, writes nothing):
@@ -72,7 +72,7 @@ try {
       params,
     );
     for (const r of sample.rows) console.log(`\n  #${r.id} ${r.name}\n    ${r.description}\n    ${r.description_ar}`);
-    console.log(`\nDry run — nothing written. Re-run with --apply to rewrite ${n} row(s).`);
+    console.log(`\nDry run - nothing written. Re-run with --apply to rewrite ${n} row(s).`);
   } else {
     const set = COLUMNS.map((c) => `${c} = ${rewrite(c)}`).join(", ");
     const res = await client.query(

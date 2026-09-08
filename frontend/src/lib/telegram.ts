@@ -5,7 +5,7 @@
 //
 //   • The bot token. Read from TELEGRAM_BOT_TOKEN, falling back to the
 //     `telegram_bot_token` setting in the database for shops with no way to
-//     set environment variables. The environment always wins — a token in the
+//     set environment variables. The environment always wins - a token in the
 //     environment is the one place it can't be read back out of the app.
 //
 //   • Where to send. A bot cannot start a conversation, so somebody has to
@@ -61,7 +61,7 @@ export function setStoredToken(token: string | null): Promise<void> {
   return setSetting(TOKEN_SETTING, token && token.trim() ? token.trim() : null);
 }
 
-/** A token with only its tail visible — enough to tell two bots apart. */
+/** A token with only its tail visible - enough to tell two bots apart. */
 export function maskToken(token: string): string {
   const tail = token.slice(-4);
   const id = token.split(":")[0];
@@ -77,7 +77,7 @@ interface TelegramResponse<T> {
 }
 
 /**
- * One call to the Bot API. Always resolves — callers get `ok: false` and a
+ * One call to the Bot API. Always resolves - callers get `ok: false` and a
  * description rather than an exception, because every caller here is either
  * reporting status to an admin or running beside an order that must not fail.
  */
@@ -118,7 +118,7 @@ export interface BotInfo {
   first_name?: string;
 }
 
-/** Who the token belongs to — used to confirm a token actually works. */
+/** Who the token belongs to - used to confirm a token actually works. */
 export async function getBotInfo(
   token: string,
 ): Promise<{ ok: true; bot: BotInfo } | { ok: false; error: string }> {
@@ -189,9 +189,9 @@ const iqd = (n: number) =>
 export function orderToTelegramHtml(order: Order): string {
   const d = new Date(order.created_at);
   const lines: string[] = [
-    `🧾 <b>طلب جديد — ${esc("velina")}</b>`,
+    `🧾 <b>طلب جديد - ${esc("velina")}</b>`,
     `رقم الطلب: <code>${String(order.id).padStart(5, "0")}</code>`,
-    `التاريخ: ${d.toLocaleDateString("en-GB")} — ${d.toLocaleTimeString("en-GB", {
+    `التاريخ: ${d.toLocaleDateString("en-GB")} - ${d.toLocaleTimeString("en-GB", {
       hour: "2-digit",
       minute: "2-digit",
     })}`,
@@ -202,14 +202,14 @@ export function orderToTelegramHtml(order: Order): string {
   const headEnd = lines.length;
 
   // Item lines are kept separate from the rest so a very long order can lose
-  // some of them without losing the totals or the delivery address — see the
+  // some of them without losing the totals or the delivery address - see the
   // trim below.
   const itemLines: string[] = [];
   for (const it of order.items) {
     const bonus = it.is_free ? " 🎁 (مجاني)" : "";
-    // The option — a size or flavour — belongs on the line: it is what the
+    // The option - a size or flavour - belongs on the line: it is what the
     // person picking the order off the shelf actually needs.
-    const option = it.variant_name ? ` — ${esc(it.variant_name)}` : "";
+    const option = it.variant_name ? ` - ${esc(it.variant_name)}` : "";
     itemLines.push(
       `▪️ [${esc(it.product_code)}] ${esc(it.product_name)}${option}${bonus}`,
     );
@@ -250,8 +250,8 @@ export function orderToTelegramHtml(order: Order): string {
   lines.push("", order.status === "approved" ? "✅ مؤكد" : "🕒 بانتظار التأكيد");
 
   // An order long enough to blow the message limit would otherwise be sent as
-  // nothing at all. Drop item lines — in pairs, so a product never appears
-  // without its quantity — until it fits, and say how many were left out. The
+  // nothing at all. Drop item lines - in pairs, so a product never appears
+  // without its quantity - until it fits, and say how many were left out. The
   // totals and the delivery details always survive.
   const head = lines.slice(0, headEnd);
   const tail = lines.slice(headEnd);
@@ -285,7 +285,7 @@ export async function sendToAll(html: string): Promise<SendOutcome[]> {
   return sendTo(token, chatIds, html);
 }
 
-/** Sends to an explicit set of chats — used by the "send a test" button. */
+/** Sends to an explicit set of chats - used by the "send a test" button. */
 export async function sendTo(
   token: string,
   chatIds: string[],
@@ -351,15 +351,15 @@ const CONCERN_AR: Record<string, string> = {
 };
 
 /**
- * A consultation request as a Telegram message. Short by nature — the whole
+ * A consultation request as a Telegram message. Short by nature - the whole
  * point is a name and a number somebody in the shop can ring back.
  */
 export function consultationToTelegramHtml(c: Consultation): string {
   const d = new Date(c.created_at);
   const lines: string[] = [
-    `💬 <b>طلب استشارة — ${esc("velina")}</b>`,
+    `💬 <b>طلب استشارة - ${esc("velina")}</b>`,
     `رقم الطلب: <code>${String(c.id).padStart(5, "0")}</code>`,
-    `التاريخ: ${d.toLocaleDateString("en-GB")} — ${d.toLocaleTimeString("en-GB", {
+    `التاريخ: ${d.toLocaleDateString("en-GB")} - ${d.toLocaleTimeString("en-GB", {
       hour: "2-digit",
       minute: "2-digit",
     })}`,

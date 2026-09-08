@@ -80,7 +80,7 @@ export default function AdminProductsPage() {
   const handleStockSave = useCallback(
     async (product: Product, stock: number | undefined) => {
       // `updateProduct` replaces the whole record, so every field is carried
-      // over explicitly — spreading the product would smuggle `id` into the
+      // over explicitly - spreading the product would smuggle `id` into the
       // input payload.
       const payload: ProductInput = {
         name: product.name,

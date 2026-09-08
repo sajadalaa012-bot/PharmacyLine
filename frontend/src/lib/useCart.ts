@@ -71,7 +71,7 @@ export function useCart(
     [],
   );
 
-  /** How many of one option are in the basket — both lines unless isFree is set. */
+  /** How many of one option are in the basket - both lines unless isFree is set. */
   const qtyOf = useCallback(
     (productId: number, variantId?: string, isFree?: boolean) =>
       items
@@ -238,7 +238,7 @@ export function useCart(
     );
   }, []);
 
-  /** Update one checkout field — name, phone, or delivery location. */
+  /** Update one checkout field - name, phone, or delivery location. */
   const setCustomerField = useCallback(
     (field: keyof CustomerDetails, value: string) =>
       setCustomer((prev) => ({ ...prev, [field]: value })),

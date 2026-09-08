@@ -1,6 +1,6 @@
 // Server-side order data access + validation for the simple order model
 // (notes, discount, items, status: pending|approved). Totals are computed
-// from the line items — client-sent totals are not trusted.
+// from the line items - client-sent totals are not trusted.
 
 import { randomUUID } from "crypto";
 import { connect, query, ensureSchema } from "./db";
@@ -13,7 +13,7 @@ function num(v: unknown, fallback = 0): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
-/** Longest we store for a name / phone / location — enough for a real one,
+/** Longest we store for a name / phone / location - enough for a real one,
  *  short enough that the column can't be used as a dumping ground. */
 const MAX_FIELD = 300;
 
@@ -71,7 +71,7 @@ export function validateOrderInput(body: unknown): OrderInput {
       product_name,
       // Which option was bought, snapshotted with the line. Absent on a
       // product sold as itself, and on every order placed before options
-      // existed — both read back as null.
+      // existed - both read back as null.
       variant_id: text(it.variant_id, 64) || null,
       variant_name: text(it.variant_name, 300) || null,
       quantity,

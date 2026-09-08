@@ -29,7 +29,7 @@ interface OfferPopupProps {
  * load; and dismissing it is remembered for the rest of the day, so a
  * shopper who says no is not asked again on their next visit.
  *
- * Whether there is anything to advertise is the caller's business — see
+ * Whether there is anything to advertise is the caller's business - see
  * where this is rendered in ShopView.
  */
 export default function OfferPopup({
@@ -59,7 +59,7 @@ export default function OfferPopup({
     try {
       localStorage.setItem(DISMISSED_KEY, today());
     } catch {
-      /* Nothing to do — it will simply be offered again. */
+      /* Nothing to do - it will simply be offered again. */
     }
   };
 

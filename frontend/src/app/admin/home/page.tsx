@@ -18,7 +18,7 @@ const labelCls = "label-caps mb-1.5 block text-ink-3";
  * The home slideshow's own copy.
  *
  * Every field here is optional. Blank means the slide keeps the wording the
- * shop shipped with — in both languages — so this page is somewhere to
+ * shop shipped with - in both languages - so this page is somewhere to
  * override the deck rather than somewhere that has to be filled in before the
  * deck works. That is also why the boxes start empty rather than pre-filled
  * with the current English: pre-filling would quietly throw the Arabic away
@@ -215,7 +215,7 @@ export default function AdminHomePage() {
 }
 
 /**
- * One slide's editor — the same six boxes for both.
+ * One slide's editor - the same six boxes for both.
  *
  * At module scope on purpose. Declared inside the page it would be a new
  * component type on every keystroke, so React would throw the inputs away and

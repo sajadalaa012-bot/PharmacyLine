@@ -6,7 +6,7 @@
 // See `localized()` in lib/i18n.ts.
 
 /**
- * One buyable option of a product — a size, a flavour, a shade. A product
+ * One buyable option of a product - a size, a flavour, a shade. A product
  * with no variants is sold as itself; a product with variants is only ever
  * sold as one of them, so the shopper picks before anything reaches the cart.
  *
@@ -17,7 +17,7 @@
  */
 export interface ProductVariant {
   /** Stable within the product. Cart lines and order lines are keyed on it,
-   *  so it must survive edits — never renumber these. */
+   *  so it must survive edits - never renumber these. */
   id: string;
   /** The option label, e.g. "100 ml". */
   name: string;
@@ -34,13 +34,13 @@ export interface ProductVariant {
 }
 
 /**
- * A product type — Serum, Cleanser, Sunscreen. The second way to narrow the
+ * A product type - Serum, Cleanser, Sunscreen. The second way to narrow the
  * catalogue, and independent of the brand: a shopper can ask for COSRX, for
  * serums, or for COSRX serums.
  *
  * A note on names, because they are genuinely confusing here. The `Category`
  * interface below, the `categories` table and `Product.category_id` all
- * predate this and hold the shop's *brands* — that is what the catalogue was
+ * predate this and hold the shop's *brands* - that is what the catalogue was
  * originally grouped by. This is the actual category, and it is stored
  * separately. The storefront and the admin both label them "Brand" and
  * "Category", which is what matters to anyone using the shop.
@@ -61,7 +61,7 @@ export interface Product {
   /**
    * What the product used to cost, when it is on offer. The storefront shows
    * it struck through beside `price`, which is always what is actually
-   * charged. `undefined` — or anything not above `price` — means no offer.
+   * charged. `undefined` - or anything not above `price` - means no offer.
    */
   old_price?: number;
   image_url: string;
@@ -71,7 +71,7 @@ export interface Product {
   description?: string;
   /** What the product helps with. */
   benefits?: string;
-  /** What's inside — active ingredients / composition. */
+  /** What's inside - active ingredients / composition. */
   ingredients?: string;
   /** How to use / directions / dosage. */
   usage?: string;
@@ -83,14 +83,14 @@ export interface Product {
   usage_ar?: string;
   /**
    * Units on hand. `undefined` means this product's stock isn't being tracked
-   * — it stays purchasable, which is what every product does until someone
+   * - it stays purchasable, which is what every product does until someone
    * sets a number. `0` means genuinely out of stock.
    */
   stock?: number;
   /** Buyable options. Empty / absent = the product is sold as itself. */
   variants?: ProductVariant[];
   /**
-   * Which product type this is. `undefined` means nobody has said yet — the
+   * Which product type this is. `undefined` means nobody has said yet - the
    * product still sells, it just doesn't answer to a category filter.
    * Distinct from `category_id`, which is the brand. See ProductCategory.
    */
@@ -107,7 +107,7 @@ export function isStockTracked(product: Pick<Product, "stock">): boolean {
   return typeof product.stock === "number";
 }
 
-/** The options a product is sold in — empty when it is sold as itself. */
+/** The options a product is sold in - empty when it is sold as itself. */
 export function variantsOf(product: Pick<Product, "variants">): ProductVariant[] {
   return product.variants ?? [];
 }
@@ -122,8 +122,8 @@ export function hasVariants(product: Pick<Product, "variants">): boolean {
  *
  * An option that sets no price of its own sells at the product's price, offer
  * included. An option that *does* set its own price does not inherit the
- * product's offer — a "was" price quoted against a different sum would be a
- * lie — but it can carry an offer of its own.
+ * product's offer - a "was" price quoted against a different sum would be a
+ * lie - but it can carry an offer of its own.
  */
 export function variantPricing(
   product: Pick<Product, "price" | "old_price">,
@@ -157,7 +157,7 @@ export function variantCode(
 
 /**
  * True when this product needs restocking: it is itself down to the last few,
- * or — when it is sold in options — any one option is. An option counts on
+ * or - when it is sold in options - any one option is. An option counts on
  * its own, since running out of the 100 ml size is a gap on the shelf whatever
  * the other sizes are doing.
  */
@@ -229,7 +229,7 @@ export interface ProductInput {
 }
 
 /**
- * The catalogue's top-level grouping, which is the shop's **brands** —
+ * The catalogue's top-level grouping, which is the shop's **brands** -
  * Vichy, COSRX, La Roche-Posay. Named "Category" since before the shop was
  * grouped this way; the UI calls it Brand. For the product type, see
  * ProductCategory above.
@@ -251,7 +251,7 @@ export interface CartItem {
   product_name: string;
   /** Which option this line is for; absent on a product sold as itself. */
   variant_id?: string;
-  /** The option label as the buyer saw it — a snapshot, like product_name. */
+  /** The option label as the buyer saw it - a snapshot, like product_name. */
   variant_name?: string;
   quantity: number;
   unit_price: number;
@@ -260,8 +260,8 @@ export interface CartItem {
 }
 
 /**
- * Identifies one line of a cart or order. A product bought in two options —
- * or once paid and once as a bonus — is two lines, so the key has to carry
+ * Identifies one line of a cart or order. A product bought in two options -
+ * or once paid and once as a bonus - is two lines, so the key has to carry
  * all three parts.
  */
 export function lineKey(line: {
@@ -288,7 +288,7 @@ export interface OrderItemCreate {
 
 export type OrderStatus = "pending" | "approved";
 
-/** Who the order is for and where it goes — asked at checkout. */
+/** Who the order is for and where it goes - asked at checkout. */
 export interface CustomerDetails {
   customer_name: string;
   customer_phone: string;
@@ -351,7 +351,7 @@ export interface Order extends CustomerDetails {
 // only thing it has to carry is enough to hold a conversation.
 
 /** The five skin types the form offers. Stored as these keys, never as a
- *  translated label — the shop reads Arabic and the admin may be in English. */
+ *  translated label - the shop reads Arabic and the admin may be in English. */
 export const SKIN_TYPES = [
   "normal",
   "dry",
@@ -410,7 +410,7 @@ export const EMPTY_CONSULTATION: ConsultationCreate = {
 /**
  * True once the form carries enough for the shop to act on it: someone to ask
  * for, a number to reach them on, and what their skin is like. The phone rule
- * is the one checkout uses — see hasCustomerDetails.
+ * is the one checkout uses - see hasCustomerDetails.
  */
 export function hasConsultationDetails(c: ConsultationCreate): boolean {
   return (
@@ -423,7 +423,7 @@ export function hasConsultationDetails(c: ConsultationCreate): boolean {
 // ── Packages ────────────────────────────────────────────────────────
 //
 // A package is a set of catalog products sold together for one price the shop
-// sets by hand — a back-to-school kit, a college kit. It is not a product and
+// sets by hand - a back-to-school kit, a college kit. It is not a product and
 // it is not a category: it owns nothing, it only points at products, so
 // editing or repricing a product changes what the package is worth without
 // anybody having to touch the package.
@@ -431,7 +431,7 @@ export function hasConsultationDetails(c: ConsultationCreate): boolean {
 /** One line of a package: a catalog product, and how many of it are in. */
 export interface PackageItem {
   /** References Product.id. A product that has since been deleted is simply
-   *  dropped when the contents are resolved — see packageContents. */
+   *  dropped when the contents are resolved - see packageContents. */
   product_id: number;
   quantity: number;
 }
@@ -488,7 +488,7 @@ export function packageCode(pkg: Pick<Package, "id">): string {
 /**
  * A package dressed as a product, so it can go through the cart, the checkout
  * and the receipt on the same rails as everything else. It has no variants
- * and no stock — a package is sold as itself, and what limits it is whether
+ * and no stock - a package is sold as itself, and what limits it is whether
  * its contents are on the shelf, which the shop judges rather than the app.
  */
 export function packageAsProduct(pkg: Package): Product {
@@ -545,7 +545,7 @@ export function packageItemCount(pkg: Pick<Package, "items">): number {
  * The picture to show for a package: its own, or failing that the first photo
  * among its contents. A kit assembled out of products the shop has already
  * photographed should not need a photo shoot of its own before it can go on
- * the home page — and setting a photo on the package still wins.
+ * the home page - and setting a photo on the package still wins.
  */
 export function packageImage(
   pkg: Pick<Package, "image_url" | "items">,
@@ -561,8 +561,8 @@ export function packageImage(
 // ── The home deck ───────────────────────────────────────────────────
 //
 // The slideshow the home screen opens with. Packages bring their own slides
-// and are edited on the Packages page; the two that are not packages — the
-// brief and the discount ad — are edited here.
+// and are edited on the Packages page; the two that are not packages - the
+// brief and the discount ad - are edited here.
 //
 // Every copy field works the same way: blank means "use the built-in wording",
 // which is the shipped translation in the reader's language. So a shop that
@@ -577,8 +577,8 @@ export interface DeckSlide {
   enabled: boolean;
   /**
    * A photograph for the whole slide. When set, the slide is drawn the way a
-   * package with its own photo is — the picture edge to edge and the copy on
-   * a scrim over it — instead of copy beside a row of product plates.
+   * package with its own photo is - the picture edge to edge and the copy on
+   * a scrim over it - instead of copy beside a row of product plates.
    */
   image_url: string;
   eyebrow: string;
@@ -598,7 +598,7 @@ export interface HomeDeck {
   offer: DeckSlide & {
     /**
      * The figure the ad claims, e.g. 40 for "Discounts up to 40%". Written
-     * into both the slide and the popup, so the two cannot disagree — and
+     * into both the slide and the popup, so the two cannot disagree - and
      * substituted for {n} in a title the shop writes itself.
      */
     percent: number;

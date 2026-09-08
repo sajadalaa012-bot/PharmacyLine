@@ -13,7 +13,7 @@ interface StockControlProps {
 
 /**
  * The stock chip in the admin product list. Shows the count at a glance and
- * opens a stepper to change it — the common case is nudging by one after a
+ * opens a stepper to change it - the common case is nudging by one after a
  * delivery or a shelf count, so +/- is the primary control and typing an exact
  * figure is there when a full recount is needed.
  */
@@ -96,7 +96,7 @@ export default function StockControl({ product, onSave }: StockControlProps) {
         className={`flex h-8 min-w-14 items-center justify-center gap-1.5 rounded-md border px-2 text-xs font-bold tabular-nums transition ${chipTone}`}
       >
         <Package className="h-3.5 w-3.5 shrink-0" />
-        {tracked ? product.stock : "—"}
+        {tracked ? product.stock : "-"}
       </button>
 
       {open && (

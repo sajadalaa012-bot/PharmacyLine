@@ -4,7 +4,7 @@
 // missing Arabic string is a compile error rather than a blank label.
 // Placeholders are written {like_this} and filled by `format`.
 //
-// Framework-free on purpose — the server layout, client components, and the
+// Framework-free on purpose - the server layout, client components, and the
 // plain-module data layer (lib/api.ts) all import from here.
 
 export type Lang = "en" | "ar";
@@ -26,7 +26,7 @@ export function toLang(value: string | null | undefined): Lang | null {
 
 /**
  * The shop's own language. Customers here read Arabic, so that is what a
- * first visit gets — not whatever the browser happens to ask for. English is
+ * first visit gets - not whatever the browser happens to ask for. English is
  * one tap away on the toggle, and the choice is remembered from then on.
  */
 export const DEFAULT_LANG: Lang = "ar";
@@ -91,7 +91,7 @@ const en = {
   "shop.headline1": "Everyday wellness,",
   "shop.headline2": "thoughtfully curated.",
   "shop.lede":
-    "A considered edit of trusted skincare essentials — browse the collection and build your order in a few taps.",
+    "A considered edit of trusted skincare essentials - browse the collection and build your order in a few taps.",
   "shop.ctaShop": "Shop the collection",
   "shop.ctaBrowse": "Browse categories",
   "shop.price": "Price",
@@ -108,15 +108,15 @@ const en = {
   "shop.tryWiden": "Try widening the price range or clearing the filter",
   "shop.addFromAdmin": "Add products from the Admin dashboard",
   "shop.footerBlurb":
-    "Skincare and wellness essentials — curated and delivered.",
+    "Skincare and wellness essentials - curated and delivered.",
   "shop.copyright":
-    "© 2026 velina — فيلينا. All rights reserved.",
+    "© 2026 velina - فيلينا. All rights reserved.",
   "shop.featured": "Featured",
   "shop.goodToSeeYou": "Welcome back",
 
   // ── Install to home screen ──
   "app.installTitle": "Install the app",
-  "app.installBody": "Add velina to your home screen — full screen, one tap away.",
+  "app.installBody": "Add velina to your home screen - full screen, one tap away.",
   "app.installIos": "Tap the Share button, then “Add to Home Screen”.",
   "app.install": "Install",
   "app.notNow": "Not now",
@@ -166,7 +166,7 @@ const en = {
 
   // ── Order confirmation ──
   "confirm.title": "Order received",
-  "confirm.subtitle": "We have received your order — we will confirm it shortly",
+  "confirm.subtitle": "We have received your order - we will confirm it shortly",
   "confirm.order": "Order",
   "confirm.items": "Items",
   "confirm.note": "The pharmacy will review your order and confirm it shortly.",
@@ -179,8 +179,8 @@ const en = {
   "receipt.amount": "Amount",
   "receipt.grandTotal": "Grand total",
   "receipt.pendingFooter":
-    "— We received your order and will confirm it shortly —",
-  "receipt.thanks": "— Thank you for your purchase —",
+    "- We received your order and will confirm it shortly -",
+  "receipt.thanks": "- Thank you for your purchase -",
   "receipt.print": "Print",
   "receipt.saveImage": "Save Image",
   "receipt.whatsapp": "Send via WhatsApp",
@@ -188,7 +188,7 @@ const en = {
   "receipt.newOrder": "New order",
   "receipt.backToOrders": "Back to orders",
   "receipt.saveFailed":
-    "Couldn't save the image on this device — please take a screenshot of the receipt instead.",
+    "Couldn't save the image on this device - please take a screenshot of the receipt instead.",
   "receipt.renderFailed": "Could not render the receipt.",
 
   // ── Sign in ──
@@ -203,7 +203,7 @@ const en = {
   "auth.expired": "Session expired. Please sign in again.",
   "auth.signOut": "Sign out",
   "auth.defaultCredentials":
-    "No admin credentials are configured on this host, so the built-in defaults are in force — and those are public in the source. Set ADMIN_EMAIL and ADMIN_PASSWORD in your hosting environment.",
+    "No admin credentials are configured on this host, so the built-in defaults are in force - and those are public in the source. Set ADMIN_EMAIL and ADMIN_PASSWORD in your hosting environment.",
 
   // ── Admin shell ──
   "nav.overview": "Overview",
@@ -284,14 +284,14 @@ const en = {
     "From @BotFather on Telegram. It is stored server-side and never shown again.",
   "tg.tokenSaved": "Bot token saved.",
   "tg.step2Hint":
-    "A bot cannot message you first. Open Telegram, send any message to @{bot} — or add it to a group and send one there — then press Find chats.",
+    "A bot cannot message you first. Open Telegram, send any message to @{bot} - or add it to a group and send one there - then press Find chats.",
   "tg.findChats": "Find chats",
   "tg.added": "Added",
   "tg.noneFound":
     "No chats yet. Send a message to the bot in Telegram, then try again.",
   "tg.chatIdPlaceholder": "Or paste a chat ID",
   "tg.addManually": "Add",
-  "tg.noChats": "No destinations yet — orders are not being sent anywhere.",
+  "tg.noChats": "No destinations yet - orders are not being sent anywhere.",
   "tg.removeChat": "Remove this destination",
   "tg.live": "Sending",
   "tg.notLive": "Not sending",
@@ -305,9 +305,9 @@ const en = {
   // ── Options (sizes, flavours, shades) ──
   "variants.title": "Options (optional)",
   "variants.hint":
-    "Sizes, flavours, shades — anything the same product comes in. Add them and shoppers pick one before adding to the cart. Leave the price, offer and stock blank on an option and it uses the product's own.",
+    "Sizes, flavours, shades - anything the same product comes in. Add them and shoppers pick one before adding to the cart. Leave the price, offer and stock blank on an option and it uses the product's own.",
   "variants.emptyHint":
-    "No options — this product is sold as itself, at the price above.",
+    "No options - this product is sold as itself, at the price above.",
   "variants.addOption": "Add an option",
   "variants.removeOption": "Remove this option",
   "variants.moveUp": "Move up",
@@ -328,7 +328,7 @@ const en = {
   "promo.eyebrow": "Off selected items",
   "promo.title": "Discounts up to {n}%!",
   "promo.body":
-    "Selected products are on offer right now — while stocks last.",
+    "Selected products are on offer right now - while stocks last.",
   "promo.cta": "Shop the offers",
   "promo.later": "Maybe later",
   "promo.onOffer": "On offer",
@@ -362,9 +362,9 @@ const en = {
   "consult.eyebrow": "Free skincare consultation",
   "consult.title": "Not sure where to start?",
   "consult.inviteBody":
-    "Tell us about your skin and we will suggest a routine — free, and no obligation.",
+    "Tell us about your skin and we will suggest a routine - free, and no obligation.",
   "consult.body":
-    "Tell us about your skin and leave your number. Someone from the shop will reach you with a routine picked for you — no charge, no obligation.",
+    "Tell us about your skin and leave your number. Someone from the shop will reach you with a routine picked for you - no charge, no obligation.",
   "consult.name": "Your name",
   "consult.namePlaceholder": "e.g. Zainab",
   "consult.phone": "Phone number",
@@ -391,7 +391,7 @@ const en = {
   "consult.submit": "Request a consultation",
   "consult.sending": "Sending…",
   "consult.required": "Name, phone and skin type are needed.",
-  "consult.sentTitle": "Thank you — we have your request",
+  "consult.sentTitle": "Thank you - we have your request",
   "consult.sentBody":
     "Someone from the shop will reach you on the number you gave. If you asked outside opening hours, expect to hear from us the next working day.",
   "consult.sendAnother": "Send another request",
@@ -403,7 +403,7 @@ const en = {
   "consult.reopen": "Reopen",
   "consult.whatsapp": "WhatsApp",
   "consult.waMessage":
-    "Hello {name}, this is velina — you asked us for a skincare consultation.",
+    "Hello {name}, this is velina - you asked us for a skincare consultation.",
   "consult.noneWaiting": "Nothing waiting. Every request has been handled.",
   "consult.noneYet": "No consultation requests yet.",
   "home.statProducts": "Products",
@@ -421,9 +421,9 @@ const en = {
     "Every box is optional. Leave one blank and the slide keeps the wording the shop already uses, in both languages.",
   "deck.photo": "Photo",
   "deck.photoHint":
-    "Optional. With one, the picture fills the whole slide and the words sit on top of it — like a package. Without one, the words sit beside a row of product photos. A wide photo works best.",
+    "Optional. With one, the picture fills the whole slide and the words sit on top of it - like a package. Without one, the words sit beside a row of product photos. A wide photo works best.",
   "deck.brief": "The brief",
-  "deck.briefHint": "The first slide — what the shop is.",
+  "deck.briefHint": "The first slide - what the shop is.",
   "deck.offer": "The discount ad",
   "deck.offerHint":
     "The last slide. It only appears while something is actually on offer.",
@@ -509,13 +509,13 @@ const en = {
   "modal.nameAr": "Name (Arabic)",
   "modal.code": "Code",
   "modal.priceIqd": "Price (IQD)",
-  "modal.oldPriceIqd": "Old price (IQD) — optional",
+  "modal.oldPriceIqd": "Old price (IQD) - optional",
   "modal.noOffer": "No offer",
   "modal.clearOffer": "Clear",
   "modal.oldPriceHint":
     "Leave blank for one price. Enter what it used to cost and shoppers see that struck through beside the price above.",
   "modal.offerPreview":
-    "Shoppers see {old} struck through, then {price} {currency} — {n}% off.",
+    "Shoppers see {old} struck through, then {price} {currency} - {n}% off.",
   "modal.brand": "Brand",
   "modal.brandAria": "Product brand",
   "modal.productCategory": "Category",
@@ -542,7 +542,7 @@ const en = {
   "modal.codePlaceholder": "e.g. F173",
   "modal.pricePlaceholder": "e.g. 21000",
   "modal.descriptionPlaceholder": "A short overview of the product…",
-  "modal.benefitsPlaceholder": "What it helps with — one point per line…",
+  "modal.benefitsPlaceholder": "What it helps with - one point per line…",
   "modal.ingredientsPlaceholder": "Active ingredients / composition…",
   "modal.usagePlaceholder": "Directions / dosage…",
   "modal.confirmDelete": "Confirm delete",
@@ -560,7 +560,7 @@ const en = {
   "categories.saveName": "Save name",
   "categories.cancelRename": "Cancel rename",
   "categories.hasProducts":
-    "Cannot delete “{name}” — it contains {n} products. Move or delete them first.",
+    "Cannot delete “{name}” - it contains {n} products. Move or delete them first.",
 
   // ── Admin orders ──
   "orders.subtitle": "{n} orders · {money} approved sales",
@@ -579,8 +579,8 @@ const en = {
   "orders.receipt": "Receipt",
   "orders.whatsapp": "WhatsApp",
   "orders.whatsappCustomer": "Send to customer",
-  "orders.waGreeting": "Hello {name}, this is velina — about your order {no}.",
-  "orders.waGreetingAnon": "Hello, this is velina — about your order {no}.",
+  "orders.waGreeting": "Hello {name}, this is velina - about your order {no}.",
+  "orders.waGreetingAnon": "Hello, this is velina - about your order {no}.",
   "orders.deletePermanently": "Delete permanently?",
   "orders.yesDelete": "Yes, delete",
   "orders.deleting": "Deleting…",
@@ -588,7 +588,7 @@ const en = {
   // ── Admin sale screen ──
   "sell.reviewOrder": "Review order #{n}",
   "sell.reviewHint":
-    "Adjust items, bonuses, and discount — saving approves the order",
+    "Adjust items, bonuses, and discount - saving approves the order",
   "sell.newHint": "Bonus items, price overrides, and discounts available",
   "sell.emptyCatalog": "No products in the catalog",
 
@@ -622,7 +622,7 @@ const en = {
   "err.priceInvalid": "Price must be a valid positive number.",
   "err.oldPriceInvalid": "The old price must be a valid positive number.",
   "err.oldPriceTooLow":
-    "The old price has to be higher than the price — otherwise there is no discount to show.",
+    "The old price has to be higher than the price - otherwise there is no discount to show.",
   "err.variantNameRequired": "Every option needs a name.",
   "err.variantDuplicate": "Two options have the same name.",
   "err.variantOldPriceTooLow":
@@ -655,9 +655,9 @@ const en = {
   "recover.skipped": "Skipped",
   "recover.skippedNote": "its category is not in the live shop",
   "recover.categoriesKept":
-    "Categories are left exactly as they are in the live shop. Only product details, photos and removals are published — so this cannot undo the brand grouping.",
+    "Categories are left exactly as they are in the live shop. Only product details, photos and removals are published - so this cannot undo the brand grouping.",
   "recover.drastic":
-    "This would remove {deletions} of the {local} products in the live shop. That is what an out-of-date device looks like — check the list below carefully before publishing.",
+    "This would remove {deletions} of the {local} products in the live shop. That is what an out-of-date device looks like - check the list below carefully before publishing.",
   "recover.confirm":
     "I have read the lists above. Make the live shop match this device, including the removals.",
   "recover.publish": "Publish to the live shop",
@@ -727,7 +727,7 @@ const ar: Record<MessageKey, string> = {
   "shop.headline1": "عافية يومية،",
   "shop.headline2": "مختارة بعناية.",
   "shop.lede":
-    "تشكيلة منتقاة من منتجات العناية بالبشرة الموثوقة — تصفّح المجموعة وجهّز طلبك بلمسات قليلة.",
+    "تشكيلة منتقاة من منتجات العناية بالبشرة الموثوقة - تصفّح المجموعة وجهّز طلبك بلمسات قليلة.",
   "shop.ctaShop": "تسوّق المجموعة",
   "shop.ctaBrowse": "تصفّح الأقسام",
   "shop.price": "السعر",
@@ -744,14 +744,14 @@ const ar: Record<MessageKey, string> = {
   "shop.tryWiden": "جرّب توسيع النطاق السعري أو إزالة الفلتر",
   "shop.addFromAdmin": "أضف منتجات من لوحة التحكم",
   "shop.footerBlurb":
-    "مستحضرات العناية بالبشرة والعافية — مختارة وموصَّلة إليك.",
-  "shop.copyright": "© 2026 velina — فيلينا. جميع الحقوق محفوظة.",
+    "مستحضرات العناية بالبشرة والعافية - مختارة وموصَّلة إليك.",
+  "shop.copyright": "© 2026 velina - فيلينا. جميع الحقوق محفوظة.",
   "shop.featured": "مختارات",
   "shop.goodToSeeYou": "أهلاً بعودتك",
 
   // ── Install to home screen ──
   "app.installTitle": "ثبّت التطبيق",
-  "app.installBody": "أضف فيلينا إلى شاشتك الرئيسية — بملء الشاشة وبلمسة واحدة.",
+  "app.installBody": "أضف فيلينا إلى شاشتك الرئيسية - بملء الشاشة وبلمسة واحدة.",
   "app.installIos": "اضغط زر المشاركة، ثم «إضافة إلى الشاشة الرئيسية».",
   "app.install": "تثبيت",
   "app.notNow": "ليس الآن",
@@ -802,7 +802,7 @@ const ar: Record<MessageKey, string> = {
 
   // ── Order confirmation ──
   "confirm.title": "تم استلام الطلب",
-  "confirm.subtitle": "تم استلام طلبك — سنؤكده قريباً",
+  "confirm.subtitle": "تم استلام طلبك - سنؤكده قريباً",
   "confirm.order": "الطلب",
   "confirm.items": "المنتجات",
   "confirm.note": "ستراجع الصيدلية طلبك وتؤكده قريباً.",
@@ -814,8 +814,8 @@ const ar: Record<MessageKey, string> = {
   "receipt.item": "المنتج",
   "receipt.amount": "المبلغ",
   "receipt.grandTotal": "المجموع الكلي",
-  "receipt.pendingFooter": "— استلمنا طلبك وسنؤكده قريباً —",
-  "receipt.thanks": "— شكراً لتسوّقك معنا —",
+  "receipt.pendingFooter": "- استلمنا طلبك وسنؤكده قريباً -",
+  "receipt.thanks": "- شكراً لتسوّقك معنا -",
   "receipt.print": "طباعة",
   "receipt.saveImage": "حفظ كصورة",
   "receipt.whatsapp": "إرسال عبر واتساب",
@@ -823,7 +823,7 @@ const ar: Record<MessageKey, string> = {
   "receipt.newOrder": "طلب جديد",
   "receipt.backToOrders": "العودة إلى الطلبات",
   "receipt.saveFailed":
-    "تعذّر حفظ الصورة على هذا الجهاز — يُرجى التقاط لقطة شاشة للفاتورة بدلاً من ذلك.",
+    "تعذّر حفظ الصورة على هذا الجهاز - يُرجى التقاط لقطة شاشة للفاتورة بدلاً من ذلك.",
   "receipt.renderFailed": "تعذّر إنشاء الفاتورة.",
 
   // ── Sign in ──
@@ -838,7 +838,7 @@ const ar: Record<MessageKey, string> = {
   "auth.expired": "انتهت الجلسة. يُرجى تسجيل الدخول مرة أخرى.",
   "auth.signOut": "تسجيل الخروج",
   "auth.defaultCredentials":
-    "لم تُضبط بيانات دخول للمسؤول على هذا الخادم، لذا تعمل البيانات الافتراضية المدمجة — وهي منشورة في الشيفرة المصدرية. اضبط ADMIN_EMAIL و ADMIN_PASSWORD في إعدادات الاستضافة.",
+    "لم تُضبط بيانات دخول للمسؤول على هذا الخادم، لذا تعمل البيانات الافتراضية المدمجة - وهي منشورة في الشيفرة المصدرية. اضبط ADMIN_EMAIL و ADMIN_PASSWORD في إعدادات الاستضافة.",
 
   // ── Admin shell ──
   "nav.overview": "نظرة عامة",
@@ -918,14 +918,14 @@ const ar: Record<MessageKey, string> = {
     "تحصل عليه من @BotFather في تيليغرام. يُحفظ على الخادم ولا يُعرض مرة أخرى.",
   "tg.tokenSaved": "تم حفظ رمز البوت.",
   "tg.step2Hint":
-    "لا يستطيع البوت مراسلتك أولاً. افتح تيليغرام وأرسل أي رسالة إلى ‎@{bot}‎ — أو أضفه إلى مجموعة وأرسل رسالة فيها — ثم اضغط «بحث عن المحادثات».",
+    "لا يستطيع البوت مراسلتك أولاً. افتح تيليغرام وأرسل أي رسالة إلى ‎@{bot}‎ - أو أضفه إلى مجموعة وأرسل رسالة فيها - ثم اضغط «بحث عن المحادثات».",
   "tg.findChats": "بحث عن المحادثات",
   "tg.added": "مضاف",
   "tg.noneFound":
     "لا توجد محادثات بعد. أرسل رسالة إلى البوت في تيليغرام ثم أعد المحاولة.",
   "tg.chatIdPlaceholder": "أو ألصق معرّف المحادثة",
   "tg.addManually": "إضافة",
-  "tg.noChats": "لا توجد وجهات بعد — لا تُرسل الطلبات إلى أي مكان.",
+  "tg.noChats": "لا توجد وجهات بعد - لا تُرسل الطلبات إلى أي مكان.",
   "tg.removeChat": "حذف هذه الوجهة",
   "tg.live": "الإرسال مفعّل",
   "tg.notLive": "الإرسال متوقف",
@@ -939,9 +939,9 @@ const ar: Record<MessageKey, string> = {
   // ── الخيارات (الأحجام والنكهات والدرجات) ──
   "variants.title": "الخيارات (اختياري)",
   "variants.hint":
-    "الأحجام أو النكهات أو الدرجات — أي شكل يتوفّر به المنتج نفسه. أضفها ليختار المتسوّق واحداً قبل الإضافة إلى السلة. اترك السعر أو العرض أو المخزون فارغاً في أي خيار ليأخذ قيمة المنتج نفسه.",
+    "الأحجام أو النكهات أو الدرجات - أي شكل يتوفّر به المنتج نفسه. أضفها ليختار المتسوّق واحداً قبل الإضافة إلى السلة. اترك السعر أو العرض أو المخزون فارغاً في أي خيار ليأخذ قيمة المنتج نفسه.",
   "variants.emptyHint":
-    "لا توجد خيارات — يُباع هذا المنتج كما هو، بالسعر أعلاه.",
+    "لا توجد خيارات - يُباع هذا المنتج كما هو، بالسعر أعلاه.",
   "variants.addOption": "إضافة خيار",
   "variants.removeOption": "حذف هذا الخيار",
   "variants.moveUp": "تحريك للأعلى",
@@ -961,7 +961,7 @@ const ar: Record<MessageKey, string> = {
   // ── إعلان الخصومات ──
   "promo.eyebrow": "على منتجات مختارة",
   "promo.title": "خصومات تصل إلى {n}%!",
-  "promo.body": "منتجات مختارة عليها عروض الآن — ما دامت الكمية متوفرة.",
+  "promo.body": "منتجات مختارة عليها عروض الآن - ما دامت الكمية متوفرة.",
   "promo.cta": "تسوّق العروض",
   "promo.later": "ربما لاحقاً",
   "promo.onOffer": "العروض",
@@ -995,9 +995,9 @@ const ar: Record<MessageKey, string> = {
   "consult.eyebrow": "استشارة مجانية للعناية بالبشرة",
   "consult.title": "لا تعرف من أين تبدأ؟",
   "consult.inviteBody":
-    "أخبرنا عن بشرتك ونقترح لك روتيناً مناسباً — مجاناً ودون أي التزام.",
+    "أخبرنا عن بشرتك ونقترح لك روتيناً مناسباً - مجاناً ودون أي التزام.",
   "consult.body":
-    "أخبرنا عن بشرتك واترك رقمك، وسيتواصل معك أحد فريق المتجر ليقترح لك روتيناً مناسباً — مجاناً ودون أي التزام.",
+    "أخبرنا عن بشرتك واترك رقمك، وسيتواصل معك أحد فريق المتجر ليقترح لك روتيناً مناسباً - مجاناً ودون أي التزام.",
   "consult.name": "الاسم",
   "consult.namePlaceholder": "مثلاً: زينب",
   "consult.phone": "رقم الهاتف",
@@ -1024,7 +1024,7 @@ const ar: Record<MessageKey, string> = {
   "consult.submit": "اطلب استشارة",
   "consult.sending": "جارٍ الإرسال…",
   "consult.required": "الاسم ورقم الهاتف ونوع البشرة مطلوبة.",
-  "consult.sentTitle": "شكراً لك — وصلنا طلبك",
+  "consult.sentTitle": "شكراً لك - وصلنا طلبك",
   "consult.sentBody":
     "سيتواصل معك أحد فريق المتجر على الرقم الذي تركته. وإذا أرسلت الطلب خارج أوقات الدوام، فتوقّع التواصل في يوم العمل التالي.",
   "consult.sendAnother": "إرسال طلب آخر",
@@ -1036,7 +1036,7 @@ const ar: Record<MessageKey, string> = {
   "consult.reopen": "إعادة الفتح",
   "consult.whatsapp": "واتساب",
   "consult.waMessage":
-    "مرحباً {name}، معك velina — لقد طلبت منّا استشارة للعناية بالبشرة.",
+    "مرحباً {name}، معك velina - لقد طلبت منّا استشارة للعناية بالبشرة.",
   "consult.noneWaiting": "لا يوجد شيء بالانتظار. تمّت متابعة كل الطلبات.",
   "consult.noneYet": "لا توجد طلبات استشارة بعد.",
   "home.statProducts": "منتجات",
@@ -1054,7 +1054,7 @@ const ar: Record<MessageKey, string> = {
   "deck.photoHint":
     "اختيارية. مع صورة، تملأ الشريحة بالكامل ويظهر النص فوقها كما في الحقائب. وبدونها يظهر النص بجانب صور المنتجات. يفضّل صورة عريضة.",
   "deck.brief": "التعريف",
-  "deck.briefHint": "الشريحة الأولى — ما هو هذا المتجر.",
+  "deck.briefHint": "الشريحة الأولى - ما هو هذا المتجر.",
   "deck.offer": "إعلان الخصم",
   "deck.offerHint": "الشريحة الأخيرة. لا تظهر إلا إذا كان هناك عرض فعلي.",
   "deck.packages": "الحقائب",
@@ -1139,13 +1139,13 @@ const ar: Record<MessageKey, string> = {
   "modal.nameAr": "الاسم (بالعربية)",
   "modal.code": "الرمز",
   "modal.priceIqd": "السعر (د.ع)",
-  "modal.oldPriceIqd": "السعر القديم (د.ع) — اختياري",
+  "modal.oldPriceIqd": "السعر القديم (د.ع) - اختياري",
   "modal.noOffer": "لا يوجد عرض",
   "modal.clearOffer": "مسح",
   "modal.oldPriceHint":
     "اتركه فارغاً لعرض سعر واحد. أدخل السعر السابق ليظهر للمتسوّقين مشطوباً بجانب السعر الحالي.",
   "modal.offerPreview":
-    "سيرى المتسوّقون {old} مشطوباً ثم {price} {currency} — خصم {n}%.",
+    "سيرى المتسوّقون {old} مشطوباً ثم {price} {currency} - خصم {n}%.",
   "modal.brand": "الماركة",
   "modal.brandAria": "ماركة المنتج",
   "modal.productCategory": "الفئة",
@@ -1172,7 +1172,7 @@ const ar: Record<MessageKey, string> = {
   "modal.codePlaceholder": "مثال: F173",
   "modal.pricePlaceholder": "مثال: 21000",
   "modal.descriptionPlaceholder": "نبذة مختصرة عن المنتج…",
-  "modal.benefitsPlaceholder": "ما الذي يساعد عليه — نقطة في كل سطر…",
+  "modal.benefitsPlaceholder": "ما الذي يساعد عليه - نقطة في كل سطر…",
   "modal.ingredientsPlaceholder": "المكوّنات الفعّالة / التركيبة…",
   "modal.usagePlaceholder": "الإرشادات / الجرعة…",
   "modal.confirmDelete": "تأكيد الحذف",
@@ -1190,7 +1190,7 @@ const ar: Record<MessageKey, string> = {
   "categories.saveName": "حفظ الاسم",
   "categories.cancelRename": "إلغاء إعادة التسمية",
   "categories.hasProducts":
-    "لا يمكن حذف «{name}» — يحتوي على {n} منتج. انقلها أو احذفها أولاً.",
+    "لا يمكن حذف «{name}» - يحتوي على {n} منتج. انقلها أو احذفها أولاً.",
 
   // ── Admin orders ──
   "orders.subtitle": "{n} طلب · {money} مبيعات مؤكدة",
@@ -1208,15 +1208,15 @@ const ar: Record<MessageKey, string> = {
   "orders.receipt": "الفاتورة",
   "orders.whatsapp": "واتساب",
   "orders.whatsappCustomer": "إرسال إلى الزبون",
-  "orders.waGreeting": "مرحباً {name}، معك velina — بخصوص طلبك {no}.",
-  "orders.waGreetingAnon": "مرحباً، معك velina — بخصوص طلبك {no}.",
+  "orders.waGreeting": "مرحباً {name}، معك velina - بخصوص طلبك {no}.",
+  "orders.waGreetingAnon": "مرحباً، معك velina - بخصوص طلبك {no}.",
   "orders.deletePermanently": "حذف نهائي؟",
   "orders.yesDelete": "نعم، احذف",
   "orders.deleting": "جارٍ الحذف…",
 
   // ── Admin sale screen ──
   "sell.reviewOrder": "مراجعة الطلب #{n}",
-  "sell.reviewHint": "عدّل المنتجات والهدايا والخصم — الحفظ يؤكد الطلب",
+  "sell.reviewHint": "عدّل المنتجات والهدايا والخصم - الحفظ يؤكد الطلب",
   "sell.newHint": "تتوفر الهدايا وتعديل الأسعار والخصومات",
   "sell.emptyCatalog": "لا توجد منتجات في الكتالوج",
 

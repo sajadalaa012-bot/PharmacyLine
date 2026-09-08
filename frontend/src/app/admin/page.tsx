@@ -95,7 +95,7 @@ export default function AdminOverviewPage() {
         <p className="mt-1 text-xs text-ink-3">{t("overview.subtitle")}</p>
       </div>
 
-      {/* KPI band — one card, hairline-divided */}
+      {/* KPI band - one card, hairline-divided */}
       <div className="grid grid-cols-2 divide-line overflow-hidden rounded-lg border border-line bg-surface sm:grid-cols-4 sm:divide-x">
         {stats.map((s) => (
           <div key={s.label} className="px-5 py-4">

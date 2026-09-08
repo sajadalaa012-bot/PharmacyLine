@@ -29,7 +29,7 @@ interface PackageDetailModalProps {
   onOpenProduct?: (product: Product) => void;
   /**
    * True while one of the contents is open over this. Escape then belongs to
-   * that view — both listen on the window, so without this a single press
+   * that view - both listen on the window, so without this a single press
    * would shut the pair and send the shopper back to the deck.
    */
   layered?: boolean;
@@ -41,7 +41,7 @@ interface PackageDetailModalProps {
  *
  * The slide it opens from has room for a sentence and a price, which is
  * enough to catch someone's eye and not enough to decide on. This is where
- * the kit is actually read — so the description is not clamped, the contents
+ * the kit is actually read - so the description is not clamped, the contents
  * are a list rather than three plates, and each line carries what that item
  * costs on its own, because what a package is worth is the sum it saves.
  */
@@ -67,7 +67,7 @@ export default function PackageDetailModal({
   const saving = onOffer ? (pkg.old_price as number) - pkg.price : 0;
   const off = discountPercent(pkg);
 
-  // Close on Escape — unless one of the contents is open over this.
+  // Close on Escape - unless one of the contents is open over this.
   useEffect(() => {
     if (layered) return;
     const onKey = (e: KeyboardEvent) => {
@@ -110,7 +110,7 @@ export default function PackageDetailModal({
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto">
-          {/* The package's own photograph, as wide as the sheet — it was shot
+          {/* The package's own photograph, as wide as the sheet - it was shot
               for the kit, so it is shown the way the slide shows it rather
               than shrunk onto a product's square plate. */}
           {pkg.image_url && (
@@ -134,7 +134,7 @@ export default function PackageDetailModal({
               <bdi>{name}</bdi>
             </h3>
 
-            {/* Price — "was … now …", the shape every card uses. */}
+            {/* Price - "was … now …", the shape every card uses. */}
             <div className="mt-2 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
               <p
                 className={`font-display text-2xl font-semibold tracking-tight tabular-nums ${
@@ -203,7 +203,7 @@ export default function PackageDetailModal({
               )}
             </div>
 
-            {/* The description in full — this is the room the slide did not
+            {/* The description in full - this is the room the slide did not
                 have, so nothing is clamped here. */}
             {blurb.trim() && (
               <p className="mt-5 whitespace-pre-line text-[13px] leading-relaxed text-ink-2">
@@ -282,7 +282,7 @@ export default function PackageDetailModal({
                   })}
                 </ul>
 
-                {/* What the same basket costs one item at a time — the
+                {/* What the same basket costs one item at a time - the
                     number the package price is asking to be judged against. */}
                 {separately > 0 && (
                   <div className="mt-3 flex items-baseline justify-between gap-3 rounded-md bg-sunken/60 px-3.5 py-2.5">

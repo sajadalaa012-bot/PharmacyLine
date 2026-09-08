@@ -1,6 +1,6 @@
 // One-time: take AL-MASA out of the product copy the shop was seeded with.
 //
-// Every product description was generated with the shop's name in it —
+// Every product description was generated with the shop's name in it -
 // "Authentic skincare product from AL-MASA catalog: …", and the Arabic twin
 // "منتج عالي الجودة من كتالوج مكتب الماسة: …". The rename rewrote
 // data/catalog.json, but that file only ever seeds an EMPTY database (see
@@ -15,11 +15,11 @@
 //
 //   • It only rewrites the exact phrases below, only in the two description
 //     columns, and only in rows that still contain one. Everything else in a
-//     description — including one an admin has rewritten by hand — comes
+//     description - including one an admin has rewritten by hand - comes
 //     through untouched, because REPLACE leaves what it does not match.
 //   • It runs once. A marker in app_settings records that it has happened, so
-//     a shop that deliberately types the old name somewhere later — a note
-//     about what it used to be called — does not have it taken back out on
+//     a shop that deliberately types the old name somewhere later - a note
+//     about what it used to be called - does not have it taken back out on
 //     the next deploy.
 
 import { query } from "./db";
@@ -38,7 +38,7 @@ const PHRASES: [string, string][] = [
   ["AL-MASA", "velina"],
 ];
 
-/** The only columns that ever carried the name — 160 products, one each. */
+/** The only columns that ever carried the name - 160 products, one each. */
 const COLUMNS = ["description", "description_ar"] as const;
 
 /** REPLACE() chained over every phrase, the first pair applied innermost. */

@@ -1,8 +1,8 @@
 // One-time recovery of catalog edits stranded in this device's browser.
 //
 // Until the catalog moved into the shared database, the admin wrote products
-// and categories to IndexedDB. Edits made in that era — new photos, deleted
-// items, price changes — never reached a server, so they are invisible to
+// and categories to IndexedDB. Edits made in that era - new photos, deleted
+// items, price changes - never reached a server, so they are invisible to
 // every other device and to the storefront now that it reads the database.
 //
 // This reads what that build left behind and works out what it would take to
@@ -49,11 +49,11 @@ export async function readLocalCatalog(): Promise<LocalCatalog> {
 // ── Planning ────────────────────────────────────────────────────────
 
 export interface RecoveryPlan {
-  /** On this device but not in the database — will be added. */
+  /** On this device but not in the database - will be added. */
   createProducts: Product[];
-  /** In both, but the local copy differs — will overwrite the database. */
+  /** In both, but the local copy differs - will overwrite the database. */
   updateProducts: { local: Product; server: Product; changed: string[] }[];
-  /** In the database but not on this device — will be removed. */
+  /** In the database but not on this device - will be removed. */
   deleteProducts: Product[];
   /** Local products whose category no longer exists, so they can't be added. */
   skipped: Product[];
@@ -67,7 +67,7 @@ export interface RecoveryPlan {
  * `category_id` is deliberately absent, and categories themselves are never
  * created, renamed or deleted here. A device that predates the brand-by-brand
  * regrouping still holds the old combined categories, and "make the server
- * match this device" would then quietly undo that regrouping — which is not
+ * match this device" would then quietly undo that regrouping - which is not
  * what anyone publishing a photo change is asking for. Each product keeps the
  * category the live shop already has it in.
  */
@@ -156,7 +156,7 @@ function toInput(
   category_id: number,
   /**
    * The offer to keep. Legacy devices predate `old_price` entirely, so a
-   * recovery reads it from the live shop rather than the device — otherwise
+   * recovery reads it from the live shop rather than the device - otherwise
    * republishing a photo change would quietly cancel every offer.
    */
   old_price: number | undefined = p.old_price,
@@ -186,7 +186,7 @@ function toInput(
 }
 
 /**
- * Photos uploaded by the browser-only build were stored at full size — it had
+ * Photos uploaded by the browser-only build were stored at full size - it had
  * no reason to shrink them, since they never left the device. They do now, to
  * every shopper on every page load, so each one is downscaled on the way up.
  */
@@ -199,7 +199,7 @@ export interface RecoveryResult {
   created: number;
   updated: number;
   deleted: number;
-  /** One line per failure — the rest of the plan still goes through. */
+  /** One line per failure - the rest of the plan still goes through. */
   failures: string[];
 }
 
@@ -226,7 +226,7 @@ export async function applyRecovery(plan: RecoveryPlan): Promise<RecoveryResult>
   }
   for (const { local, server } of plan.updateProducts) {
     try {
-      // The live shop's category wins — recovery carries content, not
+      // The live shop's category wins - recovery carries content, not
       // structure. See COMPARED.
       await updateProduct(
         server.id,

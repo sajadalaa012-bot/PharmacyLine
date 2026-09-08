@@ -151,7 +151,7 @@ export default function AdminCategoriesPage() {
         </div>
       )}
 
-      {/* Add form — English name is required, Arabic optional. */}
+      {/* Add form - English name is required, Arabic optional. */}
       <form onSubmit={handleAdd} className="flex flex-col gap-3 sm:flex-row">
         <input
           type="text"

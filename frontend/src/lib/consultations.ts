@@ -115,7 +115,7 @@ export async function createConsultation(
   return toConsultation(rows[0]);
 }
 
-/** Newest first — the one that just came in is the one being answered. */
+/** Newest first - the one that just came in is the one being answered. */
 export async function listConsultations(): Promise<Consultation[]> {
   await ensureSchema();
   const { rows } = await query<Row>(

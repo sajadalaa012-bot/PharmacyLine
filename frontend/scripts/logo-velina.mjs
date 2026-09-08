@@ -25,7 +25,7 @@ const SOURCE = path.join(icons, "velina-logo-source.png");
 // hairline strokes don't come out with a jagged white fringe.
 const OPAQUE_BELOW = 224;
 const CLEAR_ABOVE = 246;
-// The darkest pixel in the source — the wordmark's own ink.
+// The darkest pixel in the source - the wordmark's own ink.
 const INK_FLOOR = 35;
 // Cream the wordmark becomes on the dark theme, over the paper it sits on
 // (--color-ink and --color-paper, dark shop).
@@ -71,7 +71,7 @@ for (let y = 0; y < height; y++) {
     // tinted. Its own ink becomes cream and its anti-aliased skirt becomes the
     // dark paper, so the strokes stay as smooth on a dark ground as the
     // supplied artwork is on a light one. The pink leaves and the tan stem are
-    // left as drawn — they already read well against a dark surface — beyond
+    // left as drawn - they already read well against a dark surface - beyond
     // darkening the near-white pixels where they feather into the page.
     const neutral = brightest - Math.min(r, g, b) < 26;
     if (a > 0 && neutral) {
