@@ -4,6 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Boxes,
+  Droplet,
+  Leaf,
+  Shield,
+  Sparkles,
   ChevronLeft,
   ChevronRight,
   Package,
@@ -12,6 +16,7 @@ import {
 } from "lucide-react";
 import {
   Product,
+  ProductCategory,
   Package as PackageType,
   discountPercent,
   isDiscounted,
@@ -60,6 +65,8 @@ interface HomeCarouselProps {
   packages: PackageType[];
   /** The copy the shop has written for the two slides that are not packages. */
   deck: HomeDeck;
+  /** Product types, to name the benefit pills on the discount slide. */
+  productCategories: ProductCategory[];
   brandCount: number;
   categoryCount: number;
   onShopAll: () => void;
@@ -91,6 +98,7 @@ export default function HomeCarousel({
   products,
   packages,
   deck,
+  productCategories,
   brandCount,
   categoryCount,
   onShopAll,
@@ -297,6 +305,7 @@ export default function HomeCarousel({
                 <PromoSlide
                   slide={deck.offer}
                   offers={offers}
+                  categories={productCategories}
                   onShopOffers={onShopOffers}
                   onOpenProduct={onOpenProduct}
                 />
@@ -509,100 +518,207 @@ function Plate({
 }
 
 /**
- * The discount, as the shop advertises it. The headline figure is the one the
- * popup uses — both read HomeDeck.offer.percent — so the two never disagree
- * about what is
- * being claimed. The photographs are the steepest discounts actually running,
- * each carrying its own real percentage.
+ * Splits a headline around its {n}, so the figure can be coloured while the
+ * rest of the sentence is not. "Discounts up to {n}%!" comes back as
+ * "Discounts up to " + "40%" + "!", with the per cent sign travelling with
+ * the number because that is the part being shouted.
+ *
+ * A headline the shop wrote without an {n} simply comes back whole.
+ */
+function splitOnFigure(
+  template: string,
+  n: number,
+): { before: string; figure: string; after: string } {
+  const at = template.indexOf("{n}");
+  if (at < 0) return { before: format(template, { n }), figure: "", after: "" };
+  let after = template.slice(at + 3);
+  let figure = String(n);
+  if (after.startsWith("%")) {
+    figure += "%";
+    after = after.slice(1);
+  }
+  // Only the first {n} is the one being shouted; any the shop wrote further
+  // along the sentence are filled in normally rather than left showing.
+  return {
+    before: format(template.slice(0, at), { n }),
+    figure,
+    after: format(after, { n }),
+  };
+}
+
+/** The little marks on the benefit pills, in the order the pills appear. */
+const PILL_ICONS = [Sparkles, Droplet, Shield, Leaf];
+
+/**
+ * The discount, as the shop advertises it: a blush banner with what is
+ * actually reduced standing on it, the figure shouted in brand pink, and one
+ * button into the offers.
+ *
+ * Every colour here is fixed rather than themed. It is a printed
+ * advertisement more than a piece of the interface, and it is meant to read
+ * the same in both themes — the way the tinted product cards already do.
+ *
+ * The photographs stand on frosted plinths rather than being cut out of their
+ * backgrounds. The catalogue is shot on real surfaces — beige, grey, lavender
+ * — as opaque JPEGs, so there is nothing to cut out; a plinth is the honest
+ * way to stand one of those on a coloured ground.
  */
 function PromoSlide({
   slide,
   offers,
+  categories,
   onShopOffers,
   onOpenProduct,
 }: {
   slide: HomeDeck["offer"];
   offers: Product[];
+  /** Names the benefit pills — the types the reduced products actually are. */
+  categories: ProductCategory[];
   onShopOffers: () => void;
   onOpenProduct: (product: Product) => void;
 }) {
   const { t, lang } = useI18n();
   const shown = offers.slice(0, OFFER_PHOTOS);
+
   // {n} is filled in whether the wording is the shop's or the shipped one, so
   // a headline it writes can still carry the figure without retyping it.
   const n = slide.percent;
   const eyebrow = localized(slide, "eyebrow", lang) || t("promo.eyebrow");
-  const title =
-    format(localized(slide, "title", lang), { n }) || t("promo.title", { n });
+  const written = localized(slide, "title", lang);
+  const headline = splitOnFigure(written || t("promo.title"), n);
   const body = localized(slide, "body", lang) || t("promo.body");
 
-  const cta = (
-    <button
-      onClick={onShopOffers}
-      className="group mt-5 flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:mt-7 sm:h-12 sm:px-7"
-    >
-      {t("promo.cta")}
-      <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
-    </button>
-  );
-
-  // The shop's own picture takes the whole slide, the way a package's does.
-  if (slide.image_url) {
-    return (
-      <PhotoSlide
-        photo={slide.image_url}
-        alt={title}
-        icon={Tag}
-        eyebrow={eyebrow}
-        title={title}
-        body={body}
-      >
-        {cta}
-      </PhotoSlide>
-    );
-  }
-
+  // What kinds of thing are actually reduced, named from the catalogue rather
+  // than written by hand: a pill reading "Sunscreen" when no sunscreen is
+  // discounted would be the wrong kind of true.
+  const pills = [
+    ...new Map(
+      offers
+        .map((p) => categories.find((c) => c.id === p.product_category_id))
+        .filter((c): c is ProductCategory => !!c)
+        .map((c) => [c.id, c] as const),
+    ).values(),
+  ].slice(0, PILL_ICONS.length);
 
   return (
-    <SlideFrame
-      aside={
-        <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
-          {shown.map((p) => {
+    // h-full so the blush reaches the bottom of the deck: the track sizes
+    // every slide to the tallest, and a ground that stopped short of that
+    // would show the surface behind it.
+    <div className="relative flex h-full flex-col justify-center overflow-hidden">
+      {/* Ground. A photograph when the shop has uploaded one, under a blush
+          wash that keeps the dark copy readable over whatever it happens to
+          be; otherwise the wash on its own. */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(120% 100% at 72% 15%, #fdeef1 0%, #f8e2e6 42%, #f1d2d8 72%, #ebc4cc 100%)",
+        }}
+      />
+      {slide.image_url && (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={slide.image_url}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-[#fbe6ea]/75" />
+        </>
+      )}
+
+      <div className="relative grid items-center gap-6 p-5 sm:grid-cols-2 sm:gap-8 sm:p-8 lg:gap-10 lg:p-10">
+        {/* ── Copy. First in the source, so it takes the start side: the right
+            in Arabic, the left in English, without either being hard-coded. */}
+        <div className="order-2 sm:order-1">
+          <span className="label-caps flex items-center gap-1.5 text-[#c62a6c]">
+            <Tag className="h-3.5 w-3.5" />
+            {eyebrow}
+          </span>
+
+          <h2 className="mt-2.5 whitespace-pre-line font-display text-[28px] font-bold leading-[1.08] tracking-tight text-[#1b2733] sm:text-4xl lg:text-[44px]">
+            <bdi>
+              {headline.before}
+              {headline.figure && (
+                <span className="text-[#c62a6c]">{headline.figure}</span>
+              )}
+              {headline.after}
+            </bdi>
+          </h2>
+
+          <p className="mt-3 max-w-md whitespace-pre-line text-[13px] leading-relaxed text-[#5b6b7c] sm:mt-4 sm:text-[15px]">
+            <bdi>{body}</bdi>
+          </p>
+
+          {pills.length > 0 && (
+            <ul className="mt-4 flex flex-wrap items-center gap-2 sm:mt-5">
+              {pills.map((c, i) => {
+                const Icon = PILL_ICONS[i % PILL_ICONS.length];
+                return (
+                  <li
+                    key={c.id}
+                    className="flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-[12px] font-medium text-[#96436a] ring-1 ring-white/70"
+                  >
+                    <Icon className="h-3.5 w-3.5 shrink-0" />
+                    <bdi>{localized(c, "name", lang)}</bdi>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          <button
+            onClick={onShopOffers}
+            className="group mt-5 flex h-12 items-center gap-2.5 rounded-full bg-[#c62a6c] px-7 text-sm font-semibold text-white shadow-[0_14px_28px_-12px_rgba(198,42,108,0.75)] transition hover:bg-[#a51f57] active:scale-[0.98] sm:mt-6 sm:h-14 sm:px-8 sm:text-base"
+          >
+            {t("promo.cta")}
+            <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
+          </button>
+        </div>
+
+        {/* ── What is actually reduced. Above the copy on a phone, beside it
+            from `sm` up — the arrangement is the hook, the words are the
+            argument, and on a narrow screen the hook comes first. */}
+        <div className="order-1 flex items-end justify-center gap-3 sm:order-2 sm:gap-4">
+          {shown.map((p, i) => {
             const name = localized(p, "name", lang);
+            // Staggered, so three bottles read as an arrangement rather than a
+            // row of boxes: the middle one stands tallest.
+            const height =
+              i === 1 ? "h-32 sm:h-44 lg:h-52" : "h-24 sm:h-36 lg:h-44";
             return (
               <button
                 key={p.id}
                 type="button"
                 onClick={() => onOpenProduct(p)}
                 aria-label={t("product.viewDetails", { name })}
-                className="group/plate relative cursor-zoom-in"
+                className="group/plate relative min-w-0 flex-1 cursor-zoom-in"
               >
-                <Plate
-                  product={p}
-                  name={name}
-                  className="h-24 transition-transform duration-300 group-hover/plate:scale-[1.03] sm:h-32"
-                />
-                <span className="label-caps absolute -end-1 -top-1.5 rounded-full bg-rose px-1.5 py-0.5 text-[10px] text-paper shadow-md">
+                <span className="label-caps absolute -top-2 end-0 z-10 rounded-full bg-[#c62a6c] px-2 py-1 text-[10px] text-white shadow-[0_8px_16px_-6px_rgba(198,42,108,0.8)]">
                   {t("offer.percentOff", { n: discountPercent(p) })}
+                </span>
+                <span
+                  className={`flex ${height} items-center justify-center overflow-hidden rounded-2xl bg-white/70 p-2.5 shadow-[0_20px_34px_-20px_rgba(27,39,51,0.55)] ring-1 ring-white/70 backdrop-blur-sm transition-transform duration-300 group-hover/plate:-translate-y-1`}
+                >
+                  {p.image_url ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={p.image_url}
+                      alt={name}
+                      loading="lazy"
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  ) : (
+                    <Package className="h-8 w-8 text-[#d8b7c0]" />
+                  )}
                 </span>
               </button>
             );
           })}
         </div>
-      }
-    >
-      <span className="label-caps flex items-center gap-1.5 text-rose">
-        <Tag className="h-3.5 w-3.5" />
-        {eyebrow}
-      </span>
-      <h2 className="mt-2 whitespace-pre-line font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-ink sm:text-4xl lg:text-5xl">
-        <bdi>{title}</bdi>
-      </h2>
-      <p className="mt-3 max-w-lg whitespace-pre-line text-[13px] leading-relaxed text-ink-2 sm:mt-5 sm:text-[15px]">
-        <bdi>{body}</bdi>
-      </p>
-      {cta}
-    </SlideFrame>
+      </div>
+    </div>
   );
 }
 

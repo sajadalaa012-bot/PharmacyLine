@@ -527,6 +527,7 @@ export default function ShopView() {
                   products={allProducts}
                   packages={packages}
                   deck={deck}
+                  productCategories={productCategories}
                   brandCount={categories.length}
                   categoryCount={productCategories.length}
                   onShopAll={() => pickCategory("all")}
@@ -720,6 +721,7 @@ export default function ShopView() {
                 products={allProducts}
                 packages={packages}
                 deck={deck}
+                productCategories={productCategories}
                 brandCount={categories.length}
                 categoryCount={productCategories.length}
                 onShopAll={goToCatalog}
