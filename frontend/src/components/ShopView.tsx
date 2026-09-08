@@ -30,6 +30,7 @@ import {
 import ConsultationForm from "./ConsultationForm";
 import ConsultationInvite from "./ConsultationInvite";
 import HomeCarousel from "./HomeCarousel";
+import PackageDetailModal from "./PackageDetailModal";
 import ProductCard from "./ProductCard";
 import ProductDetailModal from "./ProductDetailModal";
 import CartPanel from "./CartPanel";
@@ -164,6 +165,7 @@ export default function ShopView() {
   const [cartOpen, setCartOpen] = useState(false);
   const [tab, setTab] = useState<Tab>("home");
   const [detailProduct, setDetailProduct] = useState<Product | null>(null);
+  const [detailPackage, setDetailPackage] = useState<Package | null>(null);
   // The phone shell scrolls this element, not the document, so every tab
   // change has to put it back at the top itself.
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -387,6 +389,7 @@ export default function ShopView() {
   // of its own. Both the deck and the shelf below it go through these, so the
   // two always agree about what is in the basket. See packageAsProduct.
   const addPackage = (pkg: Package) => cart.add(packageAsProduct(pkg));
+  const removePackage = (pkg: Package) => cart.remove(packageAsProduct(pkg));
   const packageQty = (pkg: Package) =>
     cart.qtyOf(packageLineId(pkg.id), undefined, false);
 
@@ -522,6 +525,7 @@ export default function ShopView() {
                   onBrowse={() => goTab("browse")}
                   onOpenProduct={setDetailProduct}
                   onAddPackage={addPackage}
+                  onOpenPackage={setDetailPackage}
                   packageQty={packageQty}
                 />
               </div>
@@ -713,6 +717,7 @@ export default function ShopView() {
                 onBrowse={() => goTab("browse")}
                 onOpenProduct={setDetailProduct}
                 onAddPackage={addPackage}
+                onOpenPackage={setDetailPackage}
                 packageQty={packageQty}
               />
 
@@ -968,6 +973,22 @@ export default function ShopView() {
             <div className="flex-1 overflow-hidden">{cartPanel}</div>
           </div>
         </div>
+      )}
+
+      {/* Package detail — opened from a slide in the deck. Rendered before
+          the product view on purpose: tapping one of the contents opens that
+          product on top of this, and closing it comes back here. */}
+      {detailPackage && (
+        <PackageDetailModal
+          pkg={detailPackage}
+          products={allProducts}
+          qty={packageQty(detailPackage)}
+          onClose={() => setDetailPackage(null)}
+          onAdd={addPackage}
+          onRemove={removePackage}
+          onOpenProduct={setDetailProduct}
+          layered={!!detailProduct}
+        />
       )}
 
       {/* Product detail — opened by tapping a product card */}

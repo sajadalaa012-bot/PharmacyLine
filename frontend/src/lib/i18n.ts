@@ -414,6 +414,10 @@ const en = {
   // A set of products sold together for one price. Storefront first, then
   // the back office where they are put together and priced.
   "pkg.eyebrow": "Package",
+  "pkg.whatsInside": "What's inside",
+  "pkg.timesQty": "× {n}",
+  "pkg.emptyNote": "Ask us what this package includes.",
+  "pkg.viewDetails": "See what is in {name}",
   "pkg.photoHint":
     "Fills the whole slide on the home page, so a wide photo of the kit works best. Without one the slide shows the products inside instead.",
   "pkg.inCart": "{n} in your cart",
@@ -1006,6 +1010,10 @@ const ar: Record<MessageKey, string> = {
 
   // ── الحقائب ──
   "pkg.eyebrow": "حقيبة",
+  "pkg.whatsInside": "ماذا تحتوي",
+  "pkg.timesQty": "× {n}",
+  "pkg.emptyNote": "اسألنا عمّا تحتويه هذه الحقيبة.",
+  "pkg.viewDetails": "عرض محتويات {name}",
   "pkg.photoHint":
     "تملأ الشريحة بالكامل في الصفحة الرئيسية، لذا يفضّل صورة عريضة للحقيبة. وبدونها تعرض الشريحة المنتجات التي بداخلها.",
   "pkg.inCart": "{n} في سلّتك",

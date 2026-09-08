@@ -65,6 +65,8 @@ interface HomeCarouselProps {
   onOpenProduct: (product: Product) => void;
   /** Puts one package in the basket, straight off the slide. */
   onAddPackage: (pkg: PackageType) => void;
+  /** Opens one package in full — its description and everything in it. */
+  onOpenPackage: (pkg: PackageType) => void;
   /** How many of one package are already in the basket. */
   packageQty: (pkg: PackageType) => number;
 }
@@ -92,6 +94,7 @@ export default function HomeCarousel({
   onBrowse,
   onOpenProduct,
   onAddPackage,
+  onOpenPackage,
   packageQty,
 }: HomeCarouselProps) {
   const { t, rtl } = useI18n();
@@ -184,11 +187,21 @@ export default function HomeCarousel({
     if (from.axis === "x") setDrag(dx);
   };
 
+  /**
+   * When the last sideways drag finished. A slide is a button now — the whole
+   * photograph opens the package — so a swipe that happens to end on one
+   * would otherwise land as a press the moment the finger lifts. Anything
+   * that got as far as locking to the x axis was a swipe, not a tap, and the
+   * click it produces is swallowed below.
+   */
+  const draggedAt = useRef(0);
+
   const settle = (e: React.PointerEvent) => {
     const from = dragFrom.current;
     dragFrom.current = null;
     setDrag(0);
     if (!from || from.id !== e.pointerId || from.axis !== "x") return;
+    draggedAt.current = Date.now();
     const dx = e.clientX - from.x;
     // Short of the threshold the track springs back to where it was, which
     // setDrag(0) above has already asked for.
@@ -241,6 +254,14 @@ export default function HomeCarousel({
         onPointerMove={onPointerMove}
         onPointerUp={settle}
         onPointerCancel={onPointerCancel}
+        // Caught on the way down, before it reaches whatever was under the
+        // finger when it stopped. See draggedAt.
+        onClickCapture={(e) => {
+          if (Date.now() - draggedAt.current < 350) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }}
       >
         <div
           className="flex"
@@ -278,6 +299,7 @@ export default function HomeCarousel({
                   products={products}
                   qty={packageQty(slide.pkg)}
                   onAdd={onAddPackage}
+                  onOpen={onOpenPackage}
                   onOpenProduct={onOpenProduct}
                 />
               ) : (
@@ -476,12 +498,14 @@ function PackageSlide({
   products,
   qty,
   onAdd,
+  onOpen,
   onOpenProduct,
 }: {
   pkg: PackageType;
   products: Product[];
   qty: number;
   onAdd: (pkg: PackageType) => void;
+  onOpen: (pkg: PackageType) => void;
   onOpenProduct: (product: Product) => void;
 }) {
   const { t, lang } = useI18n();
@@ -526,6 +550,17 @@ function PackageSlide({
             Fixed colours rather than theme tokens: what is behind them is a
             photograph in both themes. */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/20" />
+
+        {/* The photograph itself opens the package. It lies under the copy
+            rather than over it, so the buttons below still take their own
+            taps — and a swipe that happens to end here is swallowed by the
+            deck rather than counted as a press. */}
+        <button
+          type="button"
+          onClick={() => onOpen(pkg)}
+          aria-label={t("pkg.viewDetails", { name })}
+          className="absolute inset-0 cursor-pointer"
+        />
 
         <div className="relative p-5 sm:p-8 lg:p-10">
           <div className="flex flex-wrap items-center gap-2">
@@ -576,13 +611,23 @@ function PackageSlide({
             </p>
           </div>
 
-          <button
-            onClick={() => onAdd(pkg)}
-            className="group mt-5 flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:mt-6 sm:h-12 sm:px-7"
-          >
-            {t("pkg.addToCart")}
-            <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
-          </button>
+          <div className="mt-5 flex flex-wrap items-center gap-2.5 sm:mt-6">
+            <button
+              onClick={() => onAdd(pkg)}
+              className="group flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:h-12 sm:px-7"
+            >
+              {t("pkg.addToCart")}
+              <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
+            </button>
+            {/* Says out loud what tapping the photograph does — nobody should
+                have to guess that a picture is a door. */}
+            <button
+              onClick={() => onOpen(pkg)}
+              className="flex h-11 items-center gap-2 rounded-full border border-white/45 px-5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/15 active:scale-[0.98] sm:h-12 sm:px-6"
+            >
+              {t("pkg.whatsInside")}
+            </button>
+          </div>
 
           {qty > 0 && (
             <p className="mt-2.5 text-[12px] font-semibold text-white">
@@ -684,13 +729,21 @@ function PackageSlide({
         </p>
       </div>
 
-      <button
-        onClick={() => onAdd(pkg)}
-        className="group mt-5 flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:mt-6 sm:h-12 sm:px-7"
-      >
-        {t("pkg.addToCart")}
-        <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
-      </button>
+      <div className="mt-5 flex flex-wrap items-center gap-2.5 sm:mt-6">
+        <button
+          onClick={() => onAdd(pkg)}
+          className="group flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:h-12 sm:px-7"
+        >
+          {t("pkg.addToCart")}
+          <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
+        </button>
+        <button
+          onClick={() => onOpen(pkg)}
+          className="flex h-11 items-center gap-2 rounded-full border border-line-strong px-5 text-sm font-semibold text-ink transition hover:bg-sunken active:scale-[0.98] sm:h-12 sm:px-6"
+        >
+          {t("pkg.whatsInside")}
+        </button>
+      </div>
 
       {qty > 0 && (
         <p className="mt-2.5 text-[12px] font-semibold text-brand">
