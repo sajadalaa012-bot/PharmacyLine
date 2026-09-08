@@ -441,7 +441,7 @@ function PhotoSlide({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="relative flex h-full min-h-80 flex-col justify-end sm:min-h-96">
+    <div className="relative flex h-full min-h-64 flex-col justify-end sm:min-h-96">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={photo}
@@ -609,7 +609,7 @@ function PromoSlide({
     <div className="relative flex h-full flex-col justify-center overflow-hidden">
       <BlushGround photo={slide.image_url || undefined} />
 
-      <div className="relative grid items-center gap-6 p-5 sm:grid-cols-2 sm:gap-8 sm:p-8 lg:gap-10 lg:p-10">
+      <div className="relative grid items-center gap-5 p-5 sm:grid-cols-2 sm:gap-8 sm:p-8 lg:gap-10 lg:p-10">
         {/* ── Copy. First in the source, so it takes the start side: the right
             in Arabic, the left in English, without either being hard-coded. */}
         <div className="order-2 sm:order-1">
@@ -618,7 +618,7 @@ function PromoSlide({
             {eyebrow}
           </span>
 
-          <h2 className="mt-2.5 whitespace-pre-line font-display text-[28px] font-bold leading-[1.08] tracking-tight text-[#1b2733] sm:text-4xl lg:text-[44px]">
+          <h2 className="mt-2.5 whitespace-pre-line font-display text-[26px] font-bold leading-[1.08] tracking-tight text-[#1b2733] sm:text-4xl lg:text-[44px]">
             <bdi>
               {headline.before}
               {headline.figure && (
@@ -651,7 +651,7 @@ function PromoSlide({
 
           <button
             onClick={onShopOffers}
-            className="group mt-5 flex h-12 items-center gap-2.5 rounded-full bg-[#c62a6c] px-7 text-sm font-semibold text-white shadow-[0_14px_28px_-12px_rgba(198,42,108,0.75)] transition hover:bg-[#a51f57] active:scale-[0.98] sm:mt-6 sm:h-14 sm:px-8 sm:text-base"
+            className="group mt-5 flex h-11 items-center gap-2.5 rounded-full bg-[#c62a6c] px-7 text-sm font-semibold text-white shadow-[0_14px_28px_-12px_rgba(198,42,108,0.75)] transition hover:bg-[#a51f57] active:scale-[0.98] sm:mt-6 sm:h-14 sm:px-8 sm:text-base"
           >
             {t("promo.cta")}
             <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
@@ -667,7 +667,7 @@ function PromoSlide({
             // Staggered, so three bottles read as an arrangement rather than a
             // row of boxes: the middle one stands tallest.
             const height =
-              i === 1 ? "h-32 sm:h-44 lg:h-52" : "h-24 sm:h-36 lg:h-44";
+              i === 1 ? "h-24 sm:h-44 lg:h-52" : "h-24 sm:h-36 lg:h-44";
             return (
               <button
                 key={p.id}
@@ -1042,7 +1042,7 @@ function AboutSlide({
 
   // Real products stand in for the catalogue — ones with a picture only,
   // since an empty plinth says nothing about what is in the shop.
-  const shelf = products.filter((p) => p.image_url).slice(0, 4);
+  const shelf = products.filter((p) => p.image_url).slice(0, 3);
 
   const pills = categories.slice(0, PILL_ICONS.length);
 
@@ -1061,7 +1061,7 @@ function AboutSlide({
     <div className="relative flex h-full flex-col justify-center overflow-hidden">
       <BlushGround photo={slide.image_url || undefined} />
 
-      <div className="relative grid items-center gap-6 p-5 sm:grid-cols-2 sm:gap-8 sm:p-8 lg:gap-10 lg:p-10">
+      <div className="relative grid items-center gap-5 p-5 sm:grid-cols-2 sm:gap-8 sm:p-8 lg:gap-10 lg:p-10">
         {/* ── Copy. First in the source, so it takes the start side: the right
             in Arabic, the left in English, without either being hard-coded. */}
         <div className="order-2 sm:order-1">
@@ -1071,7 +1071,7 @@ function AboutSlide({
             <span className="h-px w-10 bg-[#c62a6c]/50" />
           </span>
 
-          <h2 className="mt-3 whitespace-pre-line font-display text-[28px] font-bold leading-[1.08] tracking-tight text-[#1b2733] sm:text-4xl lg:text-[44px]">
+          <h2 className="mt-3 whitespace-pre-line font-display text-[26px] font-bold leading-[1.08] tracking-tight text-[#1b2733] sm:text-4xl lg:text-[44px]">
             <bdi>{headline}</bdi>
           </h2>
 
@@ -1099,14 +1099,14 @@ function AboutSlide({
           <div className="mt-5 flex flex-wrap items-center gap-2.5 sm:mt-6 sm:gap-3">
             <button
               onClick={onShopAll}
-              className="group flex h-12 items-center gap-2.5 rounded-full bg-[#c62a6c] px-7 text-sm font-semibold text-white shadow-[0_14px_28px_-12px_rgba(198,42,108,0.75)] transition hover:bg-[#a51f57] active:scale-[0.98] sm:h-14 sm:px-8 sm:text-base"
+              className="group flex h-11 items-center gap-2.5 rounded-full bg-[#c62a6c] px-7 text-sm font-semibold text-white shadow-[0_14px_28px_-12px_rgba(198,42,108,0.75)] transition hover:bg-[#a51f57] active:scale-[0.98] sm:h-14 sm:px-8 sm:text-base"
             >
               {t("shop.ctaShop")}
               <ChevronRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
             </button>
             <button
               onClick={onBrowse}
-              className="flex h-12 items-center gap-2.5 rounded-full bg-white/85 px-6 text-sm font-semibold text-[#96436a] ring-1 ring-white/80 transition hover:bg-white active:scale-[0.98] sm:h-14 sm:px-7 sm:text-base"
+              className="flex h-11 items-center gap-2.5 rounded-full bg-white/85 px-6 text-sm font-semibold text-[#96436a] ring-1 ring-white/80 transition hover:bg-white active:scale-[0.98] sm:h-14 sm:px-7 sm:text-base"
             >
               <LayoutGrid className="h-4 w-4" />
               {t("shop.ctaBrowse")}
@@ -1132,7 +1132,7 @@ function AboutSlide({
                 key={p.id}
                 className={
                   i % 2 === 1
-                    ? "h-32 flex-1 sm:h-44 lg:h-52"
+                    ? "h-24 flex-1 sm:h-44 lg:h-52"
                     : "h-24 flex-1 sm:h-36 lg:h-44"
                 }
               >
