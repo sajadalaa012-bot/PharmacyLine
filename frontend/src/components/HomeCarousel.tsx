@@ -5,13 +5,14 @@ import {
   ArrowRight,
   Boxes,
   Droplet,
+  LayoutGrid,
   Leaf,
-  Shield,
   Sparkles,
+  Sun,
   ChevronLeft,
   ChevronRight,
   Package,
-  SlidersHorizontal,
+
   Tag,
 } from "lucide-react";
 import {
@@ -322,6 +323,7 @@ export default function HomeCarousel({
                 <AboutSlide
                   slide={deck.brief}
                   products={products}
+                  categories={productCategories}
                   brandCount={brandCount}
                   categoryCount={categoryCount}
                   onShopAll={onShopAll}
@@ -547,7 +549,7 @@ function splitOnFigure(
 }
 
 /** The little marks on the benefit pills, in the order the pills appear. */
-const PILL_ICONS = [Sparkles, Droplet, Shield, Leaf];
+const PILL_ICONS = [Droplet, Sun, Sparkles, Leaf];
 
 /**
  * The discount, as the shop advertises it: a blush banner with what is
@@ -605,28 +607,7 @@ function PromoSlide({
     // every slide to the tallest, and a ground that stopped short of that
     // would show the surface behind it.
     <div className="relative flex h-full flex-col justify-center overflow-hidden">
-      {/* Ground. A photograph when the shop has uploaded one, under a blush
-          wash that keeps the dark copy readable over whatever it happens to
-          be; otherwise the wash on its own. */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(120% 100% at 72% 15%, #fdeef1 0%, #f8e2e6 42%, #f1d2d8 72%, #ebc4cc 100%)",
-        }}
-      />
-      {slide.image_url && (
-        <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={slide.image_url}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-[#fbe6ea]/75" />
-        </>
-      )}
+      <BlushGround photo={slide.image_url || undefined} />
 
       <div className="relative grid items-center gap-6 p-5 sm:grid-cols-2 sm:gap-8 sm:p-8 lg:gap-10 lg:p-10">
         {/* ── Copy. First in the source, so it takes the start side: the right
@@ -698,8 +679,8 @@ function PromoSlide({
                 <span className="label-caps absolute -top-2 end-0 z-10 rounded-full bg-[#c62a6c] px-2 py-1 text-[10px] text-white shadow-[0_8px_16px_-6px_rgba(198,42,108,0.8)]">
                   {t("offer.percentOff", { n: discountPercent(p) })}
                 </span>
-                <span
-                  className={`flex ${height} items-center justify-center overflow-hidden rounded-2xl bg-white/70 p-2.5 shadow-[0_20px_34px_-20px_rgba(27,39,51,0.55)] ring-1 ring-white/70 backdrop-blur-sm transition-transform duration-300 group-hover/plate:-translate-y-1`}
+                <Plinth
+                  className={`${height} transition-transform duration-300 group-hover/plate:-translate-y-1`}
                 >
                   {p.image_url ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
@@ -712,7 +693,7 @@ function PromoSlide({
                   ) : (
                     <Package className="h-8 w-8 text-[#d8b7c0]" />
                   )}
-                </span>
+                </Plinth>
               </button>
             );
           })}
@@ -962,10 +943,79 @@ function PackageSlide({
   );
 }
 
-/** What the shop stocks, in a sentence and four numbers. */
+/**
+ * The ground the two banner slides stand on: a blush wash in the shop's
+ * pinks, or a photograph the shop uploaded under a wash of the same colour.
+ *
+ * The wash is what makes an uploaded photograph safe to put dark copy on.
+ * Nobody vets what gets uploaded, and a headline that turns unreadable over
+ * somebody's dark photo is worse than one that sits on a plain ground.
+ */
+function BlushGround({ photo }: { photo?: string }) {
+  return (
+    <>
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(120% 100% at 72% 15%, #fdeef1 0%, #f8e2e6 42%, #f1d2d8 72%, #ebc4cc 100%)",
+        }}
+      />
+      {photo && (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={photo}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-[#fbe6ea]/75" />
+        </>
+      )}
+    </>
+  );
+}
+
+/**
+ * A frosted stand for one product photograph, echoing the stone plinths the
+ * shop's own photography uses.
+ *
+ * The catalogue is shot on real surfaces — beige, grey, lavender — as opaque
+ * JPEGs, so a product cannot be cut out and floated on the blush the way a
+ * studio composite would. A plinth is the honest way to stand one of those on
+ * a coloured ground, and it matches the photography rather than fighting it.
+ */
+function Plinth({
+  className = "",
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <span
+      className={`flex items-center justify-center overflow-hidden rounded-2xl bg-white/70 p-2.5 shadow-[0_20px_34px_-20px_rgba(27,39,51,0.55)] ring-1 ring-white/70 backdrop-blur-sm ${className}`}
+    >
+      {children}
+    </span>
+  );
+}
+
+/**
+ * What the shop is: the brief the deck opens on.
+ *
+ * Built to the same blush banner as the discount slide, so the two read as
+ * one piece of work rather than two designs sharing a carousel. Where they
+ * differ is what stands on the ground: the discount slide has to show the
+ * products it is discounting, while this one is about the shop as a whole, so
+ * an uploaded photograph replaces the arrangement entirely rather than
+ * sitting behind it.
+ */
 function AboutSlide({
   slide,
   products,
+  categories,
   brandCount,
   categoryCount,
   onShopAll,
@@ -973,49 +1023,29 @@ function AboutSlide({
 }: {
   slide: HomeDeck["brief"];
   products: Product[];
+  /** Names the pills — what the shop actually sells, from the catalogue. */
+  categories: ProductCategory[];
   brandCount: number;
   categoryCount: number;
   onShopAll: () => void;
   onBrowse: () => void;
 }) {
   const { t, lang } = useI18n();
+
   // The shop's own wording where it has written any, the shipped translation
   // where it has not. See HomeDeck.
   const eyebrow = localized(slide, "eyebrow", lang) || t("shop.eyebrow");
   const headline =
     localized(slide, "title", lang) ||
-    `${t("shop.headline1")}
-${t("shop.headline2")}`;
+    `${t("shop.headline1")}\n${t("shop.headline2")}`;
   const lede = localized(slide, "body", lang) || t("shop.lede");
 
-  const actions = (
-    <div className="mt-5 flex flex-wrap items-center gap-2.5 sm:mt-6 sm:gap-3">
-      <button
-        onClick={onShopAll}
-        className="group flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:h-12 sm:px-7"
-      >
-        {t("shop.ctaShop")}
-        <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
-      </button>
-      {/* The outline button has to hold its own against a photograph when
-          there is one behind it, and against paper when there is not. */}
-      <button
-        onClick={onBrowse}
-        className={`flex h-11 items-center gap-2 rounded-full border px-5 text-sm font-semibold transition active:scale-[0.98] sm:h-12 sm:px-6 ${
-          slide.image_url
-            ? "border-white/45 text-white backdrop-blur-sm hover:bg-white/15"
-            : "border-line-strong text-ink hover:bg-sunken"
-        }`}
-      >
-        <SlidersHorizontal className="h-3.5 w-3.5" />
-        {t("shop.ctaBrowse")}
-      </button>
-    </div>
-  );
+  // Real products stand in for the catalogue — ones with a picture only,
+  // since an empty plinth says nothing about what is in the shop.
+  const shelf = products.filter((p) => p.image_url).slice(0, 4);
 
-  // Real products stand in for the catalogue — ones with a picture only, since
-  // an empty plate says nothing about what is in the shop.
-  const shelf = products.filter((p) => p.image_url).slice(0, 3);
+  const pills = categories.slice(0, PILL_ICONS.length);
+
   // A count nobody has filled in yet is left off rather than shown as zero.
   const stats = [
     { n: products.length, label: t("home.statProducts") },
@@ -1024,79 +1054,100 @@ ${t("shop.headline2")}`;
   ].filter((s) => s.n > 0);
   const showStats = slide.stats && stats.length > 0;
 
-  // The shop's own picture takes the whole slide, the way a package's does.
-  if (slide.image_url) {
-    return (
-      <PhotoSlide
-        photo={slide.image_url}
-        alt={headline}
-        eyebrow={eyebrow}
-        title={headline}
-        body={lede}
-      >
-        {showStats && (
-          <ul className="mt-4 flex flex-wrap items-center gap-2">
-            {stats.map((s) => (
-              <li
-                key={s.label}
-                className="rounded-full bg-white/15 px-3 py-1.5 text-[12px] text-white backdrop-blur-sm"
-              >
-                <span className="font-semibold tabular-nums">{num(s.n)}</span>{" "}
-                {s.label}
-              </li>
-            ))}
-          </ul>
-        )}
-        {actions}
-      </PhotoSlide>
-    );
-  }
-
   return (
-    <SlideFrame
-      aside={
-        shelf.length > 0 ? (
-          <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+    // h-full so the blush reaches the bottom of the deck: the track sizes
+    // every slide to the tallest, and a ground that stopped short of that
+    // would show the surface behind it.
+    <div className="relative flex h-full flex-col justify-center overflow-hidden">
+      <BlushGround photo={slide.image_url || undefined} />
+
+      <div className="relative grid items-center gap-6 p-5 sm:grid-cols-2 sm:gap-8 sm:p-8 lg:gap-10 lg:p-10">
+        {/* ── Copy. First in the source, so it takes the start side: the right
+            in Arabic, the left in English, without either being hard-coded. */}
+        <div className="order-2 sm:order-1">
+          <span className="label-caps inline-flex flex-col items-start gap-1.5 text-[#c62a6c]">
+            {eyebrow}
+            {/* The rule under the eyebrow, as in the artwork. */}
+            <span className="h-px w-10 bg-[#c62a6c]/50" />
+          </span>
+
+          <h2 className="mt-3 whitespace-pre-line font-display text-[28px] font-bold leading-[1.08] tracking-tight text-[#1b2733] sm:text-4xl lg:text-[44px]">
+            <bdi>{headline}</bdi>
+          </h2>
+
+          <p className="mt-3 max-w-md whitespace-pre-line text-[13px] leading-relaxed text-[#5b6b7c] sm:mt-4 sm:text-[15px]">
+            <bdi>{lede}</bdi>
+          </p>
+
+          {pills.length > 0 && (
+            <ul className="mt-4 flex flex-wrap items-center gap-2 sm:mt-5">
+              {pills.map((c, i) => {
+                const Icon = PILL_ICONS[i % PILL_ICONS.length];
+                return (
+                  <li
+                    key={c.id}
+                    className="flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-[12px] font-medium text-[#96436a] ring-1 ring-white/70"
+                  >
+                    <Icon className="h-3.5 w-3.5 shrink-0" />
+                    <bdi>{localized(c, "name", lang)}</bdi>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          <div className="mt-5 flex flex-wrap items-center gap-2.5 sm:mt-6 sm:gap-3">
+            <button
+              onClick={onShopAll}
+              className="group flex h-12 items-center gap-2.5 rounded-full bg-[#c62a6c] px-7 text-sm font-semibold text-white shadow-[0_14px_28px_-12px_rgba(198,42,108,0.75)] transition hover:bg-[#a51f57] active:scale-[0.98] sm:h-14 sm:px-8 sm:text-base"
+            >
+              {t("shop.ctaShop")}
+              <ChevronRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
+            </button>
+            <button
+              onClick={onBrowse}
+              className="flex h-12 items-center gap-2.5 rounded-full bg-white/85 px-6 text-sm font-semibold text-[#96436a] ring-1 ring-white/80 transition hover:bg-white active:scale-[0.98] sm:h-14 sm:px-7 sm:text-base"
+            >
+              <LayoutGrid className="h-4 w-4" />
+              {t("shop.ctaBrowse")}
+            </button>
+          </div>
+
+          {/* The counts, as the quiet line the artwork closes on rather than a
+              row of chips competing with the pills above. */}
+          {showStats && (
+            <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#c0879b]">
+              {stats.map((s) => `${num(s.n)} ${s.label}`).join("  ·  ")}
+            </p>
+          )}
+        </div>
+
+        {/* ── The arrangement. Dropped entirely when the shop has uploaded a
+            photograph: that photograph is already a picture of the shop, and
+            standing more products on top of it would be a second one. */}
+        {!slide.image_url && shelf.length > 0 && (
+          <div className="order-1 flex items-end justify-center gap-2.5 sm:order-2 sm:gap-3">
             {shelf.map((p, i) => (
-              <Plate
+              <Plinth
                 key={p.id}
-                product={p}
-                name={localized(p, "name", lang)}
-                className={`h-24 sm:h-32 ${i === 1 ? "sm:-translate-y-3" : ""}`}
-              />
+                className={
+                  i % 2 === 1
+                    ? "h-32 flex-1 sm:h-44 lg:h-52"
+                    : "h-24 flex-1 sm:h-36 lg:h-44"
+                }
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={p.image_url}
+                  alt={localized(p, "name", lang)}
+                  loading="lazy"
+                  className="max-h-full max-w-full object-contain"
+                />
+              </Plinth>
             ))}
           </div>
-        ) : (
-          <div className="h-24 rounded-2xl bg-sunken sm:h-32" />
-        )
-      }
-    >
-      <span className="label-caps text-brand">{eyebrow}</span>
-      {/* pre-line, so where the headline breaks stays the shop's decision. */}
-      <h2 className="mt-2 whitespace-pre-line font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-ink sm:text-4xl lg:text-5xl">
-        <bdi>{headline}</bdi>
-      </h2>
-      <p className="mt-3 max-w-lg whitespace-pre-line text-[13px] leading-relaxed text-ink-2 sm:mt-5 sm:text-[15px]">
-        <bdi>{lede}</bdi>
-      </p>
-
-      {showStats && (
-        <ul className="mt-4 flex flex-wrap items-center gap-2">
-          {stats.map((s) => (
-            <li
-              key={s.label}
-              className="rounded-full bg-sunken px-3 py-1.5 text-[12px] text-ink-2"
-            >
-              <span className="font-semibold tabular-nums text-ink">
-                {num(s.n)}
-              </span>{" "}
-              {s.label}
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {actions}
-    </SlideFrame>
+        )}
+      </div>
+    </div>
   );
 }
