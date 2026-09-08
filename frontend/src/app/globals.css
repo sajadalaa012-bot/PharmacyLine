@@ -1,12 +1,37 @@
 @import "tailwindcss";
 
-/* ── Design tokens — "Blush & Sky" ────────────────────────────────────
+/* ── Design tokens - "Blush & Sky" ────────────────────────────────────
    Soft blue paper with a pink brand, for storefront & POS.
    The .admin scope overrides the same tokens for the back office. */
 
 @theme inline {
   --font-sans: var(--font-archivo), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-fraunces), var(--font-arabic), Georgia, serif;
+}
+
+/* Arabic is set in IBM Plex Sans Arabic, and getting there takes a detour.
+
+   next/font appends a metric-matched local face to every family it loads:
+   "Archivo Fallback" is src: local(Arial), "Fraunces Fallback" is
+   local(Times New Roman). Both of those system fonts carry a full set of
+   Arabic glyphs, and both sit ahead of the Arabic font in the stacks above,
+   so they answered for every Arabic character in the shop. Body copy came out
+   in Arial and every heading in Times New Roman, while the Plex Arabic each
+   visitor downloads went unused.
+
+   adjustFontFallback: false is documented to remove those faces and is
+   ignored by this version of next/font (checked against a clean build), so
+   the two Latin families are pointed at the Arabic one instead whenever the
+   page is in Arabic. It has to be on `body`, not `:root`: next/font defines
+   these variables with a class on the body element, which would otherwise
+   sit closer to the text than anything set on `html`.
+
+   Latin inside an Arabic page comes along with it, which is what we want.
+   Plex Arabic carries a Latin of its own, and a product name reads better in
+   the same family as the sentence around it than in a second one. */
+html[lang="ar"] body {
+  --font-archivo: var(--font-arabic);
+  --font-fraunces: var(--font-arabic);
 }
 
 @theme {
@@ -26,7 +51,7 @@
   --color-rose: #cf2f28;
 }
 
-/* ── Dark mode (storefront & POS) — toggled via .dark on <html> ─────── */
+/* ── Dark mode (storefront & POS) - toggled via .dark on <html> ─────── */
 
 .dark {
   --color-paper: #101720;
@@ -47,7 +72,7 @@
 }
 
 /* ── "Blush & Sky" theme ──────────────────────────────────────────────
-   A cool, soft-blue paper carrying a pink brand — shared by the customer
+   A cool, soft-blue paper carrying a pink brand - shared by the customer
    storefront (<div class="shop">) and the /admin back office
    (<div class="admin">). Scoped to those roots so it overrides the
    default tokens above without leaking anywhere else. */
@@ -90,7 +115,7 @@
   color-scheme: dark;
 }
 
-/* Soft pastel per-item tints — skincare-style product cards.
+/* Soft pastel per-item tints - skincare-style product cards.
    Assigned per product so each item sits on its own gentle wash. */
 .shop,
 .admin {
@@ -127,7 +152,7 @@
    what ground they are standing on.
 
    It follows the theme rather than overriding it: the palest sky in the
-   light theme, the deep room below in the dark one. Phones only — from `sm` up
+   light theme, the deep room below in the dark one. Phones only - from `sm` up
    the storefront keeps its single light page. */
 
 @media (max-width: 639px) {
@@ -142,7 +167,7 @@
     border-color: transparent;
   }
 
-  /* The hero adds the colour — a breath of brand in the corner, settling
+  /* The hero adds the colour - a breath of brand in the corner, settling
      into the paper the sheet below is made of. It starts at the bar's flat
      colour so the two read as one surface with no seam between them. */
   .home-canvas-hero {
@@ -156,7 +181,7 @@
   }
 
   /* Dark theme: the same room with the lights off, on a lighter cut of the
-     pink — the deep brand goes muddy against a dark ground. */
+     pink - the deep brand goes muddy against a dark ground. */
   .dark .home-canvas {
     --color-paper: #131b25;
     --color-surface: #1c2734;
@@ -489,7 +514,7 @@ body::after {
   animation: fade-in 0.2s ease-out forwards;
 }
 
-/* Switching tabs on the phone shell — a short lift, like a native pager. */
+/* Switching tabs on the phone shell - a short lift, like a native pager. */
 @keyframes tab-in {
   from {
     opacity: 0;
@@ -523,12 +548,12 @@ body::after {
  *
  * NOT named .collapse: Tailwind already ships that as visibility:collapse,
  * which behaves like visibility:hidden. Defining our own rule of the same
- * name loses — the visibility declaration is never overridden — and the
+ * name loses - the visibility declaration is never overridden - and the
  * section stays invisible however far it is opened.
  *
  * The row goes 0fr → 1fr rather than animating a guessed max-height, so a
- * section slides open to exactly its own size — whether it holds eight
- * categories or thirty-one brands — and closes without the dead pause a
+ * section slides open to exactly its own size - whether it holds eight
+ * categories or thirty-one brands - and closes without the dead pause a
  * too-large max-height leaves behind. */
 .reveal {
   display: grid;

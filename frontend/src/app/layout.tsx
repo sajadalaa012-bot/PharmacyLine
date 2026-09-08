@@ -7,6 +7,9 @@ import { LanguageProvider } from "@/lib/LanguageProvider";
 import { DEFAULT_LANG, LANG_KEY, dirOf, toLang } from "@/lib/i18n";
 import "./globals.css";
 
+// The Latin pair. Which of these actually draws a given page is decided in
+// globals.css: an Arabic page points both of them at the Arabic font, for
+// reasons worth reading before touching either.
 const fraunces = Fraunces({
   subsets: ["latin"],
   variable: "--font-fraunces",
@@ -24,7 +27,7 @@ const plexArabic = IBM_Plex_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "velina — فيلينا",
+  title: "velina - فيلينا",
   description:
     "Point of sale and storefront for medical, skincare, and supplement products.",
   manifest: "/manifest.json",
@@ -53,7 +56,7 @@ export const viewport: Viewport = {
 };
 
 /* Applies the saved theme before first paint to avoid a flash. Light is the
-   shop's own look, so only an explicit choice of dark turns the lights down —
+   shop's own look, so only an explicit choice of dark turns the lights down -
    the OS preference does not decide for the visitor. */
 const themeInit = `try{if(localStorage.getItem("theme")==="dark"){document.documentElement.classList.add("dark")}}catch(e){}`;
 
@@ -63,7 +66,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // Resolve the language before rendering a single word, so the markup the
-  // browser receives is already correct — nothing to fix up after hydration
+  // browser receives is already correct - nothing to fix up after hydration
   // and no flash of the wrong language: the cookie the toggle writes if there
   // is one, otherwise the shop's own language.
   const cookieStore = await cookies();
