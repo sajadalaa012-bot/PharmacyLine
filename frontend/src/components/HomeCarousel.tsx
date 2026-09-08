@@ -166,6 +166,26 @@ export default function HomeCarousel({
     watchDrag: count > 1,
   });
 
+  // A finger on this page arrives with its touch events already marked
+  // uncancellable, which is Chrome saying "this gesture is mine, scrolling":
+  // Embla reads that and lets go, so the deck sat still under every swipe.
+  // The storefront scrolls inside `.app-body` rather than the window on a
+  // phone, and inside a scroller like that Chrome decides the question before
+  // it looks at the deck's own handlers. What changes its mind is a blocking
+  // touch listener on the document itself, even one that does nothing: the
+  // gesture then waits to be told, the events arrive cancellable, and the
+  // deck can act on them.
+  //
+  // Measured on the live site in Chrome with a touch screen: without this the
+  // track never moves, with it a swipe turns the slide. The cost is that a
+  // scroll starting anywhere on the page waits one main-thread turn before it
+  // begins, which is a listener that returns immediately.
+  useEffect(() => {
+    const wake = () => undefined;
+    document.addEventListener("touchstart", wake, { passive: false });
+    return () => document.removeEventListener("touchstart", wake);
+  }, []);
+
   // Where the deck has come to rest. Embla is the one that knows: a thrown
   // slide can carry past its neighbour, and the dots have to say which slide
   // is actually being shown rather than which one was asked for.
