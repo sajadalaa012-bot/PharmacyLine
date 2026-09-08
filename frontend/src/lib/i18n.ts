@@ -419,6 +419,9 @@ const en = {
     "The slideshow the home screen opens with. Packages bring their own slides; these are the two that do not.",
   "deck.blankHint":
     "Every box is optional. Leave one blank and the slide keeps the wording the shop already uses, in both languages.",
+  "deck.photo": "Photo",
+  "deck.photoHint":
+    "Optional. With one, the picture fills the whole slide and the words sit on top of it — like a package. Without one, the words sit beside a row of product photos. A wide photo works best.",
   "deck.brief": "The brief",
   "deck.briefHint": "The first slide — what the shop is.",
   "deck.offer": "The discount ad",
@@ -1047,6 +1050,9 @@ const ar: Record<MessageKey, string> = {
     "العرض المتحرك الذي تفتح به الصفحة الرئيسية. الحقائب لها شرائحها الخاصة، وهاتان الشريحتان ما عداها.",
   "deck.blankHint":
     "كل الحقول اختيارية. اترك أيّاً منها فارغاً لتبقى الشريحة على النص الحالي، باللغتين.",
+  "deck.photo": "الصورة",
+  "deck.photoHint":
+    "اختيارية. مع صورة، تملأ الشريحة بالكامل ويظهر النص فوقها كما في الحقائب. وبدونها يظهر النص بجانب صور المنتجات. يفضّل صورة عريضة.",
   "deck.brief": "التعريف",
   "deck.briefHint": "الشريحة الأولى — ما هو هذا المتجر.",
   "deck.offer": "إعلان الخصم",

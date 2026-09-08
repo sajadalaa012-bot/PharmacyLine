@@ -394,6 +394,91 @@ function SlideFrame({
   );
 }
 
+/**
+ * The other shape a slide comes in: one photograph filling it, with the copy
+ * on a scrim over the bottom of it.
+ *
+ * A picture somebody chose for a slide is the slide, so it gets the whole
+ * frame rather than a third of it beside the words. Every slide can be either
+ * shape — a package uses this when it has its own photo, and the brief and
+ * the discount ad when the shop uploads one.
+ */
+function PhotoSlide({
+  photo,
+  alt,
+  icon: Icon,
+  eyebrow,
+  badge,
+  title,
+  body,
+  onPress,
+  pressLabel,
+  children,
+}: {
+  photo: string;
+  alt: string;
+  icon?: typeof Tag;
+  eyebrow: string;
+  /** A second pill beside the eyebrow — the discount figure, usually. */
+  badge?: React.ReactNode;
+  title: string;
+  body?: string;
+  /** When given, the photograph itself becomes a button. */
+  onPress?: () => void;
+  pressLabel?: string;
+  /** The actions, and anything between the copy and them. */
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="relative flex h-full min-h-80 flex-col justify-end sm:min-h-96">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={photo}
+        alt={alt}
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      {/* The copy has to stay readable over a photograph nobody vetted, so it
+          reads white on a scrim that is heaviest where the words are. Fixed
+          colours rather than theme tokens: what is behind them is a
+          photograph in both themes. */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/20" />
+
+      {/* The photograph lies under the copy rather than over it, so the
+          buttons still take their own taps — and a swipe that happens to end
+          here is swallowed by the deck rather than counted as a press. */}
+      {onPress && (
+        <button
+          type="button"
+          onClick={onPress}
+          aria-label={pressLabel}
+          className="absolute inset-0 cursor-pointer"
+        />
+      )}
+
+      <div className="relative p-5 sm:p-8 lg:p-10">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="label-caps flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-white backdrop-blur-sm">
+            {Icon && <Icon className="h-3.5 w-3.5" />}
+            {eyebrow}
+          </span>
+          {badge}
+        </div>
+
+        <h2 className="mt-3 whitespace-pre-line font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-white drop-shadow-sm sm:text-4xl lg:text-5xl">
+          <bdi>{title}</bdi>
+        </h2>
+        {body && (
+          <p className="mt-2.5 line-clamp-3 max-w-lg whitespace-pre-line text-[13px] leading-relaxed text-white/80 sm:text-[15px]">
+            <bdi>{body}</bdi>
+          </p>
+        )}
+
+        {children}
+      </div>
+    </div>
+  );
+}
+
 /** A product photograph on the clean white plate the cards use. */
 function Plate({
   product,
@@ -451,6 +536,33 @@ function PromoSlide({
     format(localized(slide, "title", lang), { n }) || t("promo.title", { n });
   const body = localized(slide, "body", lang) || t("promo.body");
 
+  const cta = (
+    <button
+      onClick={onShopOffers}
+      className="group mt-5 flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:mt-7 sm:h-12 sm:px-7"
+    >
+      {t("promo.cta")}
+      <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
+    </button>
+  );
+
+  // The shop's own picture takes the whole slide, the way a package's does.
+  if (slide.image_url) {
+    return (
+      <PhotoSlide
+        photo={slide.image_url}
+        alt={title}
+        icon={Tag}
+        eyebrow={eyebrow}
+        title={title}
+        body={body}
+      >
+        {cta}
+      </PhotoSlide>
+    );
+  }
+
+
   return (
     <SlideFrame
       aside={
@@ -489,13 +601,7 @@ function PromoSlide({
       <p className="mt-3 max-w-lg whitespace-pre-line text-[13px] leading-relaxed text-ink-2 sm:mt-5 sm:text-[15px]">
         <bdi>{body}</bdi>
       </p>
-      <button
-        onClick={onShopOffers}
-        className="group mt-5 flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:mt-7 sm:h-12 sm:px-7"
-      >
-        {t("promo.cta")}
-        <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
-      </button>
+      {cta}
     </SlideFrame>
   );
 }
@@ -556,104 +662,72 @@ function PackageSlide({
   // uses, with the contents on the plates.
   if (pkg.image_url) {
     return (
-      <div className="relative flex h-full min-h-80 flex-col justify-end sm:min-h-96">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={pkg.image_url}
-          alt={name}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        {/* The copy has to stay readable over a photograph nobody vetted, so
-            it reads white on a scrim that is heaviest where the words are.
-            Fixed colours rather than theme tokens: what is behind them is a
-            photograph in both themes. */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/20" />
-
-        {/* The photograph itself opens the package. It lies under the copy
-            rather than over it, so the buttons below still take their own
-            taps — and a swipe that happens to end here is swallowed by the
-            deck rather than counted as a press. */}
-        <button
-          type="button"
-          onClick={() => onOpen(pkg)}
-          aria-label={t("pkg.viewDetails", { name })}
-          className="absolute inset-0 cursor-pointer"
-        />
-
-        <div className="relative p-5 sm:p-8 lg:p-10">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="label-caps flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-white backdrop-blur-sm">
-              <Boxes className="h-3.5 w-3.5" />
-              {t("pkg.eyebrow")}
+      <PhotoSlide
+        photo={pkg.image_url}
+        alt={name}
+        icon={Boxes}
+        eyebrow={t("pkg.eyebrow")}
+        badge={
+          onOffer ? (
+            <span className="label-caps rounded-full bg-rose px-2.5 py-1 text-paper shadow-sm">
+              {t("offer.percentOff", { n: off })}
             </span>
-            {onOffer && (
-              <span className="label-caps rounded-full bg-rose px-2.5 py-1 text-paper shadow-sm">
-                {t("offer.percentOff", { n: off })}
-              </span>
-            )}
-          </div>
+          ) : undefined
+        }
+        title={name}
+        body={blurb || undefined}
+        onPress={() => onOpen(pkg)}
+        pressLabel={t("pkg.viewDetails", { name })}
+      >
+        {chips.length > 0 && (
+          <ul className="mt-4 flex flex-wrap items-center gap-2">
+            {chips.map((c) => (
+              <li
+                key={c}
+                className="rounded-full bg-white/15 px-3 py-1.5 text-[12px] font-medium text-white backdrop-blur-sm"
+              >
+                {c}
+              </li>
+            ))}
+          </ul>
+        )}
 
-          <h2 className="mt-3 font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-white drop-shadow-sm sm:text-4xl lg:text-5xl">
-            <bdi>{name}</bdi>
-          </h2>
-          {blurb && (
-            <p className="mt-2.5 line-clamp-2 max-w-lg text-[13px] leading-relaxed text-white/80 sm:text-[15px]">
-              <bdi>{blurb}</bdi>
-            </p>
+        <div className="mt-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+          {onOffer && (
+            <span className="font-display text-base font-semibold text-white/60 line-through decoration-white/50 decoration-[1.5px] tabular-nums">
+              {num(pkg.old_price as number)}
+            </span>
           )}
-
-          {chips.length > 0 && (
-            <ul className="mt-4 flex flex-wrap items-center gap-2">
-              {chips.map((c) => (
-                <li
-                  key={c}
-                  className="rounded-full bg-white/15 px-3 py-1.5 text-[12px] font-medium text-white backdrop-blur-sm"
-                >
-                  {c}
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <div className="mt-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-            {onOffer && (
-              <span className="font-display text-base font-semibold text-white/60 line-through decoration-white/50 decoration-[1.5px] tabular-nums">
-                {num(pkg.old_price as number)}
-              </span>
-            )}
-            <p className="font-display text-2xl font-semibold tracking-tight text-white tabular-nums sm:text-3xl">
-              {num(pkg.price)}
-              <span className="ms-1.5 font-sans text-[11px] font-semibold tracking-[0.08em] text-white/70">
-                {t("common.currency")}
-              </span>
-            </p>
-          </div>
-
-          <div className="mt-5 flex flex-wrap items-center gap-2.5 sm:mt-6">
-            <button
-              onClick={() => onAdd(pkg)}
-              className="group flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:h-12 sm:px-7"
-            >
-              {t("pkg.addToCart")}
-              <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
-            </button>
-            {/* Says out loud what tapping the photograph does — nobody should
-                have to guess that a picture is a door. */}
-            <button
-              onClick={() => onOpen(pkg)}
-              className="flex h-11 items-center gap-2 rounded-full border border-white/45 px-5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/15 active:scale-[0.98] sm:h-12 sm:px-6"
-            >
-              {t("pkg.whatsInside")}
-            </button>
-          </div>
-
-          {qty > 0 && (
-            <p className="mt-2.5 text-[12px] font-semibold text-white">
-              {t("pkg.inCart", { n: qty })}
-            </p>
-          )}
+          <p className="font-display text-2xl font-semibold tracking-tight text-white tabular-nums sm:text-3xl">
+            {num(pkg.price)}
+            <span className="ms-1.5 font-sans text-[11px] font-semibold tracking-[0.08em] text-white/70">
+              {t("common.currency")}
+            </span>
+          </p>
         </div>
-      </div>
+
+        <div className="mt-5 flex flex-wrap items-center gap-2.5 sm:mt-6">
+          <button
+            onClick={() => onAdd(pkg)}
+            className="group flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:h-12 sm:px-7"
+          >
+            {t("pkg.addToCart")}
+            <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
+          </button>
+          <button
+            onClick={() => onOpen(pkg)}
+            className="flex h-11 items-center gap-2 rounded-full border border-white/45 px-5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/15 active:scale-[0.98] sm:h-12 sm:px-6"
+          >
+            {t("pkg.whatsInside")}
+          </button>
+        </div>
+
+        {qty > 0 && (
+          <p className="mt-2.5 text-[12px] font-semibold text-white">
+            {t("pkg.inCart", { n: qty })}
+          </p>
+        )}
+      </PhotoSlide>
     );
   }
 
@@ -797,6 +871,32 @@ function AboutSlide({
     `${t("shop.headline1")}
 ${t("shop.headline2")}`;
   const lede = localized(slide, "body", lang) || t("shop.lede");
+
+  const actions = (
+    <div className="mt-5 flex flex-wrap items-center gap-2.5 sm:mt-6 sm:gap-3">
+      <button
+        onClick={onShopAll}
+        className="group flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:h-12 sm:px-7"
+      >
+        {t("shop.ctaShop")}
+        <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
+      </button>
+      {/* The outline button has to hold its own against a photograph when
+          there is one behind it, and against paper when there is not. */}
+      <button
+        onClick={onBrowse}
+        className={`flex h-11 items-center gap-2 rounded-full border px-5 text-sm font-semibold transition active:scale-[0.98] sm:h-12 sm:px-6 ${
+          slide.image_url
+            ? "border-white/45 text-white backdrop-blur-sm hover:bg-white/15"
+            : "border-line-strong text-ink hover:bg-sunken"
+        }`}
+      >
+        <SlidersHorizontal className="h-3.5 w-3.5" />
+        {t("shop.ctaBrowse")}
+      </button>
+    </div>
+  );
+
   // Real products stand in for the catalogue — ones with a picture only, since
   // an empty plate says nothing about what is in the shop.
   const shelf = products.filter((p) => p.image_url).slice(0, 3);
@@ -806,6 +906,35 @@ ${t("shop.headline2")}`;
     { n: brandCount, label: t("home.statBrands") },
     { n: categoryCount, label: t("home.statCategories") },
   ].filter((s) => s.n > 0);
+  const showStats = slide.stats && stats.length > 0;
+
+  // The shop's own picture takes the whole slide, the way a package's does.
+  if (slide.image_url) {
+    return (
+      <PhotoSlide
+        photo={slide.image_url}
+        alt={headline}
+        eyebrow={eyebrow}
+        title={headline}
+        body={lede}
+      >
+        {showStats && (
+          <ul className="mt-4 flex flex-wrap items-center gap-2">
+            {stats.map((s) => (
+              <li
+                key={s.label}
+                className="rounded-full bg-white/15 px-3 py-1.5 text-[12px] text-white backdrop-blur-sm"
+              >
+                <span className="font-semibold tabular-nums">{num(s.n)}</span>{" "}
+                {s.label}
+              </li>
+            ))}
+          </ul>
+        )}
+        {actions}
+      </PhotoSlide>
+    );
+  }
 
   return (
     <SlideFrame
@@ -835,7 +964,7 @@ ${t("shop.headline2")}`;
         <bdi>{lede}</bdi>
       </p>
 
-      {slide.stats && stats.length > 0 && (
+      {showStats && (
         <ul className="mt-4 flex flex-wrap items-center gap-2">
           {stats.map((s) => (
             <li
@@ -851,22 +980,7 @@ ${t("shop.headline2")}`;
         </ul>
       )}
 
-      <div className="mt-5 flex flex-wrap items-center gap-2.5 sm:mt-6 sm:gap-3">
-        <button
-          onClick={onShopAll}
-          className="group flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:h-12 sm:px-7"
-        >
-          {t("shop.ctaShop")}
-          <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
-        </button>
-        <button
-          onClick={onBrowse}
-          className="flex h-11 items-center gap-2 rounded-full border border-line-strong px-5 text-sm font-semibold text-ink transition hover:bg-sunken active:scale-[0.98] sm:h-12 sm:px-6"
-        >
-          <SlidersHorizontal className="h-3.5 w-3.5" />
-          {t("shop.ctaBrowse")}
-        </button>
-      </div>
+      {actions}
     </SlideFrame>
   );
 }

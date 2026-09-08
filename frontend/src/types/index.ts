@@ -575,6 +575,12 @@ export function packageImage(
 export interface DeckSlide {
   /** Off the deck entirely while false. */
   enabled: boolean;
+  /**
+   * A photograph for the whole slide. When set, the slide is drawn the way a
+   * package with its own photo is — the picture edge to edge and the copy on
+   * a scrim over it — instead of copy beside a row of product plates.
+   */
+  image_url: string;
   eyebrow: string;
   eyebrow_ar: string;
   /** The headline. Line breaks are kept. */
@@ -601,6 +607,7 @@ export interface HomeDeck {
 
 const BLANK_SLIDE = {
   enabled: true,
+  image_url: "",
   eyebrow: "",
   eyebrow_ar: "",
   title: "",

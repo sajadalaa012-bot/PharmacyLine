@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getHomeDeck, saveHomeDeck } from "@/lib/homeDeck";
+import { DeckError, getHomeDeck, saveHomeDeck } from "@/lib/homeDeck";
 import { isAdminRequest } from "@/lib/serverAuth";
 import { DEFAULT_DECK } from "@/types";
 
@@ -28,6 +28,8 @@ export async function PUT(req: NextRequest) {
     const body = (await req.json().catch(() => null)) as unknown;
     return NextResponse.json(await saveHomeDeck(body));
   } catch (err) {
+    if (err instanceof DeckError)
+      return NextResponse.json({ error: err.message }, { status: err.status });
     console.error("Save home deck failed:", err);
     return NextResponse.json(
       { error: "Could not save the home slides." },

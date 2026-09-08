@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { DeckSlide, DEFAULT_DECK, HomeDeck } from "@/types";
-import { fetchHomeDeck, updateHomeDeck } from "@/lib/api";
-import { Eye, EyeOff, Boxes, Check, RotateCcw } from "lucide-react";
+import { fetchHomeDeck, updateHomeDeck, uploadProductImage } from "@/lib/api";
+import { Eye, EyeOff, Boxes, Check, RotateCcw, Image as ImageIcon, X } from "lucide-react";
 import { useI18n } from "@/lib/LanguageProvider";
 
 /** The two editable slides, and which built-in wording each falls back to. */
@@ -98,6 +98,7 @@ export default function AdminHomePage() {
 
       <SlideEditor
         onChange={(patch) => set("brief", patch)}
+        onError={setError}
         title={t("deck.brief")}
         hint={t("deck.briefHint")}
         slide={deck.brief}
@@ -149,6 +150,7 @@ export default function AdminHomePage() {
 
       <SlideEditor
         onChange={(patch) => set("offer", patch)}
+        onError={setError}
         title={t("deck.offer")}
         hint={t("deck.offerHint")}
         slide={deck.offer}
@@ -226,6 +228,7 @@ function SlideEditor({
   placeholders,
   extra,
   onChange,
+  onError,
 }: {
   title: string;
   hint: string;
@@ -234,8 +237,25 @@ function SlideEditor({
   placeholders: { eyebrow: string; title: string; body: string };
   extra?: React.ReactNode;
   onChange: (patch: Partial<DeckSlide>) => void;
+  onError: (message: string) => void;
 }) {
   const { t } = useI18n();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const pickPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const res = await uploadProductImage(file);
+      onChange({ image_url: res.image_url });
+    } catch (err) {
+      onError(err instanceof Error ? err.message : t("err.uploadFailed"));
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <section className="rounded-lg border border-line bg-surface">
@@ -270,6 +290,55 @@ function SlideEditor({
           slide.enabled ? "" : "opacity-50"
         }`}
       >
+        {/* Photo. A slide with one is drawn as the picture edge to edge with
+            the copy over it; without one it keeps the copy-beside-plates
+            layout, so this is a change of shape, not just decoration. */}
+        <div>
+          <label className={labelCls}>{t("deck.photo")}</label>
+          <p className="mb-2 text-[11px] text-ink-3">{t("deck.photoHint")}</p>
+          <div className="flex gap-4">
+            <div className="relative flex h-20 w-32 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-sunken">
+              {slide.image_url ? (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={slide.image_url}
+                    alt={t("modal.preview")}
+                    className="h-full w-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => onChange({ image_url: "" })}
+                    aria-label={t("modal.removePhoto")}
+                    className="absolute end-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose text-paper shadow hover:opacity-90"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </>
+              ) : (
+                <ImageIcon className="h-6 w-6 text-line-strong" />
+              )}
+            </div>
+            <div className="flex flex-1 flex-col justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+                className="label-caps h-9 rounded-md border border-brand/40 bg-brand/10 text-brand transition hover:bg-brand/20 active:scale-[0.98] disabled:opacity-50"
+              >
+                {uploading ? t("modal.uploading") : t("modal.uploadPhoto")}
+              </button>
+              <input
+                type="file"
+                ref={fileRef}
+                onChange={pickPhoto}
+                accept="image/*"
+                className="hidden"
+              />
+            </div>
+          </div>
+        </div>
+
         {extra}
 
         <div className="grid gap-4 sm:grid-cols-2">
