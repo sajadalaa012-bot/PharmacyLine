@@ -282,6 +282,31 @@ const SCHEMA_SQL = `
     CREATE INDEX IF NOT EXISTS idx_packages_order
       ON packages (display_order, id);
 
+    -- Browser push subscriptions: one row per device that has said yes to
+    -- notifications. The endpoint URL is the identity a push service gives a
+    -- device, so it is the primary key: re-subscribing the same browser
+    -- updates its row rather than piling up duplicates.
+    --
+    -- topic says who the row belongs to. 'admin' is a shop device that wants
+    -- to hear about new orders. 'order' is a customer's device waiting on one
+    -- order, identified by the same secret track token the tracking page uses
+    -- - the shop never learns who they are, and a subscription can only ever
+    -- be woken by the order it was made for.
+    CREATE TABLE IF NOT EXISTS push_subscriptions (
+      endpoint    TEXT PRIMARY KEY,
+      p256dh      TEXT NOT NULL,
+      auth        TEXT NOT NULL,
+      topic       TEXT NOT NULL DEFAULT 'admin'
+                  CHECK (topic IN ('admin','order')),
+      order_id    BIGINT,
+      track_token TEXT,
+      lang        TEXT NOT NULL DEFAULT 'ar',
+      created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_push_topic ON push_subscriptions (topic);
+    CREATE INDEX IF NOT EXISTS idx_push_order ON push_subscriptions (order_id);
+
     -- The pharmacy directory and its visit map were removed from the admin.
     -- Their tables are deliberately left alone rather than dropped here: a
     -- schema bootstrap is the wrong place to destroy data someone typed in.

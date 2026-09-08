@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import {
   getOrder,
   replaceOrder,
@@ -7,6 +7,7 @@ import {
   OrderValidationError,
 } from "@/lib/orders";
 import { isAdminRequest } from "@/lib/serverAuth";
+import { notifyOrderApproved } from "@/lib/push";
 import { OrderStatus } from "@/types";
 
 export const runtime = "nodejs";
@@ -50,9 +51,15 @@ export async function PUT(
     const input = validateOrderInput(body);
     const status: OrderStatus =
       body && body.status === "pending" ? "pending" : "approved";
+    // Read the status this order is coming from, so approving it notifies the
+    // customer once. Editing an already-approved order is a routine thing to
+    // do and must not send the same news a second time.
+    const was = (await getOrder(id))?.status;
     const order = await replaceOrder(id, input, status);
     if (!order)
       return NextResponse.json({ error: "Order not found." }, { status: 404 });
+    if (was === "pending" && status === "approved")
+      after(() => notifyOrderApproved(id));
     return NextResponse.json(order);
   } catch (err) {
     if (err instanceof OrderValidationError)

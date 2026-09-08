@@ -120,6 +120,23 @@ const en = {
   "app.installIos": "Tap the Share button, then “Add to Home Screen”.",
   "app.install": "Install",
   "app.notNow": "Not now",
+  "app.updateReady": "A new version is ready",
+  "app.refresh": "Refresh",
+  "app.offline": "No connection. Showing the last catalogue seen.",
+
+  // ── Finder: search and filters, above the grid ──
+  "finder.filters": "Filters",
+
+  // ── Notifications a shopper can turn on for their own order ──
+  "notify.title": "Tell me when it is ready",
+  "notify.body":
+    "One notification to this device, the moment the shop approves your order.",
+  "notify.turnOn": "Notify me",
+  "notify.on": "Notifications are on for this order",
+  "notify.blocked":
+    "Notifications are switched off for this site in your browser settings.",
+  "notify.failed": "Notifications could not be turned on. Try again.",
+  "notify.working": "Turning on…",
 
   // ── Product card & detail ──
   "product.addToCart": "Add to Cart",
@@ -265,6 +282,38 @@ const en = {
   "stock.lowFilter": "Low or out of stock",
   "stock.variantHint":
     "The fallback for any option that doesn't set a stock level of its own.",
+
+  // ── Push notifications (back office) ──
+  "nav.notifications": "Notifications",
+  "push.title": "Phone notifications",
+  "push.subtitle":
+    "Alert this device the moment an order is placed, even with the app closed.",
+  "push.step1": "1. Turn the service on",
+  "push.step2": "2. This device",
+  "push.keysMissing":
+    "The shop has no notification keys yet. Creating a pair turns the service on for every device.",
+  "push.keysReady": "The notification service is on.",
+  "push.on": "On",
+  "push.off": "Off",
+  "push.fromEnv":
+    "The keys are set in this deployment's environment, so they cannot be changed here.",
+  "push.generate": "Create keys",
+  "push.clearKeys": "Remove keys",
+  "push.clearWarn": "Removing the keys stops every device from being alerted.",
+  "push.listening": "{n} devices are listening",
+  "push.listeningOne": "1 device is listening",
+  "push.listeningNone": "No device is listening yet",
+  "push.deviceOn": "This device is listening",
+  "push.deviceOff": "This device is not listening",
+  "push.turnOn": "Alert this device",
+  "push.turnOff": "Stop alerts here",
+  "push.test": "Send a test",
+  "push.testSent": "Sent. It should arrive in a moment.",
+  "push.blocked":
+    "Notifications are switched off for this site in your browser settings. Turn them back on there first.",
+  "push.unsupported":
+    "This browser cannot show notifications. On an iPhone, install the app to the home screen first.",
+  "push.keysNeeded": "Create the keys above before turning this device on.",
 
   // ── Telegram ──
   "nav.telegram": "Telegram",
@@ -755,6 +804,21 @@ const ar: Record<MessageKey, string> = {
   "app.installIos": "اضغط زر المشاركة، ثم «إضافة إلى الشاشة الرئيسية».",
   "app.install": "تثبيت",
   "app.notNow": "ليس الآن",
+  "app.updateReady": "يتوفّر إصدار جديد",
+  "app.refresh": "تحديث",
+  "app.offline": "لا يوجد اتصال. هذه آخر نسخة محفوظة من المتجر.",
+
+  // ── البحث والفلاتر فوق شبكة المنتجات ──
+  "finder.filters": "الفلاتر",
+
+  // ── إشعارات يفعّلها المتسوّق لطلبه ──
+  "notify.title": "نبّهني عند الجاهزية",
+  "notify.body": "إشعار واحد على هذا الجهاز لحظة موافقة المتجر على طلبك.",
+  "notify.turnOn": "نبّهني",
+  "notify.on": "الإشعارات مفعّلة لهذا الطلب",
+  "notify.blocked": "الإشعارات موقوفة لهذا الموقع في إعدادات متصفحك.",
+  "notify.failed": "تعذّر تفعيل الإشعارات. أعد المحاولة.",
+  "notify.working": "جارٍ التفعيل…",
 
   // ── Product card & detail ──
   "product.addToCart": "أضف إلى السلة",
@@ -900,6 +964,36 @@ const ar: Record<MessageKey, string> = {
   "stock.lowFilter": "مخزون منخفض أو نافد",
   "stock.variantHint":
     "يُستخدم لأي خيار لا يحدّد مخزوناً خاصاً به.",
+
+  // ── إشعارات الهاتف (لوحة التحكم) ──
+  "nav.notifications": "الإشعارات",
+  "push.title": "إشعارات الهاتف",
+  "push.subtitle": "تنبيه هذا الجهاز لحظة تقديم أي طلب، حتى والتطبيق مغلق.",
+  "push.step1": "١. تشغيل الخدمة",
+  "push.step2": "٢. هذا الجهاز",
+  "push.keysMissing":
+    "لا توجد مفاتيح إشعارات للمتجر بعد. إنشاء زوج مفاتيح يشغّل الخدمة لكل الأجهزة.",
+  "push.keysReady": "خدمة الإشعارات تعمل.",
+  "push.on": "مفعّلة",
+  "push.off": "متوقفة",
+  "push.fromEnv": "المفاتيح مضبوطة في بيئة النشر، ولا يمكن تغييرها من هنا.",
+  "push.generate": "إنشاء المفاتيح",
+  "push.clearKeys": "حذف المفاتيح",
+  "push.clearWarn": "حذف المفاتيح يوقف التنبيهات عن كل الأجهزة.",
+  "push.listening": "{n} أجهزة تستقبل التنبيهات",
+  "push.listeningOne": "جهاز واحد يستقبل التنبيهات",
+  "push.listeningNone": "لا يوجد جهاز يستقبل التنبيهات بعد",
+  "push.deviceOn": "هذا الجهاز يستقبل التنبيهات",
+  "push.deviceOff": "هذا الجهاز لا يستقبل التنبيهات",
+  "push.turnOn": "نبّه هذا الجهاز",
+  "push.turnOff": "أوقف التنبيه هنا",
+  "push.test": "إرسال تجربة",
+  "push.testSent": "تم الإرسال. سيصل خلال لحظات.",
+  "push.blocked":
+    "الإشعارات موقوفة لهذا الموقع في إعدادات متصفحك. أعد تشغيلها من هناك أولاً.",
+  "push.unsupported":
+    "هذا المتصفح لا يدعم الإشعارات. على الآيفون، ثبّت التطبيق على الشاشة الرئيسية أولاً.",
+  "push.keysNeeded": "أنشئ المفاتيح أعلاه قبل تشغيل هذا الجهاز.",
 
   // ── تيليغرام ──
   "nav.telegram": "تيليغرام",

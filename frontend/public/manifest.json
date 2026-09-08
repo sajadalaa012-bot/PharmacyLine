@@ -1,10 +1,12 @@
 {
-  "name": "velina — فيلينا",
+  "name": "velina - فيلينا",
   "short_name": "velina",
   "description": "Storefront and point of sale for medical, skincare, and supplement products.",
   "id": "/",
   "start_url": "/",
   "scope": "/",
+  "lang": "ar",
+  "dir": "rtl",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
@@ -16,6 +18,12 @@
       "name": "Store",
       "short_name": "Store",
       "url": "/?tab=store",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Offers",
+      "short_name": "Offers",
+      "url": "/?tab=store&offers=1",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {

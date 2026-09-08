@@ -4,6 +4,7 @@ import { Order } from "@/types";
 import { money, orderNo } from "@/lib/format";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
 import { useI18n } from "@/lib/LanguageProvider";
+import OrderNotify from "./OrderNotify";
 
 interface OrderConfirmationProps {
   order: Order;
@@ -52,6 +53,10 @@ export default function OrderConfirmation({ order, onBack }: OrderConfirmationPr
         <p className="mt-4 text-xs leading-relaxed text-ink-3">
           {t("confirm.note")}
         </p>
+
+        {/* The one thing left to arrange while waiting: being told when the
+            order is approved, rather than coming back to check. */}
+        <OrderNotify orderId={order.id} />
 
         <button
           onClick={onBack}

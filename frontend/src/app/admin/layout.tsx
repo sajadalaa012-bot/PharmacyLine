@@ -15,6 +15,7 @@ import {
   Monitor,
   Upload,
   Send,
+  Bell,
   LogOut,
   Menu,
   X,
@@ -36,6 +37,7 @@ const NAV: { href: string; label: MessageKey; icon: typeof Package }[] = [
   { href: "/admin/orders", label: "nav.orders", icon: ClipboardList },
   { href: "/admin/consultations", label: "nav.consultations", icon: MessageCircle },
   { href: "/admin/telegram", label: "nav.telegram", icon: Send },
+  { href: "/admin/notifications", label: "nav.notifications", icon: Bell },
   // One-time tool: publishes catalog edits stranded in this browser from
   // before the catalog moved to the shared database.
   { href: "/admin/recover", label: "nav.recover", icon: Upload },

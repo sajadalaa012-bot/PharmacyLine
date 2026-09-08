@@ -27,8 +27,6 @@ import {
   X,
   Home,
   Store,
-  SlidersHorizontal,
-  ChevronDown,
 } from "lucide-react";
 import ConsultationForm from "./ConsultationForm";
 import ConsultationInvite from "./ConsultationInvite";
@@ -38,106 +36,27 @@ import ProductCard from "./ProductCard";
 import ProductDetailModal from "./ProductDetailModal";
 import CartPanel from "./CartPanel";
 import OrderConfirmation from "./OrderConfirmation";
+import FinderBar from "./FinderBar";
 import InstallPrompt from "./InstallPrompt";
 import OfferPopup from "./OfferPopup";
 import ThemeToggle from "./ThemeToggle";
 import LanguageToggle from "./LanguageToggle";
 import { useI18n } from "@/lib/LanguageProvider";
 import { localized, MessageKey } from "@/lib/i18n";
-import { num } from "@/lib/format";
 
 /** Products on the home screen's shelf - a taste of the catalogue, not it. */
 const HOME_ITEMS = 6;
 
-/** The tappable heading that opens or shuts one filter section. */
-function FilterHeader({
-  label,
-  selection,
-  open,
-  onToggle,
-}: {
-  label: string;
-  selection: string | null;
-  open: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      aria-expanded={open}
-      className="flex w-full items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-3.5 text-start transition hover:bg-sunken"
-    >
-      <span className="label-caps text-ink-3">{label}</span>
-      <span className="flex min-w-0 items-center gap-2.5">
-        <span
-          className={`truncate text-[13px] ${
-            selection ? "font-semibold text-brand" : "text-ink-3"
-          }`}
-        >
-          <bdi>{selection ?? ""}</bdi>
-        </span>
-        <ChevronDown
-          className={`h-4 w-4 shrink-0 text-ink-3 transition-transform duration-200 ${
-            open ? "rotate-180" : ""
-          }`}
-        />
-      </span>
-    </button>
-  );
-}
-
 /**
- * One dimension of the Browse page: a bar of chips you swipe along.
+ * The views. "consult" is deliberately absent from TABS below: it is a form
+ * somebody is invited into from the home screen, not a place they live, so it
+ * does not earn a permanent seat on the phone bar.
  *
- * Kept on a single line rather than wrapped, so opening a section adds one
- * row to the page however many brands it holds - thirty-one wrapped chips
- * would push the second section off the screen entirely. Each chip carries
- * its count, so the bar says what it is worth tapping without opening it.
+ * There is no "browse" view any more. Filtering happens in the FinderBar
+ * directly above the grid, so narrowing the catalogue no longer means leaving
+ * the products to do it.
  */
-function FilterBar({
-  options,
-  active,
-  onPick,
-}: {
-  options: { id: number | "all"; name: string; count: number }[];
-  active: number | "all";
-  onPick: (id: number | "all") => void;
-}) {
-  return (
-    // pb-1 leaves room for the focus ring, which overflow would otherwise clip.
-    <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
-      {options.map((opt) => {
-        const on = active === opt.id;
-        return (
-          <button
-            key={String(opt.id)}
-            onClick={() => onPick(opt.id)}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-medium transition active:scale-95 ${
-              on
-                ? "border-brand bg-brand text-white"
-                : "border-line-strong bg-surface text-ink hover:border-brand hover:text-brand"
-            }`}
-          >
-            <bdi>{opt.name}</bdi>
-            <span
-              className={`text-[11px] tabular-nums ${on ? "text-white/70" : "text-ink-3"}`}
-            >
-              {opt.count}
-            </span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-/**
- * The views. "browse" is deliberately absent from TABS below: it is the
- * filter page, opened from the store rather than lived in, so it does not
- * earn a permanent seat on a four-item phone bar.
- */
-type Tab = "home" | "browse" | "consult" | "store" | "cart";
+type Tab = "home" | "consult" | "store" | "cart";
 
 const TABS: { id: Tab; icon: typeof Home; key: MessageKey }[] = [
   { id: "home", icon: Home, key: "shop.home" },
@@ -153,11 +72,9 @@ export default function ShopView() {
   // The two filters stack: brand AND category, each cleared on its own.
   const [activeCategory, setActiveCategory] = useState<number | "all">("all");
   const [activeType, setActiveType] = useState<number | "all">("all");
-  // Browse opens with both lists shut: two headings you can take in at a
-  // glance, rather than forty rows to scroll past. Each opens on its own -
-  // opening one does not shut the other.
-  const [openCategory, setOpenCategory] = useState(false);
-  const [openBrand, setOpenBrand] = useState(false);
+  // The finder's panel - brands and the price range - starts shut. The chips
+  // that get used every day are already out in the open above it.
+  const [filtersOpen, setFiltersOpen] = useState(false);
   // Set by the discount ad, and cleared like any other filter.
   const [offersOnly, setOffersOnly] = useState(false);
   const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
@@ -173,6 +90,11 @@ export default function ShopView() {
   // The phone shell scrolls this element, not the document, so every tab
   // change has to put it back at the top itself.
   const bodyRef = useRef<HTMLDivElement>(null);
+  // The one search field on a phone. The home screen's is a doorway to it,
+  // not a second field, so tapping there lands the caret in this one.
+  const searchRef = useRef<HTMLInputElement>(null);
+  // Set by the home screen's search doorway, read once the store is on screen.
+  const wantSearchFocus = useRef(false);
 
   const load = useCallback(async () => {
     try {
@@ -205,17 +127,29 @@ export default function ShopView() {
   }, [load]);
 
   // Home-screen shortcuts (see public/manifest.json) open the app straight on
-  // a tab: /?tab=store, /?tab=cart. /?tab=consult is the same door, and gives
-  // the consultation form a link the shop can hand out on its own.
+  // a tab: /?tab=store, /?tab=cart, and /?tab=store&offers=1 for the offers
+  // shortcut. /?tab=consult is the same door, and gives the consultation form
+  // a link the shop can hand out on its own.
   useEffect(() => {
-    const wanted = new URLSearchParams(window.location.search).get("tab");
+    const params = new URLSearchParams(window.location.search);
+    const wanted = params.get("tab");
     if (wanted === "store" || wanted === "cart" || wanted === "consult") {
       // Read after mount, not during render: the server has no URL search to
       // read from, and picking the tab while rendering would break hydration.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setTab(wanted);
     }
+    if (params.get("offers") === "1") setOffersOnly(true);
   }, []);
+
+  // Putting the caret in the search field, once the store tab it lives on has
+  // actually been committed to the screen. Doing it in the click handler
+  // instead would aim at a field that is still display:none.
+  useEffect(() => {
+    if (tab !== "store" || !wantSearchFocus.current) return;
+    wantSearchFocus.current = false;
+    searchRef.current?.focus();
+  }, [tab]);
 
   const cart = useCart(load);
 
@@ -275,11 +209,6 @@ export default function ShopView() {
     },
     { min: Infinity, max: 0 }
   );
-  const clearPrice = () => {
-    setMinPrice("");
-    setMaxPrice("");
-  };
-
   const activeCat = categories.find((c) => c.id === activeCategory);
   const activeTypeCat = productCategories.find((c) => c.id === activeType);
   // Whichever filters are on, named. Both on reads "COSRX · Serum".
@@ -290,10 +219,13 @@ export default function ShopView() {
     ]
       .filter(Boolean)
       .join(" · ") || t("shop.allProducts");
+  /** How many filters are narrowing the grid, for the badge on the pill.
+   *  The search term is not one of them: it is visible in its own field. */
   const filtersOn =
     (activeCategory === "all" ? 0 : 1) +
     (activeType === "all" ? 0 : 1) +
-    (offersOnly ? 1 : 0);
+    (offersOnly ? 1 : 0) +
+    (priceActive ? 1 : 0);
   /** Anything actually discounted? The ad only runs when there is. */
   const hasOffers = allProducts.some(isDiscounted);
 
@@ -315,11 +247,6 @@ export default function ShopView() {
     goToCatalog();
   };
 
-  const pickType = (id: number | "all") => {
-    setActiveType(id);
-    goToCatalog();
-  };
-
   /** Take the shopper to the products that are actually on offer. */
   const showOffers = () => {
     setOffersOnly(true);
@@ -328,10 +255,27 @@ export default function ShopView() {
     goToCatalog();
   };
 
+  /** The home screen's search doorway: one field, and it lives in the store.
+   *  The caret is placed by the effect above, once the store is on screen -
+   *  the field is display:none until then and cannot take focus. */
+  const goToSearch = () => {
+    wantSearchFocus.current = true;
+    goTab("store");
+  };
+
+  /** Open the store with the filter panel already down. */
+  const goToFilters = () => {
+    goToCatalog();
+    setFiltersOpen(true);
+  };
+
   const clearFilters = () => {
     setActiveCategory("all");
     setActiveType("all");
     setOffersOnly(false);
+    setMinPrice("");
+    setMaxPrice("");
+    setQuery("");
   };
 
   if (loading) {
@@ -401,6 +345,8 @@ export default function ShopView() {
   const packageQty = (pkg: Package) =>
     cart.qtyOf(packageLineId(pkg.id), undefined, false);
 
+  /** The desktop header's search. The phone's lives in the FinderBar, right
+   *  above the products it filters. */
   const renderSearch = (className = "") => (
     <div className={`relative ${className}`}>
       <Search className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
@@ -517,7 +463,21 @@ export default function ShopView() {
             {/* Canvas - search and the shop's opening line, on the same dark
                 ground as the bar above it */}
             <section className="home-canvas home-canvas-hero px-4 pb-12 pt-4">
-              {renderSearch()}
+              {/* A doorway, not a second search field. Typing here used to
+                  filter a grid that was one tab away and out of sight; tapping
+                  it now opens the store with the caret already in the field,
+                  so a search always shows its results. */}
+              <button
+                type="button"
+                onClick={goToSearch}
+                className="flex h-11 w-full items-center gap-2.5 rounded-full border border-line bg-surface ps-3.5 pe-4 text-start
+                           transition active:scale-[0.99]"
+              >
+                <Search className="h-4 w-4 shrink-0 text-ink-3" />
+                <span className="truncate text-sm text-ink-3">
+                  {t("shop.searchPlaceholder")}
+                </span>
+              </button>
 
               {/* The deck says what the shop is, what it has put together,
                   and what is discounted - in place of a headline that could
@@ -532,7 +492,7 @@ export default function ShopView() {
                   categoryCount={productCategories.length}
                   onShopAll={() => pickCategory("all")}
                   onShopOffers={showOffers}
-                  onBrowse={() => goTab("browse")}
+                  onBrowse={goToFilters}
                   onOpenProduct={setDetailProduct}
                   onAddPackage={addPackage}
                   onOpenPackage={setDetailPackage}
@@ -610,110 +570,15 @@ export default function ShopView() {
           </div>
         )}
 
-        {/* Browse - the filter page. Both dimensions in full, so a shopper
-            picks from the whole list rather than scrolling a strip. Shown on
-            the phone as a tab and on the desktop as its own section. */}
-        {tab === "browse" && (
-          <div className="tab-in mx-auto w-full max-w-3xl px-4 py-6 sm:px-5 sm:py-10">
-            <div className="flex items-baseline justify-between gap-4">
-              <h1 className="font-display text-2xl font-semibold tracking-tight text-ink">
-                {t("browse.title")}
-              </h1>
-              <div className="flex items-center gap-3">
-                {filtersOn > 0 && (
-                  <button
-                    onClick={clearFilters}
-                    className="text-xs font-semibold text-brand active:scale-95"
-                  >
-                    {t("browse.clearAll")}
-                  </button>
-                )}
-                {/* Browse is no longer a tab, so it needs its own way out. */}
-                <button
-                  onClick={() => goTab("store")}
-                  aria-label={t("common.close")}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-2 transition hover:bg-sunken hover:text-ink"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-
-            <section className="mt-6">
-              <FilterHeader
-                label={t("browse.category")}
-                // What is chosen shows on the closed heading, so nothing has
-                // to be opened just to see where you are.
-                selection={
-                  activeTypeCat ? localized(activeTypeCat, "name", lang) : null
-                }
-                open={openCategory}
-                onToggle={() => setOpenCategory((v) => !v)}
-              />
-              <div className="reveal" data-open={openCategory}>
-                {/* inert while shut: a collapsed list is still in the DOM, and
-                    without this you could tab into rows nobody can see. */}
-                <div inert={!openCategory}>
-                  <div className="pt-3">
-                    {productCategories.length > 0 ? (
-                      <FilterBar
-                        options={typeOptions}
-                        active={activeType}
-                        onPick={pickType}
-                      />
-                    ) : (
-                      <p className="rounded-lg border border-dashed border-line-strong bg-sunken/40 px-4 py-4 text-[13px] text-ink-3">
-                        {t("browse.noCategories")}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section className="mt-4">
-              <FilterHeader
-                label={t("browse.brand")}
-                selection={activeCat ? localized(activeCat, "name", lang) : null}
-                open={openBrand}
-                onToggle={() => setOpenBrand((v) => !v)}
-              />
-              <div className="reveal" data-open={openBrand}>
-                <div inert={!openBrand}>
-                  <div className="pt-3">
-                    <FilterBar
-                      options={brandOptions}
-                      active={activeCategory}
-                      onPick={pickCategory}
-                    />
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* What the two filters currently add up to. */}
-            <button
-              onClick={goToCatalog}
-              className="mt-9 flex h-12 w-full items-center justify-center rounded-full bg-brand text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.99]"
-            >
-              {visibleProducts.length === 1
-                ? t("browse.showResultsOne")
-                : t("browse.showResults", { n: visibleProducts.length })}
-            </button>
-          </div>
-        )}
-
         {/* Cart tab - phone only; the desktop uses the drawer. */}
         {tab === "cart" && (
           <div className="tab-in h-full sm:hidden">{cartPanel}</div>
         )}
 
         {/* Hero - desktop only; the phone has its home tab instead. It is
-            part of the home view, so it steps aside for Browse. */}
+            part of the home view, so it steps aside for the form. */}
         <section
-          className={`shop-hero hidden border-b border-line ${
-            tab === "browse" || tab === "consult" ? "" : "sm:block"
-          }`}
+          className={`shop-hero hidden border-b border-line ${tab === "consult" ? "" : "sm:block"}`}
         >
           <div className="mx-auto max-w-7xl px-5 py-10 lg:py-14">
             <div className="rise">
@@ -726,7 +591,7 @@ export default function ShopView() {
                 categoryCount={productCategories.length}
                 onShopAll={goToCatalog}
                 onShopOffers={showOffers}
-                onBrowse={() => goTab("browse")}
+                onBrowse={goToFilters}
                 onOpenProduct={setDetailProduct}
                 onAddPackage={addPackage}
                 onOpenPackage={setDetailPackage}
@@ -745,110 +610,45 @@ export default function ShopView() {
           id="catalog"
           className={`mx-auto max-w-7xl scroll-mt-24 px-4 pb-10 pt-4 sm:px-5 sm:py-10 ${
             tab === "store" ? "" : "hidden"
-          } ${tab === "browse" || tab === "consult" ? "" : "sm:block"}`}
+          } ${tab === "consult" ? "" : "sm:block"}`}
         >
-          {/* Store search - phone only; the desktop has one in the header. */}
-          <div className="tab-in pb-4 sm:hidden">{renderSearch()}</div>
+          <FinderBar
+            query={query}
+            onQuery={setQuery}
+            searchRef={searchRef}
+            categories={typeOptions}
+            brands={brandOptions}
+            activeCategory={activeType}
+            activeBrand={activeCategory}
+            onPickCategory={setActiveType}
+            onPickBrand={setActiveCategory}
+            hasOffers={hasOffers}
+            offersOnly={offersOnly}
+            onToggleOffers={() => setOffersOnly((v) => !v)}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            onMinPrice={setMinPrice}
+            onMaxPrice={setMaxPrice}
+            priceBounds={priceBounds}
+            resultCount={visibleProducts.length}
+            filtersOn={filtersOn}
+            onClearAll={clearFilters}
+            open={filtersOpen}
+            onOpenChange={setFiltersOpen}
+          />
 
-          <div className="mb-5 space-y-4 sm:mb-6">
-            {/* What is filtering the grid right now, and a way out of each.
-                The full lists live on the Browse page. */}
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                onClick={() => goTab("browse")}
-                className="flex h-9 items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3.5 text-[13px] font-medium text-ink transition hover:border-brand hover:text-brand"
-              >
-                <SlidersHorizontal className="h-3.5 w-3.5" />
-                {t("browse.title")}
-              </button>
-
-              {offersOnly && (
-                <button
-                  onClick={() => setOffersOnly(false)}
-                  className="flex h-9 items-center gap-1.5 rounded-full border border-rose bg-rose px-3.5 text-[13px] font-medium text-paper"
-                >
-                  {t("promo.onOffer")}
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              )}
-              {activeTypeCat && (
-                <button
-                  onClick={() => setActiveType("all")}
-                  className="flex h-9 items-center gap-1.5 rounded-full border border-brand bg-brand px-3.5 text-[13px] font-medium text-white"
-                >
-                  <bdi>{localized(activeTypeCat, "name", lang)}</bdi>
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              )}
-              {activeCat && (
-                <button
-                  onClick={() => setActiveCategory("all")}
-                  className="flex h-9 items-center gap-1.5 rounded-full border border-brand bg-brand px-3.5 text-[13px] font-medium text-white"
-                >
-                  <bdi>{localized(activeCat, "name", lang)}</bdi>
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </div>
-
-            <div className="flex items-baseline justify-between gap-4">
-              <h2 className="font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">
-                <bdi>{activeName}</bdi>
-              </h2>
-              <span className="label-caps text-ink-3">
-                {visibleProducts.length}{" "}
-                {visibleProducts.length === 1
-                  ? t("common.item")
-                  : t("common.items")}
-              </span>
-            </div>
-
-            {/* Price filter */}
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
-              <span className="label-caps flex items-center gap-1.5 text-ink-3">
-                <SlidersHorizontal className="h-3.5 w-3.5" />
-                {t("shop.price")}
-              </span>
-              <input
-                type="number"
-                inputMode="numeric"
-                min={0}
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
-                placeholder={
-                  Number.isFinite(priceBounds.min)
-                    ? t("shop.minWith", { n: num(priceBounds.min) })
-                    : t("shop.min")
-                }
-                aria-label={t("shop.minAria")}
-                className="h-9 w-28 rounded-full border border-line bg-surface px-3.5 text-sm text-ink outline-none transition [appearance:textfield] placeholder:text-ink-3 focus:border-brand/50 focus:ring-2 focus:ring-brand/15 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              />
-              <span className="text-ink-3">–</span>
-              <input
-                type="number"
-                inputMode="numeric"
-                min={0}
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                placeholder={
-                  priceBounds.max > 0
-                    ? t("shop.maxWith", { n: num(priceBounds.max) })
-                    : t("shop.max")
-                }
-                aria-label={t("shop.maxAria")}
-                className="h-9 w-28 rounded-full border border-line bg-surface px-3.5 text-sm text-ink outline-none transition [appearance:textfield] placeholder:text-ink-3 focus:border-brand/50 focus:ring-2 focus:ring-brand/15 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              />
-              <span className="text-xs text-ink-3">{t("common.currency")}</span>
-              {priceActive && (
-                <button
-                  onClick={clearPrice}
-                  className="flex items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs font-medium text-ink-2 transition hover:border-brand/40 hover:text-brand"
-                >
-                  <X className="h-3 w-3" />
-                  {t("common.clear")}
-                </button>
-              )}
-            </div>
+          {/* What the finder above currently adds up to, and how much of the
+              catalogue answers to it. */}
+          <div className="mb-5 mt-4 flex items-baseline justify-between gap-4 sm:mb-6">
+            <h2 className="font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">
+              <bdi>{activeName}</bdi>
+            </h2>
+            <span className="label-caps shrink-0 text-ink-3">
+              {visibleProducts.length}{" "}
+              {visibleProducts.length === 1
+                ? t("common.item")
+                : t("common.items")}
+            </span>
           </div>
 
           {visibleProducts.length === 0 ? (
