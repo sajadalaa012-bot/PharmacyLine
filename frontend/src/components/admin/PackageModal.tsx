@@ -263,6 +263,7 @@ export default function PackageModal({
             {/* ── Photo ── */}
             <div>
               <label className={labelCls}>{t("modal.photo")}</label>
+              <p className="mb-2 text-[11px] text-ink-3">{t("pkg.photoHint")}</p>
               <div className="flex gap-4">
                 <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-white">
                   {imageUrl ? (

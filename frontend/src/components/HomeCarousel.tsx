@@ -494,6 +494,7 @@ function PackageSlide({
 
   const onOffer = isDiscounted(pkg);
   const saving = onOffer ? (pkg.old_price as number) - pkg.price : 0;
+  const off = discountPercent(pkg);
 
   const chips = [
     count > 0
@@ -505,6 +506,93 @@ function PackageSlide({
       ? t("pkg.save", { n: `${num(saving)} ${t("common.currency")}` })
       : null,
   ].filter(Boolean) as string[];
+
+  // The photograph the shop uploaded for this package — its own, never one
+  // borrowed from the contents. A picture chosen for the kit is a picture of
+  // the kit, so it gets the whole slide and the copy sits on top of it. With
+  // none uploaded the slide falls back to the frame the rest of the deck
+  // uses, with the contents on the plates.
+  if (pkg.image_url) {
+    return (
+      <div className="relative flex h-full min-h-80 flex-col justify-end sm:min-h-96">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={pkg.image_url}
+          alt={name}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        {/* The copy has to stay readable over a photograph nobody vetted, so
+            it reads white on a scrim that is heaviest where the words are.
+            Fixed colours rather than theme tokens: what is behind them is a
+            photograph in both themes. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/20" />
+
+        <div className="relative p-5 sm:p-8 lg:p-10">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="label-caps flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-white backdrop-blur-sm">
+              <Boxes className="h-3.5 w-3.5" />
+              {t("pkg.eyebrow")}
+            </span>
+            {onOffer && (
+              <span className="label-caps rounded-full bg-rose px-2.5 py-1 text-paper shadow-sm">
+                {t("offer.percentOff", { n: off })}
+              </span>
+            )}
+          </div>
+
+          <h2 className="mt-3 font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-white drop-shadow-sm sm:text-4xl lg:text-5xl">
+            <bdi>{name}</bdi>
+          </h2>
+          {blurb && (
+            <p className="mt-2.5 line-clamp-2 max-w-lg text-[13px] leading-relaxed text-white/80 sm:text-[15px]">
+              <bdi>{blurb}</bdi>
+            </p>
+          )}
+
+          {chips.length > 0 && (
+            <ul className="mt-4 flex flex-wrap items-center gap-2">
+              {chips.map((c) => (
+                <li
+                  key={c}
+                  className="rounded-full bg-white/15 px-3 py-1.5 text-[12px] font-medium text-white backdrop-blur-sm"
+                >
+                  {c}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="mt-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+            {onOffer && (
+              <span className="font-display text-base font-semibold text-white/60 line-through decoration-white/50 decoration-[1.5px] tabular-nums">
+                {num(pkg.old_price as number)}
+              </span>
+            )}
+            <p className="font-display text-2xl font-semibold tracking-tight text-white tabular-nums sm:text-3xl">
+              {num(pkg.price)}
+              <span className="ms-1.5 font-sans text-[11px] font-semibold tracking-[0.08em] text-white/70">
+                {t("common.currency")}
+              </span>
+            </p>
+          </div>
+
+          <button
+            onClick={() => onAdd(pkg)}
+            className="group mt-5 flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:mt-6 sm:h-12 sm:px-7"
+          >
+            {t("pkg.addToCart")}
+            <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
+          </button>
+
+          {qty > 0 && (
+            <p className="mt-2.5 text-[12px] font-semibold text-white">
+              {t("pkg.inCart", { n: qty })}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <SlideFrame

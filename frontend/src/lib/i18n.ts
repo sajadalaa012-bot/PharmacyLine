@@ -414,6 +414,8 @@ const en = {
   // A set of products sold together for one price. Storefront first, then
   // the back office where they are put together and priced.
   "pkg.eyebrow": "Package",
+  "pkg.photoHint":
+    "Fills the whole slide on the home page, so a wide photo of the kit works best. Without one the slide shows the products inside instead.",
   "pkg.inCart": "{n} in your cart",
   "pkg.itemsCount": "{n} items",
   "pkg.oneItem": "1 item",
@@ -1004,6 +1006,8 @@ const ar: Record<MessageKey, string> = {
 
   // ── الحقائب ──
   "pkg.eyebrow": "حقيبة",
+  "pkg.photoHint":
+    "تملأ الشريحة بالكامل في الصفحة الرئيسية، لذا يفضّل صورة عريضة للحقيبة. وبدونها تعرض الشريحة المنتجات التي بداخلها.",
   "pkg.inCart": "{n} في سلّتك",
   "pkg.itemsCount": "{n} منتجات",
   "pkg.oneItem": "منتج واحد",
