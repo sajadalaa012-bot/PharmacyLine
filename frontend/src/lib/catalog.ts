@@ -9,6 +9,7 @@
 import seedData from "@/data/catalog.json";
 import { connect, ensureSchema, query } from "./db";
 import { backfillProductCategories } from "./classifyProducts";
+import { rebrandCatalogCopy } from "./rebrandCatalog";
 import {
   Category,
   Product,
@@ -381,6 +382,7 @@ export function ensureCatalog(): Promise<void> {
     seedPromise = ensureSchema()
       .then(seedCatalog)
       .then(backfillProductCategories)
+      .then(rebrandCatalogCopy)
       .catch((err) => {
         // Don't cache a failure — a transient database blip would otherwise
         // leave this instance permanently unable to serve the catalog.

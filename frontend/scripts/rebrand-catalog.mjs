@@ -1,5 +1,11 @@
 // One-off: rebrands AL-MASA to velina in the live catalog's product copy.
 //
+// NOTE: the app now does this itself, once, on the first request after a
+// deploy — see rebrandCatalogCopy in lib/rebrandCatalog.ts, which runs from
+// the catalog bootstrap and needs no connection string. This script is kept
+// for running the same rewrite by hand, and for its dry run: it is the only
+// one of the two that will show you what is about to change before it does.
+//
 // data/catalog.json only seeds an empty database (see seedCatalog in
 // lib/catalog.ts), so rebranding the file leaves rows that were seeded before
 // the rename still reading "AL-MASA". This rewrites those rows in place.
