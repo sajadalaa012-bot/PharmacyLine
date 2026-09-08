@@ -446,6 +446,13 @@ export interface Package {
   description_ar?: string;
   image_url: string;
   /**
+   * A second photograph, cropped for a narrow screen. A banner composed for
+   * a wide slide loses its subject when the same file is squeezed onto a
+   * phone, so the shop supplies the phone crop rather than trusting one file
+   * to serve both. Blank means the wide one is used at every size.
+   */
+  image_url_mobile?: string;
+  /**
    * What the whole package sells for. Set by hand in the admin rather than
    * derived from the contents: the point of a package is that it costs less
    * than its parts, and by how much is the shop's decision.
@@ -548,10 +555,11 @@ export function packageItemCount(pkg: Pick<Package, "items">): number {
  * the home page - and setting a photo on the package still wins.
  */
 export function packageImage(
-  pkg: Pick<Package, "image_url" | "items">,
+  pkg: Pick<Package, "image_url" | "image_url_mobile" | "items">,
   products: Product[],
 ): string {
-  if (pkg.image_url) return pkg.image_url;
+  const own = photoPair(pkg).wide;
+  if (own) return own;
   const withPhoto = packageContents(pkg, products).find(
     (c) => c.product.image_url,
   );
@@ -581,6 +589,8 @@ export interface DeckSlide {
    * a scrim over it - instead of copy beside a row of product plates.
    */
   image_url: string;
+  /** The same picture cropped for a phone. Blank falls back to image_url. */
+  image_url_mobile: string;
   eyebrow: string;
   eyebrow_ar: string;
   /** The headline. Line breaks are kept. */
@@ -608,6 +618,7 @@ export interface HomeDeck {
 const BLANK_SLIDE = {
   enabled: true,
   image_url: "",
+  image_url_mobile: "",
   eyebrow: "",
   eyebrow_ar: "",
   title: "",
@@ -621,3 +632,45 @@ export const DEFAULT_DECK: HomeDeck = {
   brief: { ...BLANK_SLIDE, stats: true },
   offer: { ...BLANK_SLIDE, percent: 40 },
 };
+
+// ── The two photographs a banner can carry ──────────────────────────
+//
+// A slide and a package each hold a wide photograph and, optionally, a second
+// one cropped for a phone. A banner composed for a wide frame loses its
+// subject when the same file is squeezed onto a narrow screen, so the shop
+// supplies the phone crop rather than trusting one file to serve both.
+
+/** A wide photograph and its phone crop, ready for a <picture> element. */
+export interface ResponsivePhoto {
+  /** The wide photograph. Empty when nothing has been uploaded at all. */
+  wide: string;
+  /** The phone crop, when the shop has supplied one. */
+  mobile?: string;
+}
+
+/** Where the phone crop gives way to the wide photograph. Matches `sm`. */
+export const MOBILE_PHOTO_QUERY = "(max-width: 639.98px)";
+
+/**
+ * The pair, normalised.
+ *
+ * A phone crop uploaded on its own still counts as having a photograph: it is
+ * shown at every width rather than leaving the slide with nothing, which is
+ * what somebody who uploaded only one file plainly meant.
+ */
+export function photoPair(source: {
+  image_url?: string;
+  image_url_mobile?: string;
+}): ResponsivePhoto {
+  const wide = source.image_url?.trim() ?? "";
+  const mobile = source.image_url_mobile?.trim() ?? "";
+  return { wide: wide || mobile, mobile: mobile || undefined };
+}
+
+/** True when either photograph has been supplied. */
+export function hasPhoto(source: {
+  image_url?: string;
+  image_url_mobile?: string;
+}): boolean {
+  return photoPair(source).wide !== "";
+}

@@ -10,7 +10,10 @@ import {
   packageContents,
   packageItemCount,
   packageValue,
+  photoPair,
+  hasPhoto,
 } from "@/types";
+import BannerPhoto from "./BannerPhoto";
 import { useI18n } from "@/lib/LanguageProvider";
 import { localized } from "@/lib/i18n";
 import { num } from "@/lib/format";
@@ -113,11 +116,10 @@ export default function PackageDetailModal({
           {/* The package's own photograph, as wide as the sheet - it was shot
               for the kit, so it is shown the way the slide shows it rather
               than shrunk onto a product's square plate. */}
-          {pkg.image_url && (
+          {hasPhoto(pkg) && (
             <div className="relative h-44 w-full overflow-hidden sm:h-56">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={pkg.image_url}
+              <BannerPhoto
+                photo={photoPair(pkg)}
                 alt={name}
                 className="h-full w-full object-cover"
               />
@@ -156,7 +158,7 @@ export default function PackageDetailModal({
                     {num(pkg.old_price as number)}
                   </span>
                   {/* No offer flag when there is no photograph to carry it. */}
-                  {!pkg.image_url && (
+                  {!hasPhoto(pkg) && (
                     <span className="label-caps rounded-full bg-rose px-2 py-0.5 text-paper">
                       {t("offer.percentOff", { n: off })}
                     </span>

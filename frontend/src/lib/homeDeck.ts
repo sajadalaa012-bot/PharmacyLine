@@ -48,6 +48,8 @@ function slide(v: unknown, fallback: DeckSlide): DeckSlide {
     // before this field existed keeps the slide.
     enabled: r.enabled !== false,
     image_url: image(r.image_url) || fallback.image_url,
+    image_url_mobile:
+      image(r.image_url_mobile) || fallback.image_url_mobile,
     eyebrow: text(r.eyebrow, MAX_LINE) || fallback.eyebrow,
     eyebrow_ar: text(r.eyebrow_ar, MAX_LINE) || fallback.eyebrow_ar,
     title: text(r.title, MAX_LINE) || fallback.title,
@@ -109,12 +111,15 @@ export async function saveHomeDeck(input: unknown): Promise<HomeDeck> {
     unknown
   >;
   for (const key of ["brief", "offer"] as const) {
-    const url = (r[key] as Record<string, unknown> | undefined)?.image_url;
-    if (typeof url === "string" && url.length > MAX_IMAGE_URL)
-      throw new DeckError(
-        "That image is too large. Pick a smaller one and try again.",
-        413,
-      );
+    const slide = r[key] as Record<string, unknown> | undefined;
+    for (const field of ["image_url", "image_url_mobile"] as const) {
+      const url = slide?.[field];
+      if (typeof url === "string" && url.length > MAX_IMAGE_URL)
+        throw new DeckError(
+          "That image is too large. Pick a smaller one and try again.",
+          413,
+        );
+    }
   }
   const deck = parseDeck(input);
   await setSetting(KEY, JSON.stringify(deck));

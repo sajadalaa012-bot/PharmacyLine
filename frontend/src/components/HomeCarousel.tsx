@@ -24,7 +24,11 @@ import {
   packageContents,
   packageItemCount,
   HomeDeck,
+  ResponsivePhoto,
+  photoPair,
+  hasPhoto,
 } from "@/types";
+import BannerPhoto from "./BannerPhoto";
 import { useI18n } from "@/lib/LanguageProvider";
 import { format, localized } from "@/lib/i18n";
 import { num } from "@/lib/format";
@@ -263,7 +267,7 @@ export default function HomeCarousel({
           vertical scroll of the page to the browser while a sideways drag
           belongs to us. */}
       <div
-        className="@container overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_20px_50px_-32px_rgba(27,39,51,0.5)]"
+        className="overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_20px_50px_-32px_rgba(27,39,51,0.5)]"
         style={{ touchAction: "pan-y" }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -298,7 +302,7 @@ export default function HomeCarousel({
           {slides.map((slide, i) => (
             <div
               key={slideKey(slide)}
-              className="aspect-[16/9] w-full shrink-0 overflow-hidden"
+              className="w-full shrink-0"
               aria-hidden={i !== index}
               inert={i !== index}
             >
@@ -398,9 +402,9 @@ function SlideFrame({
   aside: React.ReactNode;
 }) {
   return (
-    <div className="grid h-full grid-cols-2 items-center gap-[3cqw] p-[3.5cqw]">
-      <div className="min-w-0">{children}</div>
-      <div className="min-w-0">{aside}</div>
+    <div className="grid gap-5 p-5 sm:grid-cols-2 sm:items-center sm:gap-8 sm:p-8 lg:p-10">
+      <div className="order-2 sm:order-1">{children}</div>
+      <div className="order-1 sm:order-2">{aside}</div>
     </div>
   );
 }
@@ -426,7 +430,7 @@ function PhotoSlide({
   pressLabel,
   children,
 }: {
-  photo: string;
+  photo: ResponsivePhoto;
   alt: string;
   icon?: typeof Tag;
   eyebrow: string;
@@ -441,10 +445,9 @@ function PhotoSlide({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="relative flex h-full flex-col justify-end overflow-hidden">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={photo}
+    <div className="relative flex h-full min-h-64 flex-col justify-end sm:min-h-96">
+      <BannerPhoto
+        photo={photo}
         alt={alt}
         className="absolute inset-0 h-full w-full object-cover"
       />
@@ -466,20 +469,20 @@ function PhotoSlide({
         />
       )}
 
-      <div className="relative p-[3.5cqw]">
+      <div className="relative p-5 sm:p-8 lg:p-10">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="label-caps flex items-center gap-[0.5cqw] rounded-full bg-white/15 px-[1.2cqw] py-[0.5cqw] text-[clamp(8px,0.95cqw,12px)] text-white backdrop-blur-sm">
+          <span className="label-caps flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-white backdrop-blur-sm">
             {Icon && <Icon className="h-3.5 w-3.5" />}
             {eyebrow}
           </span>
           {badge}
         </div>
 
-        <h2 className="mt-[1cqw] line-clamp-2 whitespace-pre-line font-display text-[clamp(15px,3.4cqw,44px)] font-semibold leading-[1.12] tracking-tight text-white drop-shadow-sm">
+        <h2 className="mt-3 whitespace-pre-line font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-white drop-shadow-sm sm:text-4xl lg:text-5xl">
           <bdi>{title}</bdi>
         </h2>
         {body && (
-          <p className="mt-[1cqw] line-clamp-2 max-w-lg whitespace-pre-line text-[clamp(9px,1.25cqw,15px)] leading-relaxed text-white/80">
+          <p className="mt-2.5 line-clamp-3 max-w-lg whitespace-pre-line text-[13px] leading-relaxed text-white/80 sm:text-[15px]">
             <bdi>{body}</bdi>
           </p>
         )}
@@ -607,18 +610,18 @@ function PromoSlide({
     // every slide to the tallest, and a ground that stopped short of that
     // would show the surface behind it.
     <div className="relative flex h-full flex-col justify-center overflow-hidden">
-      <BlushGround photo={slide.image_url || undefined} />
+      <BlushGround photo={photoPair(slide)} />
 
-      <div className="relative grid h-full grid-cols-2 items-center gap-[3cqw] p-[3.5cqw]">
+      <div className="relative grid items-center gap-4 p-4 sm:grid-cols-2 sm:gap-8 sm:p-8 lg:gap-10 lg:p-10">
         {/* ── Copy. First in the source, so it takes the start side: the right
             in Arabic, the left in English, without either being hard-coded. */}
-        <div className="min-w-0">
-          <span className="label-caps flex items-center gap-[0.5cqw] text-[clamp(8px,0.95cqw,12px)] text-[#c62a6c]">
+        <div className="order-2 sm:order-1">
+          <span className="label-caps flex items-center gap-1.5 text-[#c62a6c]">
             <Tag className="h-3.5 w-3.5" />
             {eyebrow}
           </span>
 
-          <h2 className="mt-[1cqw] line-clamp-2 whitespace-pre-line font-display text-[clamp(15px,3.4cqw,44px)] font-bold leading-[1.08] tracking-tight text-[#1b2733]">
+          <h2 className="mt-2.5 whitespace-pre-line font-display text-[26px] font-bold leading-[1.08] tracking-tight text-[#1b2733] sm:text-4xl lg:text-[44px]">
             <bdi>
               {headline.before}
               {headline.figure && (
@@ -628,18 +631,18 @@ function PromoSlide({
             </bdi>
           </h2>
 
-          <p className="mt-[1cqw] line-clamp-2 max-w-md whitespace-pre-line text-[clamp(9px,1.25cqw,15px)] leading-relaxed text-[#5b6b7c]">
+          <p className="mt-2.5 line-clamp-2 max-w-md whitespace-pre-line text-[13px] leading-relaxed text-[#5b6b7c] sm:mt-4 sm:line-clamp-none sm:text-[15px]">
             <bdi>{body}</bdi>
           </p>
 
           {pills.length > 0 && (
-            <ul className="no-scrollbar mt-[1.4cqw] flex items-center gap-[0.8cqw] overflow-x-auto">
+            <ul className="no-scrollbar mt-3.5 flex items-center gap-2 overflow-x-auto sm:mt-5 sm:flex-wrap sm:overflow-visible">
               {pills.map((c, i) => {
                 const Icon = PILL_ICONS[i % PILL_ICONS.length];
                 return (
                   <li
                     key={c.id}
-                    className="flex shrink-0 items-center gap-[0.5cqw] rounded-full bg-white/70 px-[1.2cqw] py-[0.6cqw] text-[clamp(8px,1cqw,12px)] font-medium text-[#96436a] ring-1 ring-white/70"
+                    className="flex shrink-0 items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-[12px] font-medium text-[#96436a] ring-1 ring-white/70"
                   >
                     <Icon className="h-3.5 w-3.5 shrink-0" />
                     <bdi>{localized(c, "name", lang)}</bdi>
@@ -651,7 +654,7 @@ function PromoSlide({
 
           <button
             onClick={onShopOffers}
-            className="group mt-[1.8cqw] flex h-[clamp(30px,4.4cqw,56px)] items-center gap-[0.8cqw] rounded-full bg-[#c62a6c] px-[2.6cqw] text-[clamp(10px,1.3cqw,16px)] font-semibold text-white shadow-[0_14px_28px_-12px_rgba(198,42,108,0.75)] transition hover:bg-[#a51f57] active:scale-[0.98]"
+            className="group mt-4 flex h-11 items-center gap-2 rounded-full bg-[#c62a6c] px-5 text-[13px] font-semibold text-white shadow-[0_14px_28px_-12px_rgba(198,42,108,0.75)] transition hover:bg-[#a51f57] active:scale-[0.98] sm:mt-6 sm:h-14 sm:gap-2.5 sm:px-8 sm:text-base"
           >
             {t("promo.cta")}
             <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
@@ -661,13 +664,13 @@ function PromoSlide({
         {/* ── What is actually reduced. Above the copy on a phone, beside it
             from `sm` up - the arrangement is the hook, the words are the
             argument, and on a narrow screen the hook comes first. */}
-        <div className="flex min-w-0 items-end justify-center gap-[1.5cqw]">
+        <div className="order-1 flex items-end justify-center gap-3 sm:order-2 sm:gap-4">
           {shown.map((p, i) => {
             const name = localized(p, "name", lang);
             // Staggered, so three bottles read as an arrangement rather than a
             // row of boxes: the middle one stands tallest.
             const height =
-              i === 1 ? "h-[38cqw] max-h-[85%]" : "h-[31cqw] max-h-[70%]";
+              i === 1 ? "h-24 sm:h-44 lg:h-52" : "h-24 sm:h-36 lg:h-44";
             return (
               <button
                 key={p.id}
@@ -757,16 +760,16 @@ function PackageSlide({
   // the kit, so it gets the whole slide and the copy sits on top of it. With
   // none uploaded the slide falls back to the frame the rest of the deck
   // uses, with the contents on the plates.
-  if (pkg.image_url) {
+  if (hasPhoto(pkg)) {
     return (
       <PhotoSlide
-        photo={pkg.image_url}
+        photo={photoPair(pkg)}
         alt={name}
         icon={Boxes}
         eyebrow={t("pkg.eyebrow")}
         badge={
           onOffer ? (
-            <span className="label-caps shrink-0 rounded-full bg-rose px-[1.2cqw] py-[0.5cqw] text-[clamp(8px,0.95cqw,12px)] text-paper shadow-sm">
+            <span className="label-caps rounded-full bg-rose px-2.5 py-1 text-paper shadow-sm">
               {t("offer.percentOff", { n: off })}
             </span>
           ) : undefined
@@ -777,11 +780,11 @@ function PackageSlide({
         pressLabel={t("pkg.viewDetails", { name })}
       >
         {chips.length > 0 && (
-          <ul className="no-scrollbar mt-[1.4cqw] flex items-center gap-[0.8cqw] overflow-x-auto">
+          <ul className="no-scrollbar mt-3.5 flex items-center gap-2 overflow-x-auto sm:mt-4 sm:flex-wrap sm:overflow-visible">
             {chips.map((c) => (
               <li
                 key={c}
-                className="shrink-0 rounded-full bg-white/15 px-[1.2cqw] py-[0.6cqw] text-[clamp(8px,1cqw,12px)] font-medium text-white backdrop-blur-sm"
+                className="shrink-0 rounded-full bg-white/15 px-3 py-1.5 text-[12px] font-medium text-white backdrop-blur-sm"
               >
                 {c}
               </li>
@@ -789,38 +792,38 @@ function PackageSlide({
           </ul>
         )}
 
-        <div className="mt-[1.2cqw] flex items-baseline gap-x-[1cqw]">
+        <div className="mt-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
           {onOffer && (
-            <span className="font-display text-[clamp(9px,1.4cqw,17px)] font-semibold text-white/60 line-through decoration-white/50 decoration-[1.5px] tabular-nums">
+            <span className="font-display text-base font-semibold text-white/60 line-through decoration-white/50 decoration-[1.5px] tabular-nums">
               {num(pkg.old_price as number)}
             </span>
           )}
-          <p className="font-display text-[clamp(13px,2.4cqw,30px)] font-semibold tracking-tight text-white tabular-nums">
+          <p className="font-display text-2xl font-semibold tracking-tight text-white tabular-nums sm:text-3xl">
             {num(pkg.price)}
-            <span className="ms-[0.5cqw] font-sans text-[clamp(7px,0.9cqw,11px)] font-semibold tracking-[0.08em] text-white/70">
+            <span className="ms-1.5 font-sans text-[11px] font-semibold tracking-[0.08em] text-white/70">
               {t("common.currency")}
             </span>
           </p>
         </div>
 
-        <div className="mt-[1.8cqw] flex items-center gap-[1cqw]">
+        <div className="mt-4 flex flex-wrap items-center gap-2 sm:mt-6 sm:gap-2.5">
           <button
             onClick={() => onAdd(pkg)}
-            className="group flex h-[clamp(30px,4.4cqw,56px)] items-center gap-[0.8cqw] rounded-full bg-brand px-[2.6cqw] text-[clamp(10px,1.3cqw,16px)] font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98]"
+            className="group flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:h-12 sm:px-7"
           >
             {t("pkg.addToCart")}
             <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
           </button>
           <button
             onClick={() => onOpen(pkg)}
-            className="flex h-[clamp(30px,4.4cqw,56px)] items-center gap-[0.8cqw] rounded-full border border-white/45 px-[2cqw] text-[clamp(10px,1.3cqw,16px)] font-semibold text-white backdrop-blur-sm transition hover:bg-white/15 active:scale-[0.98]"
+            className="flex h-11 items-center gap-2 rounded-full border border-white/45 px-5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/15 active:scale-[0.98] sm:h-12 sm:px-6"
           >
             {t("pkg.whatsInside")}
           </button>
         </div>
 
         {qty > 0 && (
-          <p className="mt-[0.8cqw] text-[clamp(8px,1cqw,12px)] font-semibold text-white">
+          <p className="mt-2.5 text-[12px] font-semibold text-white">
             {t("pkg.inCart", { n: qty })}
           </p>
         )}
@@ -833,7 +836,7 @@ function PackageSlide({
       aside={
         shown.length > 0 ? (
           <div
-            className={`grid gap-[1.5cqw] ${
+            className={`grid gap-2.5 sm:gap-3 ${
               shown.length === 1
                 ? "grid-cols-1"
                 : shown.length === 2
@@ -854,7 +857,7 @@ function PackageSlide({
                   <Plate
                     product={product}
                     name={itemName}
-                    className={`h-[31cqw] max-h-[70%] transition-transform duration-300 group-hover/plate:scale-[1.03] ${
+                    className={`h-24 transition-transform duration-300 group-hover/plate:scale-[1.03] sm:h-32 ${
                       i === 1 && shown.length === 3 ? "sm:-translate-y-3" : ""
                     }`}
                   />
@@ -863,7 +866,7 @@ function PackageSlide({
             })}
           </div>
         ) : (
-          <div className="flex h-[31cqw] max-h-[70%] items-center justify-center rounded-2xl bg-sunken">
+          <div className="flex h-24 items-center justify-center rounded-2xl bg-sunken sm:h-32">
             <Boxes className="h-8 w-8 text-line-strong" />
           </div>
         )
@@ -873,17 +876,17 @@ function PackageSlide({
         <Boxes className="h-3.5 w-3.5" />
         {t("pkg.eyebrow")}
       </span>
-      <h2 className="mt-[1cqw] line-clamp-2 font-display text-[clamp(15px,3.4cqw,44px)] font-semibold leading-[1.12] tracking-tight text-ink">
+      <h2 className="mt-2 font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-ink sm:text-4xl lg:text-5xl">
         <bdi>{name}</bdi>
       </h2>
       {blurb && (
-        <p className="mt-[1cqw] line-clamp-2 max-w-lg text-[clamp(9px,1.25cqw,15px)] leading-relaxed text-ink-2">
+        <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-ink-2 sm:mt-4 sm:text-[15px]">
           <bdi>{blurb}</bdi>
         </p>
       )}
 
       {chips.length > 0 && (
-        <ul className="no-scrollbar mt-[1.4cqw] flex items-center gap-[0.8cqw] overflow-x-auto">
+        <ul className="no-scrollbar mt-3.5 flex items-center gap-2 overflow-x-auto sm:mt-4 sm:flex-wrap sm:overflow-visible">
           {chips.map((c) => (
             <li
               key={c}
@@ -896,14 +899,14 @@ function PackageSlide({
       )}
 
       {/* The price, in the "was … now …" the cards use. */}
-      <div className="mt-[1.2cqw] flex items-baseline gap-x-[1cqw]">
+      <div className="mt-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
         {onOffer && (
           <span className="font-display text-base font-semibold text-ink-3 line-through decoration-rose/70 decoration-[1.5px] tabular-nums">
             {num(pkg.old_price as number)}
           </span>
         )}
         <p
-          className={`font-display text-[clamp(13px,2.4cqw,30px)] font-semibold tracking-tight tabular-nums ${
+          className={`font-display text-2xl font-semibold tracking-tight tabular-nums sm:text-3xl ${
             onOffer ? "text-rose" : "text-ink"
           }`}
         >
@@ -918,17 +921,17 @@ function PackageSlide({
         </p>
       </div>
 
-      <div className="mt-[1.8cqw] flex items-center gap-[1cqw]">
+      <div className="mt-4 flex flex-wrap items-center gap-2 sm:mt-6 sm:gap-2.5">
         <button
           onClick={() => onAdd(pkg)}
-          className="group flex h-[clamp(30px,4.4cqw,56px)] items-center gap-[0.8cqw] rounded-full bg-brand px-[2.6cqw] text-[clamp(10px,1.3cqw,16px)] font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98]"
+          className="group flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:h-12 sm:px-7"
         >
           {t("pkg.addToCart")}
           <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
         </button>
         <button
           onClick={() => onOpen(pkg)}
-          className="flex h-[clamp(30px,4.4cqw,56px)] items-center gap-[0.8cqw] rounded-full border border-line-strong px-[2cqw] text-[clamp(10px,1.3cqw,16px)] font-semibold text-ink transition hover:bg-sunken active:scale-[0.98]"
+          className="flex h-11 items-center gap-2 rounded-full border border-line-strong px-5 text-sm font-semibold text-ink transition hover:bg-sunken active:scale-[0.98] sm:h-12 sm:px-6"
         >
           {t("pkg.whatsInside")}
         </button>
@@ -951,7 +954,7 @@ function PackageSlide({
  * Nobody vets what gets uploaded, and a headline that turns unreadable over
  * somebody's dark photo is worse than one that sits on a plain ground.
  */
-function BlushGround({ photo }: { photo?: string }) {
+function BlushGround({ photo }: { photo?: ResponsivePhoto }) {
   return (
     <>
       <div
@@ -961,13 +964,11 @@ function BlushGround({ photo }: { photo?: string }) {
             "radial-gradient(120% 100% at 72% 15%, #fdeef1 0%, #f8e2e6 42%, #f1d2d8 72%, #ebc4cc 100%)",
         }}
       />
-      {photo && (
+      {photo?.wide && (
         <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={photo}
+          <BannerPhoto
+            photo={photo}
             alt=""
-            aria-hidden
             className="absolute inset-0 h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-[#fbe6ea]/75" />
@@ -1059,34 +1060,34 @@ function AboutSlide({
     // every slide to the tallest, and a ground that stopped short of that
     // would show the surface behind it.
     <div className="relative flex h-full flex-col justify-center overflow-hidden">
-      <BlushGround photo={slide.image_url || undefined} />
+      <BlushGround photo={photoPair(slide)} />
 
-      <div className="relative grid h-full grid-cols-2 items-center gap-[3cqw] p-[3.5cqw]">
+      <div className="relative grid items-center gap-4 p-4 sm:grid-cols-2 sm:gap-8 sm:p-8 lg:gap-10 lg:p-10">
         {/* ── Copy. First in the source, so it takes the start side: the right
             in Arabic, the left in English, without either being hard-coded. */}
-        <div className="min-w-0">
-          <span className="label-caps inline-flex flex-col items-start gap-[0.6cqw] text-[clamp(8px,0.95cqw,12px)] text-[#c62a6c]">
+        <div className="order-2 sm:order-1">
+          <span className="label-caps inline-flex flex-col items-start gap-1.5 text-[#c62a6c]">
             {eyebrow}
             {/* The rule under the eyebrow, as in the artwork. */}
             <span className="h-px w-10 bg-[#c62a6c]/50" />
           </span>
 
-          <h2 className="mt-[1cqw] line-clamp-2 whitespace-pre-line font-display text-[clamp(15px,3.4cqw,44px)] font-bold leading-[1.08] tracking-tight text-[#1b2733]">
+          <h2 className="mt-3 whitespace-pre-line font-display text-[26px] font-bold leading-[1.08] tracking-tight text-[#1b2733] sm:text-4xl lg:text-[44px]">
             <bdi>{headline}</bdi>
           </h2>
 
-          <p className="mt-[1cqw] line-clamp-2 max-w-md whitespace-pre-line text-[clamp(9px,1.25cqw,15px)] leading-relaxed text-[#5b6b7c]">
+          <p className="mt-2.5 line-clamp-2 max-w-md whitespace-pre-line text-[13px] leading-relaxed text-[#5b6b7c] sm:mt-4 sm:line-clamp-none sm:text-[15px]">
             <bdi>{lede}</bdi>
           </p>
 
           {pills.length > 0 && (
-            <ul className="no-scrollbar mt-[1.4cqw] flex items-center gap-[0.8cqw] overflow-x-auto">
+            <ul className="no-scrollbar mt-3.5 flex items-center gap-2 overflow-x-auto sm:mt-5 sm:flex-wrap sm:overflow-visible">
               {pills.map((c, i) => {
                 const Icon = PILL_ICONS[i % PILL_ICONS.length];
                 return (
                   <li
                     key={c.id}
-                    className="flex shrink-0 items-center gap-[0.5cqw] rounded-full bg-white/70 px-[1.2cqw] py-[0.6cqw] text-[clamp(8px,1cqw,12px)] font-medium text-[#96436a] ring-1 ring-white/70"
+                    className="flex shrink-0 items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-[12px] font-medium text-[#96436a] ring-1 ring-white/70"
                   >
                     <Icon className="h-3.5 w-3.5 shrink-0" />
                     <bdi>{localized(c, "name", lang)}</bdi>
@@ -1096,17 +1097,17 @@ function AboutSlide({
             </ul>
           )}
 
-          <div className="mt-[1.8cqw] flex items-center gap-[1cqw]">
+          <div className="mt-4 flex flex-wrap items-center gap-2 sm:mt-6 sm:gap-3">
             <button
               onClick={onShopAll}
-              className="group flex h-[clamp(30px,4.4cqw,56px)] items-center gap-[0.8cqw] rounded-full bg-[#c62a6c] px-[2.6cqw] text-[clamp(10px,1.3cqw,16px)] font-semibold text-white shadow-[0_14px_28px_-12px_rgba(198,42,108,0.75)] transition hover:bg-[#a51f57] active:scale-[0.98]"
+              className="group flex h-11 items-center gap-2 rounded-full bg-[#c62a6c] px-5 text-[13px] font-semibold text-white shadow-[0_14px_28px_-12px_rgba(198,42,108,0.75)] transition hover:bg-[#a51f57] active:scale-[0.98] sm:h-14 sm:gap-2.5 sm:px-8 sm:text-base"
             >
               {t("shop.ctaShop")}
               <ChevronRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
             </button>
             <button
               onClick={onBrowse}
-              className="flex h-[clamp(30px,4.4cqw,56px)] items-center gap-[0.8cqw] rounded-full bg-white/85 px-[2cqw] text-[clamp(10px,1.3cqw,16px)] font-semibold text-[#96436a] ring-1 ring-white/80 transition hover:bg-white active:scale-[0.98]"
+              className="flex h-11 items-center gap-2 rounded-full bg-white/85 px-4 text-[13px] font-semibold text-[#96436a] ring-1 ring-white/80 transition hover:bg-white active:scale-[0.98] sm:h-14 sm:gap-2.5 sm:px-7 sm:text-base"
             >
               <LayoutGrid className="h-4 w-4" />
               {t("shop.ctaBrowse")}
@@ -1116,7 +1117,7 @@ function AboutSlide({
           {/* The counts, as the quiet line the artwork closes on rather than a
               row of chips competing with the pills above. */}
           {showStats && (
-            <p className="mt-[1.4cqw] hidden text-[clamp(7px,0.8cqw,11px)] font-semibold uppercase tracking-[0.16em] text-[#c0879b] @[34rem]:block">
+            <p className="mt-4 hidden text-[10px] font-semibold uppercase tracking-[0.16em] text-[#c0879b] sm:block">
               {stats.map((s) => `${num(s.n)} ${s.label}`).join("  ·  ")}
             </p>
           )}
@@ -1125,15 +1126,15 @@ function AboutSlide({
         {/* ── The arrangement. Dropped entirely when the shop has uploaded a
             photograph: that photograph is already a picture of the shop, and
             standing more products on top of it would be a second one. */}
-        {!slide.image_url && shelf.length > 0 && (
-          <div className="flex min-w-0 items-end justify-center gap-[1.5cqw]">
+        {!hasPhoto(slide) && shelf.length > 0 && (
+          <div className="order-1 flex items-end justify-center gap-2.5 sm:order-2 sm:gap-3">
             {shelf.map((p, i) => (
               <Plinth
                 key={p.id}
                 className={
                   i % 2 === 1
-                    ? "h-[38cqw] max-h-[85%] flex-1"
-                    : "h-[31cqw] max-h-[70%] flex-1"
+                    ? "h-24 flex-1 sm:h-44 lg:h-52"
+                    : "h-24 flex-1 sm:h-36 lg:h-44"
                 }
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}

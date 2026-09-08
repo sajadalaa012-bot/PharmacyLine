@@ -282,6 +282,12 @@ const SCHEMA_SQL = `
     CREATE INDEX IF NOT EXISTS idx_packages_order
       ON packages (display_order, id);
 
+    -- A second photograph for the same package, cropped for a phone. Added
+    -- after packages were already live, so it defaults to empty: blank means
+    -- the wide photograph is used at every width, which is what every
+    -- existing package wants.
+    ALTER TABLE packages ADD COLUMN IF NOT EXISTS image_url_mobile TEXT NOT NULL DEFAULT '';
+
     -- Browser push subscriptions: one row per device that has said yes to
     -- notifications. The endpoint URL is the identity a push service gives a
     -- device, so it is the primary key: re-subscribing the same browser

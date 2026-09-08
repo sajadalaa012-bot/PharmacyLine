@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Package as PackageType,
   PackageInput,
@@ -8,9 +8,9 @@ import {
   Product,
   packageValue,
 } from "@/types";
-import { X, Trash2, Boxes } from "lucide-react";
+import { X, Trash2 } from "lucide-react";
 import Dropdown from "@/components/Dropdown";
-import { uploadProductImage } from "@/lib/api";
+import PhotoPicker from "@/components/admin/PhotoPicker";
 import { useI18n } from "@/lib/LanguageProvider";
 import { localized } from "@/lib/i18n";
 import { num } from "@/lib/format";
@@ -51,15 +51,14 @@ export default function PackageModal({
   const [description, setDescription] = useState("");
   const [descriptionAr, setDescriptionAr] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [imageUrlMobile, setImageUrlMobile] = useState("");
   const [price, setPrice] = useState("");
   const [oldPrice, setOldPrice] = useState("");
   const [active, setActive] = useState(false);
   const [items, setItems] = useState<PackageItem[]>([]);
 
-  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Reset every time the modal opens, so editing one package and then
   // creating another doesn't inherit the first one's fields.
@@ -71,6 +70,7 @@ export default function PackageModal({
     setDescription(pkg?.description ?? "");
     setDescriptionAr(pkg?.description_ar ?? "");
     setImageUrl(pkg?.image_url ?? "");
+    setImageUrlMobile(pkg?.image_url_mobile ?? "");
     setPrice(pkg ? String(pkg.price) : "");
     setOldPrice(pkg?.old_price != null ? String(pkg.old_price) : "");
     setActive(pkg?.active ?? false);
@@ -78,21 +78,6 @@ export default function PackageModal({
   }, [isOpen, pkg]);
 
   if (!isOpen) return null;
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    setError(null);
-    try {
-      const res = await uploadProductImage(file);
-      setImageUrl(res.image_url);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("err.uploadFailed"));
-    } finally {
-      setUploading(false);
-    }
-  };
 
   // ── Contents ──
   const chosen = new Set(items.map((it) => it.product_id));
@@ -160,6 +145,7 @@ export default function PackageModal({
         description: description.trim() || undefined,
         description_ar: descriptionAr.trim() || undefined,
         image_url: imageUrl.trim(),
+        image_url_mobile: imageUrlMobile.trim() || undefined,
         price: parsedPrice,
         old_price: parsedOld === null ? undefined : parsedOld,
         active,
@@ -260,51 +246,27 @@ export default function PackageModal({
               </div>
             </div>
 
-            {/* ── Photo ── */}
-            <div>
-              <label className={labelCls}>{t("modal.photo")}</label>
-              <p className="mb-2 text-[11px] text-ink-3">{t("pkg.photoHint")}</p>
-              <div className="flex gap-4">
-                <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line bg-white">
-                  {imageUrl ? (
-                    <>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={imageUrl}
-                        alt={t("modal.preview")}
-                        className="h-full w-full object-contain p-1"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setImageUrl("")}
-                        aria-label={t("modal.removePhoto")}
-                        className="absolute end-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose text-paper shadow hover:opacity-90"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </>
-                  ) : (
-                    <Boxes className="h-6 w-6 text-line-strong" />
-                  )}
-                </div>
-                <div className="flex flex-1 flex-col justify-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
-                    className="label-caps h-9 rounded-md border border-brand/40 bg-brand/10 text-brand transition hover:bg-brand/20 active:scale-[0.98] disabled:opacity-50"
-                  >
-                    {uploading ? t("modal.uploading") : t("modal.uploadPhoto")}
-                  </button>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    accept="image/*"
-                    className="hidden"
-                  />
-                </div>
-              </div>
+            {/* Two photographs, because one file cannot be both. The wide
+                one is composed for a desktop slide; cropped to a phone it
+                loses its subject. Leave the phone slot empty and the wide
+                one is used at every width. */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <PhotoPicker
+                label={t("pkg.photoWide")}
+                hint={t("pkg.photoWideHint")}
+                value={imageUrl}
+                onChange={setImageUrl}
+                onError={setError}
+                shape="wide"
+              />
+              <PhotoPicker
+                label={t("pkg.photoMobile")}
+                hint={t("pkg.photoMobileHint")}
+                value={imageUrlMobile}
+                onChange={setImageUrlMobile}
+                onError={setError}
+                shape="tall"
+              />
             </div>
 
             {/* ── Contents ── */}
@@ -477,7 +439,7 @@ export default function PackageModal({
             </button>
             <button
               type="submit"
-              disabled={saving || uploading}
+              disabled={saving}
               className="label-caps h-10 rounded-md bg-brand px-6 text-on-brand transition hover:bg-brand-deep active:scale-[0.98] disabled:opacity-40"
             >
               {saving ? t("common.saving") : t("common.save")}
