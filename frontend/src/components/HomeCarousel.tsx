@@ -906,27 +906,6 @@ function AboutSlide({
     localized(slide, "title", lang) ||
     `${t("shop.headline1")}\n${t("shop.headline2")}`;
 
-  // A slide the shop has given a photograph of its own IS that photograph.
-  // Artwork composed for this frame carries its own words, so nothing is laid
-  // over it and nothing crops it: the picture keeps its shape and the deck
-  // takes the height that shape asks for. The wide file sizes the desktop and
-  // the phone crop sizes the phone, chosen by <picture> before either is
-  // fetched - so both are exact rather than one being the other squeezed.
-  if (hasPhoto(slide)) {
-    return (
-      // Centred, for the case where another slide is the taller one: the track
-      // sizes every slide to the tallest, and the picture holds its own shape
-      // rather than stretching to fill a frame it was not cut for.
-      <div className="flex h-full items-center">
-        <BannerPhoto
-          photo={photoPair(slide)}
-          alt={eyebrow}
-          className="block h-auto w-full"
-        />
-      </div>
-    );
-  }
-
   // Real products stand in for the catalogue - ones with a picture only,
   // since an empty plinth says nothing about what is in the shop.
   const shelf = products.filter((p) => p.image_url).slice(0, 3);
@@ -949,7 +928,7 @@ function AboutSlide({
     // every slide to the tallest, and a ground that stopped short of that
     // would show the surface behind it.
     <div className="relative flex h-full flex-col justify-center overflow-hidden">
-      <BlushGround />
+      <BlushGround photo={photoPair(slide)} />
 
       <div className="relative grid items-center gap-4 p-4 sm:grid-cols-2 sm:gap-8 sm:p-8 lg:gap-10 lg:p-10">
         {/* ── Copy. First in the source, so it takes the start side: the right
@@ -987,10 +966,10 @@ function AboutSlide({
           )}
         </div>
 
-        {/* ── The arrangement: the shop stood on plinths, for a slide with no
-            photograph of its own. One that has a photograph never reaches
-            here - it is drawn as the picture itself, above. */}
-        {shelf.length > 0 && (
+        {/* ── The arrangement. Dropped entirely when the shop has uploaded a
+            photograph: that photograph is already a picture of the shop, and
+            standing more products on top of it would be a second one. */}
+        {!hasPhoto(slide) && shelf.length > 0 && (
           <div className="order-1 flex items-end justify-center gap-2.5 sm:order-2 sm:gap-3">
             {shelf.map((p, i) => (
               <Plinth
