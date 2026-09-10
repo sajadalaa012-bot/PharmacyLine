@@ -1,19 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import {
-  ArrowRight,
-  Boxes,
-  Droplet,
-  Leaf,
-  Sparkles,
-  Sun,
-  ChevronLeft,
-  ChevronRight,
-  Package,
-
-  Tag,
-} from "lucide-react";
+import { Boxes, ChevronLeft, ChevronRight, Package } from "lucide-react";
 import {
   Product,
   ProductCategory,
@@ -347,23 +335,19 @@ function SlideFrame({
 function PhotoSlide({
   photo,
   alt,
-  icon: Icon,
   eyebrow,
   badge,
   title,
-  body,
   onPress,
   pressLabel,
   children,
 }: {
   photo: ResponsivePhoto;
   alt: string;
-  icon?: typeof Tag;
   eyebrow: string;
   /** A second pill beside the eyebrow - the discount figure, usually. */
   badge?: React.ReactNode;
   title: string;
-  body?: string;
   /** When given, the photograph itself becomes a button. */
   onPress?: () => void;
   pressLabel?: string;
@@ -397,8 +381,7 @@ function PhotoSlide({
 
       <div className="relative p-5 sm:p-8 lg:p-10">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="label-caps flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-white backdrop-blur-sm">
-            {Icon && <Icon className="h-3.5 w-3.5" />}
+          <span className="label-caps rounded-full bg-white/15 px-2.5 py-1 text-white backdrop-blur-sm">
             {eyebrow}
           </span>
           {badge}
@@ -407,11 +390,6 @@ function PhotoSlide({
         <h2 className="mt-3 whitespace-pre-line font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-white drop-shadow-sm sm:text-4xl lg:text-5xl">
           <bdi>{title}</bdi>
         </h2>
-        {body && (
-          <p className="mt-2.5 line-clamp-3 max-w-lg whitespace-pre-line text-[13px] leading-relaxed text-white/80 sm:text-[15px]">
-            <bdi>{body}</bdi>
-          </p>
-        )}
 
         {children}
       </div>
@@ -477,8 +455,8 @@ function splitOnFigure(
   };
 }
 
-/** The little marks on the benefit pills, in the order the pills appear. */
-const PILL_ICONS = [Droplet, Sun, Sparkles, Leaf];
+/** How many types a slide names in its pills before it stops. */
+const SLIDE_PILLS = 4;
 
 /**
  * The discount, as the shop advertises it: a blush banner with what is
@@ -526,7 +504,7 @@ function PromoSlide({
         .filter((c): c is ProductCategory => !!c)
         .map((c) => [c.id, c] as const),
     ).values(),
-  ].slice(0, PILL_ICONS.length);
+  ].slice(0, SLIDE_PILLS);
 
   return (
     // h-full so the blush reaches the bottom of the deck: the track sizes
@@ -539,10 +517,7 @@ function PromoSlide({
         {/* ── Copy. First in the source, so it takes the start side: the right
             in Arabic, the left in English, without either being hard-coded. */}
         <div className="order-2 sm:order-1">
-          <span className="label-caps flex items-center gap-1.5 text-[#c62a6c]">
-            <Tag className="h-3.5 w-3.5" />
-            {eyebrow}
-          </span>
+          <span className="label-caps text-[#c62a6c]">{eyebrow}</span>
 
           <h2 className="mt-2.5 whitespace-pre-line font-display text-[26px] font-bold leading-[1.08] tracking-tight text-[#1b2733] sm:text-4xl lg:text-[44px]">
             <bdi>
@@ -556,18 +531,14 @@ function PromoSlide({
 
           {pills.length > 0 && (
             <ul className="no-scrollbar mt-3.5 flex items-center gap-2 overflow-x-auto sm:mt-5 sm:flex-wrap sm:overflow-visible">
-              {pills.map((c, i) => {
-                const Icon = PILL_ICONS[i % PILL_ICONS.length];
-                return (
-                  <li
-                    key={c.id}
-                    className="flex shrink-0 items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-[12px] font-medium text-[#96436a] ring-1 ring-white/70"
-                  >
-                    <Icon className="h-3.5 w-3.5 shrink-0" />
-                    <bdi>{localized(c, "name", lang)}</bdi>
-                  </li>
-                );
-              })}
+              {pills.map((c) => (
+                <li
+                  key={c.id}
+                  className="shrink-0 rounded-full bg-white/70 px-3 py-1.5 text-[12px] font-medium text-[#96436a] ring-1 ring-white/70"
+                >
+                  <bdi>{localized(c, "name", lang)}</bdi>
+                </li>
+              ))}
             </ul>
           )}
 
@@ -646,7 +617,6 @@ function PackageSlide({
 }) {
   const { t, lang } = useI18n();
   const name = localized(pkg, "name", lang);
-  const blurb = localized(pkg, "description", lang);
   const contents = packageContents(pkg, products);
   const count = packageItemCount(pkg);
   // Only what has a photograph: an empty plate says nothing about the kit.
@@ -677,7 +647,6 @@ function PackageSlide({
       <PhotoSlide
         photo={photoPair(pkg)}
         alt={name}
-        icon={Boxes}
         eyebrow={t("pkg.eyebrow")}
         badge={
           onOffer ? (
@@ -687,7 +656,6 @@ function PackageSlide({
           ) : undefined
         }
         title={name}
-        body={blurb || undefined}
         onPress={() => onOpen(pkg)}
         pressLabel={t("pkg.viewDetails", { name })}
       >
@@ -724,7 +692,6 @@ function PackageSlide({
             className="group flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:h-12 sm:px-7"
           >
             {t("pkg.addToCart")}
-            <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
           </button>
           <button
             onClick={() => onOpen(pkg)}
@@ -784,18 +751,10 @@ function PackageSlide({
         )
       }
     >
-      <span className="label-caps flex items-center gap-1.5 text-brand">
-        <Boxes className="h-3.5 w-3.5" />
-        {t("pkg.eyebrow")}
-      </span>
+      <span className="label-caps text-brand">{t("pkg.eyebrow")}</span>
       <h2 className="mt-2 font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-ink sm:text-4xl lg:text-5xl">
         <bdi>{name}</bdi>
       </h2>
-      {blurb && (
-        <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-ink-2 sm:mt-4 sm:text-[15px]">
-          <bdi>{blurb}</bdi>
-        </p>
-      )}
 
       {chips.length > 0 && (
         <ul className="no-scrollbar mt-3.5 flex items-center gap-2 overflow-x-auto sm:mt-4 sm:flex-wrap sm:overflow-visible">
@@ -839,7 +798,6 @@ function PackageSlide({
           className="group flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:h-12 sm:px-7"
         >
           {t("pkg.addToCart")}
-          <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
         </button>
         <button
           onClick={() => onOpen(pkg)}
@@ -952,7 +910,10 @@ function AboutSlide({
   // since an empty plinth says nothing about what is in the shop.
   const shelf = products.filter((p) => p.image_url).slice(0, 3);
 
-  const pills = categories.slice(0, PILL_ICONS.length);
+  // Named, not marked: the opening slide names what the shop sells and
+  // leaves the little icons to the offer slide, where they mark a benefit
+  // rather than decorate a word that already says it.
+  const pills = categories.slice(0, SLIDE_PILLS);
 
   // A count nobody has filled in yet is left off rather than shown as zero.
   const stats = [
@@ -985,18 +946,14 @@ function AboutSlide({
 
           {pills.length > 0 && (
             <ul className="no-scrollbar mt-3.5 flex items-center gap-2 overflow-x-auto sm:mt-5 sm:flex-wrap sm:overflow-visible">
-              {pills.map((c, i) => {
-                const Icon = PILL_ICONS[i % PILL_ICONS.length];
-                return (
-                  <li
-                    key={c.id}
-                    className="flex shrink-0 items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-[12px] font-medium text-[#96436a] ring-1 ring-white/70"
-                  >
-                    <Icon className="h-3.5 w-3.5 shrink-0" />
-                    <bdi>{localized(c, "name", lang)}</bdi>
-                  </li>
-                );
-              })}
+              {pills.map((c) => (
+                <li
+                  key={c.id}
+                  className="shrink-0 rounded-full bg-white/70 px-3 py-1.5 text-[12px] font-medium text-[#96436a] ring-1 ring-white/70"
+                >
+                  <bdi>{localized(c, "name", lang)}</bdi>
+                </li>
+              ))}
             </ul>
           )}
 
