@@ -21,14 +21,17 @@ import { useI18n } from "@/lib/LanguageProvider";
 import { format, localized } from "@/lib/i18n";
 import { num } from "@/lib/format";
 
-
 /** How far a finger travels before it is dragging the deck rather than
  *  pressing what it came down on, in px. */
 const DRAG_THRESHOLD = 8;
 /** The pace of a turn nobody threw: an arrow, a dot, an arrow key. Embla's
  *  own unit, where higher is slower and 25 is its default. A thrown slide
- *  ignores this and travels at the speed it was thrown. */
-const SNAP_DURATION = 22;
+ *  ignores this and travels at the speed it was thrown.
+ *
+ *  Above the default on purpose. At 22 a slide arrived before the eye had
+ *  followed it across, which reads as a cut rather than a turn; the deck is
+ *  a big thing to move and a longer glide lets it be seen moving. */
+const SNAP_DURATION = 30;
 /** Photographs on the offer slide. Enough to show a spread, few enough to read. */
 const OFFER_PHOTOS = 3;
 
@@ -208,14 +211,32 @@ export default function HomeCarousel({
     >
       {/* The window the track runs behind, and the frame Embla watches for a
           touch. It watches the whole of it, so a drag can start on anything
-          the slide is made of. */}
-      <div
-        ref={deckRef}
-        className="overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_20px_50px_-32px_rgba(27,39,51,0.5)]"
-      >
+          the slide is made of.
+
+          The frame itself - the border, the ground, the rounded corners - has
+          moved onto the slides, so what travels is a card rather than a strip
+          of wallpaper: turning the deck now shows a gutter opening between
+          two edges instead of one picture sliding into the next.
+
+          The padding is the room the cards' shadow needs. Overflow clips at
+          the padding edge, so a few pixels of it keep the drop shadow from
+          being sliced off along the bottom; the negative margin gives the
+          space back to the page. */}
+      <div ref={deckRef} className="-mb-7 overflow-hidden pb-7">
         {/* `touch-pan-y` leaves a vertical scroll of the page to the browser
-            while a sideways drag belongs to the deck. */}
-        <div className="flex touch-pan-y">
+            while a sideways drag belongs to the deck.
+
+            `will-change-transform` asks the browser for a layer of the track's
+            own before the first frame rather than during it, which is what
+            keeps a drag on a phone from stuttering as it starts.
+
+            The gutter between the cards is a plain flex gap, so each card
+            still fills the frame exactly when the deck is at rest and the gap
+            is only ever seen while it is moving. Embla measures the slides
+            where they actually are, so the snaps come out right either way -
+            and a gap costs no sliver of empty frame, which a start-side
+            padding would leave showing at one edge. */}
+        <div className="flex touch-pan-y gap-3 will-change-transform sm:gap-4">
           {slides.map((slide, i) => (
             <div
               key={slideKey(slide)}
@@ -223,31 +244,33 @@ export default function HomeCarousel({
               aria-hidden={i !== index}
               inert={i !== index}
             >
-              {slide.kind === "promo" ? (
-                <PromoSlide
-                  slide={deck.offer}
-                  offers={offers}
-                  categories={productCategories}
-                  onOpenProduct={onOpenProduct}
-                />
-              ) : slide.kind === "package" ? (
-                <PackageSlide
-                  pkg={slide.pkg}
-                  products={products}
-                  qty={packageQty(slide.pkg)}
-                  onAdd={onAddPackage}
-                  onOpen={onOpenPackage}
-                  onOpenProduct={onOpenProduct}
-                />
-              ) : (
-                <AboutSlide
-                  slide={deck.brief}
-                  products={products}
-                  categories={productCategories}
-                  brandCount={brandCount}
-                  categoryCount={categoryCount}
-                />
-              )}
+              <div className="h-full overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_20px_50px_-32px_rgba(27,39,51,0.5)]">
+                {slide.kind === "promo" ? (
+                  <PromoSlide
+                    slide={deck.offer}
+                    offers={offers}
+                    categories={productCategories}
+                    onOpenProduct={onOpenProduct}
+                  />
+                ) : slide.kind === "package" ? (
+                  <PackageSlide
+                    pkg={slide.pkg}
+                    products={products}
+                    qty={packageQty(slide.pkg)}
+                    onAdd={onAddPackage}
+                    onOpen={onOpenPackage}
+                    onOpenProduct={onOpenProduct}
+                  />
+                ) : (
+                  <AboutSlide
+                    slide={deck.brief}
+                    products={products}
+                    categories={productCategories}
+                    brandCount={brandCount}
+                    categoryCount={categoryCount}
+                  />
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -541,7 +564,6 @@ function PromoSlide({
               ))}
             </ul>
           )}
-
         </div>
 
         {/* ── What is actually reduced. Above the copy on a phone, beside it
