@@ -5,7 +5,6 @@ import {
   ArrowRight,
   Boxes,
   Droplet,
-  LayoutGrid,
   Leaf,
   Sparkles,
   Sun,
@@ -66,9 +65,6 @@ interface HomeCarouselProps {
   productCategories: ProductCategory[];
   brandCount: number;
   categoryCount: number;
-  onShopAll: () => void;
-  onShopOffers: () => void;
-  onBrowse: () => void;
   onOpenProduct: (product: Product) => void;
   /** Puts one package in the basket, straight off the slide. */
   onAddPackage: (pkg: PackageType) => void;
@@ -98,9 +94,6 @@ export default function HomeCarousel({
   productCategories,
   brandCount,
   categoryCount,
-  onShopAll,
-  onShopOffers,
-  onBrowse,
   onOpenProduct,
   onAddPackage,
   onOpenPackage,
@@ -247,7 +240,6 @@ export default function HomeCarousel({
                   slide={deck.offer}
                   offers={offers}
                   categories={productCategories}
-                  onShopOffers={onShopOffers}
                   onOpenProduct={onOpenProduct}
                 />
               ) : slide.kind === "package" ? (
@@ -266,8 +258,6 @@ export default function HomeCarousel({
                   categories={productCategories}
                   brandCount={brandCount}
                   categoryCount={categoryCount}
-                  onShopAll={onShopAll}
-                  onBrowse={onBrowse}
                 />
               )}
             </div>
@@ -508,14 +498,12 @@ function PromoSlide({
   slide,
   offers,
   categories,
-  onShopOffers,
   onOpenProduct,
 }: {
   slide: HomeDeck["offer"];
   offers: Product[];
   /** Names the benefit pills - the types the reduced products actually are. */
   categories: ProductCategory[];
-  onShopOffers: () => void;
   onOpenProduct: (product: Product) => void;
 }) {
   const { t, lang } = useI18n();
@@ -527,7 +515,6 @@ function PromoSlide({
   const eyebrow = localized(slide, "eyebrow", lang) || t("promo.eyebrow");
   const written = localized(slide, "title", lang);
   const headline = splitOnFigure(written || t("promo.title"), n);
-  const body = localized(slide, "body", lang) || t("promo.body");
 
   // What kinds of thing are actually reduced, named from the catalogue rather
   // than written by hand: a pill reading "Sunscreen" when no sunscreen is
@@ -567,10 +554,6 @@ function PromoSlide({
             </bdi>
           </h2>
 
-          <p className="mt-2.5 line-clamp-2 max-w-md whitespace-pre-line text-[13px] leading-relaxed text-[#5b6b7c] sm:mt-4 sm:line-clamp-none sm:text-[15px]">
-            <bdi>{body}</bdi>
-          </p>
-
           {pills.length > 0 && (
             <ul className="no-scrollbar mt-3.5 flex items-center gap-2 overflow-x-auto sm:mt-5 sm:flex-wrap sm:overflow-visible">
               {pills.map((c, i) => {
@@ -588,13 +571,6 @@ function PromoSlide({
             </ul>
           )}
 
-          <button
-            onClick={onShopOffers}
-            className="group mt-4 flex h-11 items-center gap-2 rounded-full bg-[#c62a6c] px-5 text-[13px] font-semibold text-white shadow-[0_14px_28px_-12px_rgba(198,42,108,0.75)] transition hover:bg-[#a51f57] active:scale-[0.98] sm:mt-6 sm:h-14 sm:gap-2.5 sm:px-8 sm:text-base"
-          >
-            {t("promo.cta")}
-            <ArrowRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
-          </button>
         </div>
 
         {/* ── What is actually reduced. Above the copy on a phone, beside it
@@ -955,8 +931,6 @@ function AboutSlide({
   categories,
   brandCount,
   categoryCount,
-  onShopAll,
-  onBrowse,
 }: {
   slide: HomeDeck["brief"];
   products: Product[];
@@ -964,8 +938,6 @@ function AboutSlide({
   categories: ProductCategory[];
   brandCount: number;
   categoryCount: number;
-  onShopAll: () => void;
-  onBrowse: () => void;
 }) {
   const { t, lang } = useI18n();
 
@@ -975,7 +947,6 @@ function AboutSlide({
   const headline =
     localized(slide, "title", lang) ||
     `${t("shop.headline1")}\n${t("shop.headline2")}`;
-  const lede = localized(slide, "body", lang) || t("shop.lede");
 
   // Real products stand in for the catalogue - ones with a picture only,
   // since an empty plinth says nothing about what is in the shop.
@@ -1012,10 +983,6 @@ function AboutSlide({
             <bdi>{headline}</bdi>
           </h2>
 
-          <p className="mt-2.5 line-clamp-2 max-w-md whitespace-pre-line text-[13px] leading-relaxed text-[#5b6b7c] sm:mt-4 sm:line-clamp-none sm:text-[15px]">
-            <bdi>{lede}</bdi>
-          </p>
-
           {pills.length > 0 && (
             <ul className="no-scrollbar mt-3.5 flex items-center gap-2 overflow-x-auto sm:mt-5 sm:flex-wrap sm:overflow-visible">
               {pills.map((c, i) => {
@@ -1032,23 +999,6 @@ function AboutSlide({
               })}
             </ul>
           )}
-
-          <div className="mt-4 flex flex-wrap items-center gap-2 sm:mt-6 sm:gap-3">
-            <button
-              onClick={onShopAll}
-              className="group flex h-11 items-center gap-2 rounded-full bg-[#c62a6c] px-5 text-[13px] font-semibold text-white shadow-[0_14px_28px_-12px_rgba(198,42,108,0.75)] transition hover:bg-[#a51f57] active:scale-[0.98] sm:h-14 sm:gap-2.5 sm:px-8 sm:text-base"
-            >
-              {t("shop.ctaShop")}
-              <ChevronRight className="h-4 w-4 flip-rtl transition-transform group-hover:translate-x-0.5" />
-            </button>
-            <button
-              onClick={onBrowse}
-              className="flex h-11 items-center gap-2 rounded-full bg-white/85 px-4 text-[13px] font-semibold text-[#96436a] ring-1 ring-white/80 transition hover:bg-white active:scale-[0.98] sm:h-14 sm:gap-2.5 sm:px-7 sm:text-base"
-            >
-              <LayoutGrid className="h-4 w-4" />
-              {t("shop.ctaBrowse")}
-            </button>
-          </div>
 
           {/* The counts, as the quiet line the artwork closes on rather than a
               row of chips competing with the pills above. */}

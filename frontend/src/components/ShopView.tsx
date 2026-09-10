@@ -263,12 +263,6 @@ export default function ShopView() {
     goTab("store");
   };
 
-  /** Open the store with the filter panel already down. */
-  const goToFilters = () => {
-    goToCatalog();
-    setFiltersOpen(true);
-  };
-
   const clearFilters = () => {
     setActiveCategory("all");
     setActiveType("all");
@@ -490,9 +484,6 @@ export default function ShopView() {
                   productCategories={productCategories}
                   brandCount={categories.length}
                   categoryCount={productCategories.length}
-                  onShopAll={() => pickCategory("all")}
-                  onShopOffers={showOffers}
-                  onBrowse={goToFilters}
                   onOpenProduct={setDetailProduct}
                   onAddPackage={addPackage}
                   onOpenPackage={setDetailPackage}
@@ -589,9 +580,6 @@ export default function ShopView() {
                 productCategories={productCategories}
                 brandCount={categories.length}
                 categoryCount={productCategories.length}
-                onShopAll={goToCatalog}
-                onShopOffers={showOffers}
-                onBrowse={goToFilters}
                 onOpenProduct={setDetailProduct}
                 onAddPackage={addPackage}
                 onOpenPackage={setDetailPackage}
