@@ -3,14 +3,12 @@
 import { useRef, useState } from "react";
 import { Check, Camera, Loader2, Stethoscope, X } from "lucide-react";
 import {
-  CALL_TIMES,
-  CallTime,
-  CONTACT_METHODS,
   ConsultationCreate,
-  ContactMethod,
   EMPTY_CONSULTATION,
   GENDERS,
   Gender,
+  PREGNANCY_STATES,
+  PregnancyState,
   SKIN_CONCERNS,
   SKIN_TYPES,
   SkinConcern,
@@ -48,16 +46,10 @@ const GENDER_LABEL: Record<Gender, MessageKey> = {
   male: "consult.genderMale",
 };
 
-const CONTACT_LABEL: Record<ContactMethod, MessageKey> = {
-  phone: "consult.contactPhone",
-  whatsapp: "consult.contactWhatsapp",
-  telegram: "consult.contactTelegram",
-};
-
-const TIME_LABEL: Record<CallTime, MessageKey> = {
-  morning: "consult.timeMorning",
-  afternoon: "consult.timeAfternoon",
-  evening: "consult.timeEvening",
+const PREGNANCY_LABEL: Record<PregnancyState, MessageKey> = {
+  pregnant: "consult.pregnant",
+  breastfeeding: "consult.breastfeeding",
+  neither: "consult.pregnancyNeither",
 };
 
 const field =
@@ -359,6 +351,14 @@ export default function ConsultationForm() {
           />
         </label>
 
+        <ChipRow
+          legend={t("consult.pregnancy")}
+          options={PREGNANCY_STATES}
+          value={form.pregnancy}
+          onChange={(v) => set("pregnancy", v)}
+          label={(id) => t(PREGNANCY_LABEL[id])}
+        />
+
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="block">
             <span className="label-caps text-ink-3">{t("consult.budget")}</span>
@@ -371,22 +371,6 @@ export default function ConsultationForm() {
             />
           </label>
         </div>
-
-        <ChipRow
-          legend={t("consult.contactMethod")}
-          options={CONTACT_METHODS}
-          value={form.contact_method}
-          onChange={(v) => set("contact_method", v)}
-          label={(id) => t(CONTACT_LABEL[id])}
-        />
-
-        <ChipRow
-          legend={t("consult.bestTime")}
-          options={CALL_TIMES}
-          value={form.best_time}
-          onChange={(v) => set("best_time", v)}
-          label={(id) => t(TIME_LABEL[id])}
-        />
 
         {/* The photograph. Blank is the normal state and stays that way
             unless somebody chooses one: a slot that looks like an empty

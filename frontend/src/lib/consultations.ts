@@ -6,15 +6,13 @@
 
 import { query, ensureSchema } from "./db";
 import {
-  CALL_TIMES,
-  CallTime,
-  CONTACT_METHODS,
   Consultation,
   ConsultationCreate,
   ConsultationStatus,
-  ContactMethod,
   GENDERS,
   Gender,
+  PREGNANCY_STATES,
+  PregnancyState,
   SKIN_CONCERNS,
   SKIN_TYPES,
   SkinConcern,
@@ -93,8 +91,7 @@ export function validateConsultation(body: unknown): ConsultationCreate {
     routine: text(b.routine, MAX_NOTES),
     allergies: text(b.allergies, MAX_NOTES),
     budget: text(b.budget, 80),
-    contact_method: oneOf<ContactMethod>(b.contact_method, CONTACT_METHODS),
-    best_time: oneOf<CallTime>(b.best_time, CALL_TIMES),
+    pregnancy: oneOf<PregnancyState>(b.pregnancy, PREGNANCY_STATES),
     photo_url: photo(b.photo_url),
     notes: text(b.notes, MAX_NOTES),
   };
@@ -112,8 +109,7 @@ interface Row {
   routine: string | null;
   allergies: string | null;
   budget: string | null;
-  contact_method: string | null;
-  best_time: string | null;
+  pregnancy: string | null;
   photo_url: string | null;
   notes: string;
   status: string;
@@ -133,8 +129,7 @@ function toConsultation(r: Row): Consultation {
     routine: r.routine ?? "",
     allergies: r.allergies ?? "",
     budget: r.budget ?? "",
-    contact_method: oneOf<ContactMethod>(r.contact_method, CONTACT_METHODS),
-    best_time: oneOf<CallTime>(r.best_time, CALL_TIMES),
+    pregnancy: oneOf<PregnancyState>(r.pregnancy, PREGNANCY_STATES),
     photo_url: r.photo_url ?? "",
     notes: r.notes,
     status: r.status as ConsultationStatus,
@@ -150,8 +145,8 @@ export async function createConsultation(
   const { rows } = await query<Row>(
     `INSERT INTO consultations
        (name, phone, age, gender, city, skin_type, concerns,
-        routine, allergies, budget, contact_method, best_time, photo_url, notes)
-     VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9,$10,$11,$12,$13,$14)
+        routine, allergies, budget, pregnancy, photo_url, notes)
+     VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9,$10,$11,$12,$13)
      RETURNING *`,
     [
       input.name,
@@ -164,8 +159,7 @@ export async function createConsultation(
       input.routine,
       input.allergies,
       input.budget,
-      input.contact_method,
-      input.best_time,
+      input.pregnancy,
       input.photo_url,
       input.notes,
     ],

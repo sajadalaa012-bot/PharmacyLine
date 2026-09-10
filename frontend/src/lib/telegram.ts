@@ -345,16 +345,10 @@ const GENDER_AR: Record<string, string> = {
   male: "ذكر",
 };
 
-const CONTACT_AR: Record<string, string> = {
-  phone: "اتصال هاتفي",
-  whatsapp: "واتساب",
-  telegram: "تيليغرام",
-};
-
-const TIME_AR: Record<string, string> = {
-  morning: "صباحاً",
-  afternoon: "ظهراً",
-  evening: "مساءً",
+const PREGNANCY_AR: Record<string, string> = {
+  pregnant: "حامل",
+  breastfeeding: "مرضعة",
+  neither: "لا ينطبق",
 };
 
 const CONCERN_AR: Record<string, string> = {
@@ -395,13 +389,6 @@ export function consultationToTelegramHtml(c: Consultation): string {
   if (c.city.trim()) lines.push(`📍 ${esc(c.city.trim())}`);
   lines.push(`🧴 نوع البشرة: ${esc(SKIN_TYPE_AR[c.skin_type] ?? c.skin_type)}`);
 
-  // When and how they would rather be reached, on the message that is asking
-  // somebody to reach them.
-  const reach = [
-    c.contact_method ? CONTACT_AR[c.contact_method] : null,
-    c.best_time ? TIME_AR[c.best_time] : null,
-  ].filter(Boolean);
-  if (reach.length > 0) lines.push(`⏰ يفضّل: ${esc(reach.join(" - "))}`);
 
   if (c.concerns.length > 0) {
     lines.push("", "<b>ما تريد المساعدة به:</b>");
@@ -410,9 +397,12 @@ export function consultationToTelegramHtml(c: Consultation): string {
 
   if (c.routine.trim())
     lines.push("", `🧪 تستخدم حالياً: ${esc(c.routine.trim())}`);
-  // Set apart: this is the line that decides what must not be recommended.
+  // Set apart: these are the lines that decide what must not be
+  // recommended. "Neither" is left off - it rules nothing out.
   if (c.allergies.trim())
     lines.push("", `⚠️ حساسية أو أدوية: ${esc(c.allergies.trim())}`);
+  if (c.pregnancy && c.pregnancy !== "neither")
+    lines.push(`⚠️ ${esc(PREGNANCY_AR[c.pregnancy] ?? c.pregnancy)}`);
   if (c.budget.trim()) lines.push(`💰 الميزانية: ${esc(c.budget.trim())}`);
 
   if (c.notes.trim()) lines.push("", `📝 ${esc(c.notes.trim())}`);

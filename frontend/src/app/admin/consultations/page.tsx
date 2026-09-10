@@ -3,10 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { Check, MessageCircle, Phone, RotateCcw, Trash2 } from "lucide-react";
 import {
-  CallTime,
   Consultation,
-  ContactMethod,
   Gender,
+  PregnancyState,
   SkinConcern,
   SkinType,
 } from "@/types";
@@ -34,16 +33,10 @@ const GENDER_LABEL: Record<Gender, MessageKey> = {
   male: "consult.genderMale",
 };
 
-const CONTACT_LABEL: Record<ContactMethod, MessageKey> = {
-  phone: "consult.contactPhone",
-  whatsapp: "consult.contactWhatsapp",
-  telegram: "consult.contactTelegram",
-};
-
-const TIME_LABEL: Record<CallTime, MessageKey> = {
-  morning: "consult.timeMorning",
-  afternoon: "consult.timeAfternoon",
-  evening: "consult.timeEvening",
+const PREGNANCY_LABEL: Record<PregnancyState, MessageKey> = {
+  pregnant: "consult.pregnant",
+  breastfeeding: "consult.breastfeeding",
+  neither: "consult.pregnancyNeither",
 };
 
 const CONCERN_LABEL: Record<SkinConcern, MessageKey> = {
@@ -255,20 +248,13 @@ export default function AdminConsultationsPage() {
                       </dd>
                     </div>
                   )}
-                  {(c.contact_method || c.best_time) && (
-                    <div className="flex flex-wrap gap-x-2">
-                      <dt className="text-ink-3">
-                        {t("consult.contactMethod")}:
-                      </dt>
-                      <dd className="font-medium text-ink">
-                        {[
-                          c.contact_method
-                            ? t(CONTACT_LABEL[c.contact_method])
-                            : null,
-                          c.best_time ? t(TIME_LABEL[c.best_time]) : null,
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")}
+                  {/* Said in the same copper the allergies wear: both are
+                      answers about what must not be recommended. */}
+                  {c.pregnancy && c.pregnancy !== "neither" && (
+                    <div className="flex flex-wrap gap-x-2 rounded-md border border-copper/30 bg-copper/[0.08] px-3 py-2">
+                      <dt className="text-ink-3">{t("consult.pregnancy")}:</dt>
+                      <dd className="font-semibold text-ink">
+                        {t(PREGNANCY_LABEL[c.pregnancy])}
                       </dd>
                     </div>
                   )}

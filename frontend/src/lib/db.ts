@@ -259,8 +259,7 @@ const SCHEMA_SQL = `
     ALTER TABLE consultations ADD COLUMN IF NOT EXISTS routine TEXT NOT NULL DEFAULT '';
     ALTER TABLE consultations ADD COLUMN IF NOT EXISTS allergies TEXT NOT NULL DEFAULT '';
     ALTER TABLE consultations ADD COLUMN IF NOT EXISTS budget TEXT NOT NULL DEFAULT '';
-    ALTER TABLE consultations ADD COLUMN IF NOT EXISTS contact_method TEXT NOT NULL DEFAULT '';
-    ALTER TABLE consultations ADD COLUMN IF NOT EXISTS best_time TEXT NOT NULL DEFAULT '';
+    ALTER TABLE consultations ADD COLUMN IF NOT EXISTS pregnancy TEXT NOT NULL DEFAULT '';
     -- The photograph, as a data URL. Same store as a product's picture.
     ALTER TABLE consultations ADD COLUMN IF NOT EXISTS photo_url TEXT NOT NULL DEFAULT '';
 

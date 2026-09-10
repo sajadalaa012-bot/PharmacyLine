@@ -379,13 +379,14 @@ export type ConsultationStatus = "new" | "done";
 export const GENDERS = ["female", "male"] as const;
 export type Gender = (typeof GENDERS)[number];
 
-/** How the shop should get back in touch. */
-export const CONTACT_METHODS = ["phone", "whatsapp", "telegram"] as const;
-export type ContactMethod = (typeof CONTACT_METHODS)[number];
-
-/** Roughly when the person is free to take the call. */
-export const CALL_TIMES = ["morning", "afternoon", "evening"] as const;
-export type CallTime = (typeof CALL_TIMES)[number];
+/** Whether the advice has to steer clear of what a pregnancy rules out.
+ *  "neither" is an answer; blank is the question left alone. */
+export const PREGNANCY_STATES = [
+  "pregnant",
+  "breastfeeding",
+  "neither",
+] as const;
+export type PregnancyState = (typeof PREGNANCY_STATES)[number];
 
 /** What the storefront sends. */
 export interface ConsultationCreate {
@@ -405,8 +406,9 @@ export interface ConsultationCreate {
   allergies: string;
   /** What they would rather spend, in their own words. */
   budget: string;
-  contact_method: ContactMethod | "";
-  best_time: CallTime | "";
+  /** Retinoids and a few other actives are off the table while pregnant or
+   *  breastfeeding, so the answer changes what can be recommended. */
+  pregnancy: PregnancyState | "";
   /** A photograph of the skin, when they choose to send one. A data URL, the
    *  way every other uploaded picture here is stored. Blank is the norm. */
   photo_url: string;
@@ -436,8 +438,7 @@ export const EMPTY_CONSULTATION: ConsultationCreate = {
   routine: "",
   allergies: "",
   budget: "",
-  contact_method: "",
-  best_time: "",
+  pregnancy: "",
   photo_url: "",
   notes: "",
 };
