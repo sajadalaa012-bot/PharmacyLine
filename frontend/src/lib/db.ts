@@ -251,6 +251,19 @@ const SCHEMA_SQL = `
     CREATE INDEX IF NOT EXISTS idx_consultations_created_at
       ON consultations (created_at DESC);
 
+    -- What the form grew into. Everything here is optional to fill in, so
+    -- everything here defaults to empty: a request booked before these
+    -- existed is still a complete request.
+    ALTER TABLE consultations ADD COLUMN IF NOT EXISTS gender TEXT NOT NULL DEFAULT '';
+    ALTER TABLE consultations ADD COLUMN IF NOT EXISTS city TEXT NOT NULL DEFAULT '';
+    ALTER TABLE consultations ADD COLUMN IF NOT EXISTS routine TEXT NOT NULL DEFAULT '';
+    ALTER TABLE consultations ADD COLUMN IF NOT EXISTS allergies TEXT NOT NULL DEFAULT '';
+    ALTER TABLE consultations ADD COLUMN IF NOT EXISTS budget TEXT NOT NULL DEFAULT '';
+    ALTER TABLE consultations ADD COLUMN IF NOT EXISTS contact_method TEXT NOT NULL DEFAULT '';
+    ALTER TABLE consultations ADD COLUMN IF NOT EXISTS best_time TEXT NOT NULL DEFAULT '';
+    -- The photograph, as a data URL. Same store as a product's picture.
+    ALTER TABLE consultations ADD COLUMN IF NOT EXISTS photo_url TEXT NOT NULL DEFAULT '';
+
     -- Packages: a set of catalog products sold together for one price the
     -- shop sets by hand - a back-to-school kit, a college kit.
     --

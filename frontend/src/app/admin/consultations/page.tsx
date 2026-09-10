@@ -3,7 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { Check, MessageCircle, Phone, RotateCcw, Trash2 } from "lucide-react";
 import {
+  CallTime,
   Consultation,
+  ContactMethod,
+  Gender,
   SkinConcern,
   SkinType,
 } from "@/types";
@@ -24,6 +27,23 @@ const SKIN_TYPE_LABEL: Record<SkinType, MessageKey> = {
   oily: "consult.skinOily",
   combination: "consult.skinCombination",
   sensitive: "consult.skinSensitive",
+};
+
+const GENDER_LABEL: Record<Gender, MessageKey> = {
+  female: "consult.genderFemale",
+  male: "consult.genderMale",
+};
+
+const CONTACT_LABEL: Record<ContactMethod, MessageKey> = {
+  phone: "consult.contactPhone",
+  whatsapp: "consult.contactWhatsapp",
+  telegram: "consult.contactTelegram",
+};
+
+const TIME_LABEL: Record<CallTime, MessageKey> = {
+  morning: "consult.timeMorning",
+  afternoon: "consult.timeAfternoon",
+  evening: "consult.timeEvening",
 };
 
 const CONCERN_LABEL: Record<SkinConcern, MessageKey> = {
@@ -193,6 +213,17 @@ export default function AdminConsultationsPage() {
                   </a>
                 </div>
 
+                {/* The photograph, when one was sent. First, because it is
+                    the thing worth looking at before reading anything. */}
+                {c.photo_url && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={c.photo_url}
+                    alt=""
+                    className="mt-3 h-40 w-40 rounded-lg border border-line object-cover"
+                  />
+                )}
+
                 <dl className="mt-3 space-y-1.5 text-[13px]">
                   <div className="flex flex-wrap gap-x-2">
                     <dt className="text-ink-3">{t("consult.skinType")}:</dt>
@@ -200,12 +231,69 @@ export default function AdminConsultationsPage() {
                       {t(SKIN_TYPE_LABEL[c.skin_type])}
                     </dd>
                   </div>
+                  {c.gender && (
+                    <div className="flex flex-wrap gap-x-2">
+                      <dt className="text-ink-3">{t("consult.gender")}:</dt>
+                      <dd className="font-medium text-ink">
+                        {t(GENDER_LABEL[c.gender])}
+                      </dd>
+                    </div>
+                  )}
+                  {c.city.trim() && (
+                    <div className="flex flex-wrap gap-x-2">
+                      <dt className="text-ink-3">{t("consult.city")}:</dt>
+                      <dd className="font-medium text-ink">
+                        <bdi>{c.city.trim()}</bdi>
+                      </dd>
+                    </div>
+                  )}
                   {c.concerns.length > 0 && (
                     <div className="flex flex-wrap gap-x-2">
                       <dt className="text-ink-3">{t("consult.concerns")}</dt>
                       <dd className="font-medium text-ink">
                         {c.concerns.map((k) => t(CONCERN_LABEL[k])).join("، ")}
                       </dd>
+                    </div>
+                  )}
+                  {(c.contact_method || c.best_time) && (
+                    <div className="flex flex-wrap gap-x-2">
+                      <dt className="text-ink-3">
+                        {t("consult.contactMethod")}:
+                      </dt>
+                      <dd className="font-medium text-ink">
+                        {[
+                          c.contact_method
+                            ? t(CONTACT_LABEL[c.contact_method])
+                            : null,
+                          c.best_time ? t(TIME_LABEL[c.best_time]) : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </dd>
+                    </div>
+                  )}
+                  {c.budget.trim() && (
+                    <div className="flex flex-wrap gap-x-2">
+                      <dt className="text-ink-3">{t("consult.budget")}:</dt>
+                      <dd className="font-medium text-ink">
+                        <bdi>{c.budget.trim()}</bdi>
+                      </dd>
+                    </div>
+                  )}
+                  {c.routine.trim() && (
+                    <div className="rounded-md bg-sunken px-3 py-2 leading-relaxed text-ink-2">
+                      <span className="text-ink-3">
+                        {t("consult.routine")}:{" "}
+                      </span>
+                      {c.routine.trim()}
+                    </div>
+                  )}
+                  {c.allergies.trim() && (
+                    <div className="rounded-md border border-copper/30 bg-copper/[0.08] px-3 py-2 leading-relaxed text-ink-2">
+                      <span className="text-ink-3">
+                        {t("consult.allergies")}:{" "}
+                      </span>
+                      {c.allergies.trim()}
                     </div>
                   )}
                   {c.notes.trim() && (

@@ -6,9 +6,15 @@
 
 import { query, ensureSchema } from "./db";
 import {
+  CALL_TIMES,
+  CallTime,
+  CONTACT_METHODS,
   Consultation,
   ConsultationCreate,
   ConsultationStatus,
+  ContactMethod,
+  GENDERS,
+  Gender,
   SKIN_CONCERNS,
   SKIN_TYPES,
   SkinConcern,
@@ -21,6 +27,24 @@ export class ConsultationValidationError extends Error {}
 const MAX_FIELD = 300;
 /** The shopper's own description of their skin. A paragraph, not an essay. */
 const MAX_NOTES = 2000;
+/** An uploaded photo arrives as a base64 data URL, downscaled by the form.
+ *  The same ceiling a product image gets - see lib/catalog.ts. */
+const MAX_PHOTO = 3_000_000;
+
+/** One of a fixed set, or blank. Anything else is somebody typing into the
+ *  request by hand, and blank is what an unanswered question means anyway. */
+function oneOf<T extends string>(v: unknown, allowed: readonly T[]): T | "" {
+  const s = typeof v === "string" ? v.trim() : "";
+  return allowed.includes(s as T) ? (s as T) : "";
+}
+
+/** A photograph, or nothing. Dropped whole when it is too big rather than
+ *  sliced to fit: half a data URL is a broken image, not a small one. */
+function photo(v: unknown): string {
+  const s = typeof v === "string" ? v.trim() : "";
+  if (!s || s.length > MAX_PHOTO) return "";
+  return s.startsWith("data:image/") ? s : "";
+}
 
 function text(v: unknown, max = MAX_FIELD): string {
   return typeof v === "string" ? v.trim().slice(0, max) : "";
@@ -62,8 +86,16 @@ export function validateConsultation(body: unknown): ConsultationCreate {
     name,
     phone,
     age: text(b.age, 40),
+    gender: oneOf<Gender>(b.gender, GENDERS),
+    city: text(b.city),
     skin_type: skin as SkinType,
     concerns,
+    routine: text(b.routine, MAX_NOTES),
+    allergies: text(b.allergies, MAX_NOTES),
+    budget: text(b.budget, 80),
+    contact_method: oneOf<ContactMethod>(b.contact_method, CONTACT_METHODS),
+    best_time: oneOf<CallTime>(b.best_time, CALL_TIMES),
+    photo_url: photo(b.photo_url),
     notes: text(b.notes, MAX_NOTES),
   };
 }
@@ -73,8 +105,16 @@ interface Row {
   name: string;
   phone: string;
   age: string;
+  gender: string | null;
+  city: string | null;
   skin_type: string;
   concerns: unknown;
+  routine: string | null;
+  allergies: string | null;
+  budget: string | null;
+  contact_method: string | null;
+  best_time: string | null;
+  photo_url: string | null;
   notes: string;
   status: string;
   created_at: Date | string;
@@ -86,8 +126,16 @@ function toConsultation(r: Row): Consultation {
     name: r.name,
     phone: r.phone,
     age: r.age,
+    gender: oneOf<Gender>(r.gender, GENDERS),
+    city: r.city ?? "",
     skin_type: r.skin_type as SkinType,
     concerns: Array.isArray(r.concerns) ? (r.concerns as SkinConcern[]) : [],
+    routine: r.routine ?? "",
+    allergies: r.allergies ?? "",
+    budget: r.budget ?? "",
+    contact_method: oneOf<ContactMethod>(r.contact_method, CONTACT_METHODS),
+    best_time: oneOf<CallTime>(r.best_time, CALL_TIMES),
+    photo_url: r.photo_url ?? "",
     notes: r.notes,
     status: r.status as ConsultationStatus,
     created_at:
@@ -100,15 +148,25 @@ export async function createConsultation(
 ): Promise<Consultation> {
   await ensureSchema();
   const { rows } = await query<Row>(
-    `INSERT INTO consultations (name, phone, age, skin_type, concerns, notes)
-     VALUES ($1,$2,$3,$4,$5::jsonb,$6)
+    `INSERT INTO consultations
+       (name, phone, age, gender, city, skin_type, concerns,
+        routine, allergies, budget, contact_method, best_time, photo_url, notes)
+     VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9,$10,$11,$12,$13,$14)
      RETURNING *`,
     [
       input.name,
       input.phone,
       input.age,
+      input.gender,
+      input.city,
       input.skin_type,
       JSON.stringify(input.concerns),
+      input.routine,
+      input.allergies,
+      input.budget,
+      input.contact_method,
+      input.best_time,
+      input.photo_url,
       input.notes,
     ],
   );

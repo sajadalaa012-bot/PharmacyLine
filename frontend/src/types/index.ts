@@ -375,14 +375,41 @@ export type SkinConcern = (typeof SKIN_CONCERNS)[number];
 
 export type ConsultationStatus = "new" | "done";
 
+/** Left blank by anyone who would rather not say. */
+export const GENDERS = ["female", "male"] as const;
+export type Gender = (typeof GENDERS)[number];
+
+/** How the shop should get back in touch. */
+export const CONTACT_METHODS = ["phone", "whatsapp", "telegram"] as const;
+export type ContactMethod = (typeof CONTACT_METHODS)[number];
+
+/** Roughly when the person is free to take the call. */
+export const CALL_TIMES = ["morning", "afternoon", "evening"] as const;
+export type CallTime = (typeof CALL_TIMES)[number];
+
 /** What the storefront sends. */
 export interface ConsultationCreate {
   name: string;
   phone: string;
   /** Free text rather than a number: "23", "early 30s" and "" are all fine. */
   age: string;
+  gender: Gender | "";
+  /** Where they are. The shop delivers, so a call often ends in an address. */
+  city: string;
   skin_type: SkinType | "";
   concerns: SkinConcern[];
+  /** What they use now: the advice starts from what is already on the shelf. */
+  routine: string;
+  /** Allergies, sensitivities, anything they are taking. Free text on purpose:
+   *  a list of tick boxes would only ever be the wrong list. */
+  allergies: string;
+  /** What they would rather spend, in their own words. */
+  budget: string;
+  contact_method: ContactMethod | "";
+  best_time: CallTime | "";
+  /** A photograph of the skin, when they choose to send one. A data URL, the
+   *  way every other uploaded picture here is stored. Blank is the norm. */
+  photo_url: string;
   notes: string;
 }
 
@@ -402,8 +429,16 @@ export const EMPTY_CONSULTATION: ConsultationCreate = {
   name: "",
   phone: "",
   age: "",
+  gender: "",
+  city: "",
   skin_type: "",
   concerns: [],
+  routine: "",
+  allergies: "",
+  budget: "",
+  contact_method: "",
+  best_time: "",
+  photo_url: "",
   notes: "",
 };
 

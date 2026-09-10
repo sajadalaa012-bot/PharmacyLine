@@ -340,6 +340,23 @@ const SKIN_TYPE_AR: Record<string, string> = {
   sensitive: "حساسة",
 };
 
+const GENDER_AR: Record<string, string> = {
+  female: "أنثى",
+  male: "ذكر",
+};
+
+const CONTACT_AR: Record<string, string> = {
+  phone: "اتصال هاتفي",
+  whatsapp: "واتساب",
+  telegram: "تيليغرام",
+};
+
+const TIME_AR: Record<string, string> = {
+  morning: "صباحاً",
+  afternoon: "ظهراً",
+  evening: "مساءً",
+};
+
 const CONCERN_AR: Record<string, string> = {
   acne: "حب الشباب",
   darkSpots: "التصبغات والبقع الداكنة",
@@ -373,14 +390,36 @@ export function consultationToTelegramHtml(c: Consultation): string {
     lines.push(`💬 <a href="https://wa.me/${waNumber(c.phone)}">واتساب</a>`);
 
   if (c.age.trim()) lines.push(`🎂 العمر: ${esc(c.age.trim())}`);
+  if (c.gender)
+    lines.push(`⚧ الجنس: ${esc(GENDER_AR[c.gender] ?? c.gender)}`);
+  if (c.city.trim()) lines.push(`📍 ${esc(c.city.trim())}`);
   lines.push(`🧴 نوع البشرة: ${esc(SKIN_TYPE_AR[c.skin_type] ?? c.skin_type)}`);
+
+  // When and how they would rather be reached, on the message that is asking
+  // somebody to reach them.
+  const reach = [
+    c.contact_method ? CONTACT_AR[c.contact_method] : null,
+    c.best_time ? TIME_AR[c.best_time] : null,
+  ].filter(Boolean);
+  if (reach.length > 0) lines.push(`⏰ يفضّل: ${esc(reach.join(" - "))}`);
 
   if (c.concerns.length > 0) {
     lines.push("", "<b>ما تريد المساعدة به:</b>");
     for (const k of c.concerns) lines.push(`▪️ ${esc(CONCERN_AR[k] ?? k)}`);
   }
 
+  if (c.routine.trim())
+    lines.push("", `🧪 تستخدم حالياً: ${esc(c.routine.trim())}`);
+  // Set apart: this is the line that decides what must not be recommended.
+  if (c.allergies.trim())
+    lines.push("", `⚠️ حساسية أو أدوية: ${esc(c.allergies.trim())}`);
+  if (c.budget.trim()) lines.push(`💰 الميزانية: ${esc(c.budget.trim())}`);
+
   if (c.notes.trim()) lines.push("", `📝 ${esc(c.notes.trim())}`);
+
+  // The picture itself cannot travel in a text message - it is stored as a
+  // data URL - so the message says there is one and where to see it.
+  if (c.photo_url) lines.push("", "📷 مرفقة صورة - تظهر في لوحة التحكم");
 
   return lines.join("\n");
 }

@@ -1,17 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Loader2, Stethoscope } from "lucide-react";
+import { useRef, useState } from "react";
+import { Check, Camera, Loader2, Stethoscope, X } from "lucide-react";
 import {
+  CALL_TIMES,
+  CallTime,
+  CONTACT_METHODS,
   ConsultationCreate,
+  ContactMethod,
   EMPTY_CONSULTATION,
+  GENDERS,
+  Gender,
   SKIN_CONCERNS,
   SKIN_TYPES,
   SkinConcern,
   SkinType,
   hasConsultationDetails,
 } from "@/types";
-import { createConsultation } from "@/lib/api";
+import { createConsultation, uploadProductImage } from "@/lib/api";
 import { useI18n } from "@/lib/LanguageProvider";
 import { MessageKey } from "@/lib/i18n";
 
@@ -37,10 +43,70 @@ const CONCERN_LABEL: Record<SkinConcern, MessageKey> = {
   sunDamage: "consult.concernSunDamage",
 };
 
+const GENDER_LABEL: Record<Gender, MessageKey> = {
+  female: "consult.genderFemale",
+  male: "consult.genderMale",
+};
+
+const CONTACT_LABEL: Record<ContactMethod, MessageKey> = {
+  phone: "consult.contactPhone",
+  whatsapp: "consult.contactWhatsapp",
+  telegram: "consult.contactTelegram",
+};
+
+const TIME_LABEL: Record<CallTime, MessageKey> = {
+  morning: "consult.timeMorning",
+  afternoon: "consult.timeAfternoon",
+  evening: "consult.timeEvening",
+};
+
 const field =
   "h-11 w-full rounded-xl border border-line bg-surface px-3.5 text-[14px] text-ink " +
   "placeholder:text-ink-3 transition focus:border-brand focus:outline-none " +
   "focus:ring-2 focus:ring-brand/20";
+
+/** One row of choose-one chips. Pressing the chosen one again clears it:
+ *  every one of these is optional, and a question answered by accident has
+ *  to be un-answerable. */
+function ChipRow<T extends string>({
+  legend,
+  options,
+  value,
+  onChange,
+  label,
+}: {
+  legend: string;
+  options: readonly T[];
+  value: T | "";
+  onChange: (v: T | "") => void;
+  label: (v: T) => string;
+}) {
+  return (
+    <fieldset>
+      <legend className="label-caps text-ink-3">{legend}</legend>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {options.map((id) => {
+          const on = value === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => onChange(on ? "" : id)}
+              aria-pressed={on}
+              className={`h-9 rounded-full border px-4 text-[13px] font-medium transition active:scale-[0.97] ${
+                on
+                  ? "border-brand bg-brand/12 text-brand"
+                  : "border-line-strong bg-surface text-ink-2 hover:border-brand/50 hover:text-brand"
+              }`}
+            >
+              {label(id)}
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
 
 /**
  * The skincare consultation request on the home screen.
@@ -55,6 +121,8 @@ export default function ConsultationForm() {
   const { t } = useI18n();
   const [form, setForm] = useState<ConsultationCreate>(EMPTY_CONSULTATION);
   const [sending, setSending] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,6 +138,26 @@ export default function ConsultationForm() {
         ? f.concerns.filter((x) => x !== c)
         : [...f.concerns, c],
     }));
+
+  // The photograph goes through the same shrink every uploaded picture here
+  // does: a phone camera file is several megabytes, which would be refused on
+  // the way in and crawl on the way back out to the shop.
+  const pickPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setError(null);
+    try {
+      const res = await uploadProductImage(file);
+      set("photo_url", res.image_url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("err.uploadFailed"));
+    } finally {
+      setUploading(false);
+      // Let the same file be chosen again after a failure or a removal.
+      e.target.value = "";
+    }
+  };
 
   const ready = hasConsultationDetails(form);
 
@@ -174,7 +262,26 @@ export default function ConsultationForm() {
               className={`mt-1.5 ${field}`}
             />
           </label>
+
+          <label className="block">
+            <span className="label-caps text-ink-3">{t("consult.city")}</span>
+            <input
+              value={form.city}
+              onChange={(e) => set("city", e.target.value)}
+              placeholder={t("consult.cityPlaceholder")}
+              autoComplete="address-level2"
+              className={`mt-1.5 ${field}`}
+            />
+          </label>
         </div>
+
+        <ChipRow
+          legend={t("consult.gender")}
+          options={GENDERS}
+          value={form.gender}
+          onChange={(v) => set("gender", v)}
+          label={(id) => t(GENDER_LABEL[id])}
+        />
 
         <fieldset>
           <legend className="label-caps text-ink-3">
@@ -227,6 +334,113 @@ export default function ConsultationForm() {
             })}
           </div>
         </fieldset>
+
+        <label className="block">
+          <span className="label-caps text-ink-3">{t("consult.routine")}</span>
+          <textarea
+            value={form.routine}
+            onChange={(e) => set("routine", e.target.value)}
+            placeholder={t("consult.routinePlaceholder")}
+            rows={2}
+            className="mt-1.5 w-full resize-y rounded-xl border border-line bg-surface px-3.5 py-2.5 text-[14px] leading-relaxed text-ink placeholder:text-ink-3 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+          />
+        </label>
+
+        <label className="block">
+          <span className="label-caps text-ink-3">
+            {t("consult.allergies")}
+          </span>
+          <textarea
+            value={form.allergies}
+            onChange={(e) => set("allergies", e.target.value)}
+            placeholder={t("consult.allergiesPlaceholder")}
+            rows={2}
+            className="mt-1.5 w-full resize-y rounded-xl border border-line bg-surface px-3.5 py-2.5 text-[14px] leading-relaxed text-ink placeholder:text-ink-3 transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+          />
+        </label>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="block">
+            <span className="label-caps text-ink-3">{t("consult.budget")}</span>
+            <input
+              value={form.budget}
+              onChange={(e) => set("budget", e.target.value)}
+              placeholder={t("consult.budgetPlaceholder")}
+              inputMode="numeric"
+              className={`mt-1.5 ${field}`}
+            />
+          </label>
+        </div>
+
+        <ChipRow
+          legend={t("consult.contactMethod")}
+          options={CONTACT_METHODS}
+          value={form.contact_method}
+          onChange={(v) => set("contact_method", v)}
+          label={(id) => t(CONTACT_LABEL[id])}
+        />
+
+        <ChipRow
+          legend={t("consult.bestTime")}
+          options={CALL_TIMES}
+          value={form.best_time}
+          onChange={(v) => set("best_time", v)}
+          label={(id) => t(TIME_LABEL[id])}
+        />
+
+        {/* The photograph. Blank is the normal state and stays that way
+            unless somebody chooses one: a slot that looks like an empty
+            requirement would stop a form that is otherwise finished. */}
+        <div>
+          <span className="label-caps text-ink-3">{t("consult.photo")}</span>
+          <p className="mt-1 text-[12px] leading-relaxed text-ink-3">
+            {t("consult.photoHint")}
+          </p>
+
+          {form.photo_url ? (
+            <div className="relative mt-2 inline-block">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={form.photo_url}
+                alt=""
+                className="h-32 w-32 rounded-xl border border-line object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => set("photo_url", "")}
+                aria-label={t("consult.photoRemove")}
+                className="absolute end-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-rose text-paper shadow transition hover:opacity-90"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : null}
+
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            className="mt-2 flex h-10 items-center gap-2 rounded-full border border-line-strong px-4 text-[13px] font-semibold text-ink transition hover:bg-sunken active:scale-[0.98] disabled:opacity-50"
+          >
+            {uploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Camera className="h-4 w-4" />
+            )}
+            {uploading
+              ? t("consult.photoUploading")
+              : form.photo_url
+                ? t("consult.photoReplace")
+                : t("consult.photoAdd")}
+          </button>
+          <input
+            type="file"
+            ref={fileRef}
+            onChange={pickPhoto}
+            accept="image/*"
+            className="hidden"
+          />
+        </div>
 
         <label className="block">
           <span className="label-caps text-ink-3">{t("consult.notes")}</span>
