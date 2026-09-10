@@ -255,6 +255,12 @@ export default function ShopView() {
     goToCatalog();
   };
 
+  /** Open the store with the filter panel already down. */
+  const goToFilters = () => {
+    goToCatalog();
+    setFiltersOpen(true);
+  };
+
   /** The home screen's search doorway: one field, and it lives in the store.
    *  The caret is placed by the effect above, once the store is on screen -
    *  the field is display:none until then and cannot take focus. */
@@ -484,6 +490,9 @@ export default function ShopView() {
                   productCategories={productCategories}
                   brandCount={categories.length}
                   categoryCount={productCategories.length}
+                  onShopAll={() => pickCategory("all")}
+                  onShopOffers={showOffers}
+                  onBrowse={goToFilters}
                   onOpenProduct={setDetailProduct}
                   onAddPackage={addPackage}
                   onOpenPackage={setDetailPackage}
@@ -580,6 +589,9 @@ export default function ShopView() {
                 productCategories={productCategories}
                 brandCount={categories.length}
                 categoryCount={productCategories.length}
+                onShopAll={goToCatalog}
+                onShopOffers={showOffers}
+                onBrowse={goToFilters}
                 onOpenProduct={setDetailProduct}
                 onAddPackage={addPackage}
                 onOpenPackage={setDetailPackage}

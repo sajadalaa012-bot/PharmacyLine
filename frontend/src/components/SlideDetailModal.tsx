@@ -6,6 +6,14 @@ import BannerPhoto from "./BannerPhoto";
 import { useI18n } from "@/lib/LanguageProvider";
 import { X } from "lucide-react";
 
+/** Somewhere for the sheet to send a shopper who has read it. */
+export interface SlideAction {
+  label: string;
+  onClick: () => void;
+  /** The one thing the sheet is really for. One per sheet. */
+  primary?: boolean;
+}
+
 /** Everything a slide can say about itself once there is room to say it. */
 export interface SlideDetail {
   /** The slide's own photograph, when it has one. */
@@ -20,6 +28,8 @@ export interface SlideDetail {
   badge?: string;
   /** The quiet line the slide closes on - the shop's counts. */
   footnote?: string;
+  /** Where the slide leads. Shown as buttons along the foot of the sheet. */
+  actions?: SlideAction[];
 }
 
 interface SlideDetailModalProps extends SlideDetail {
@@ -43,6 +53,7 @@ export default function SlideDetailModal({
   chips = [],
   badge,
   footnote,
+  actions = [],
   onClose,
 }: SlideDetailModalProps) {
   const { t } = useI18n();
@@ -140,6 +151,35 @@ export default function SlideDetailModal({
             )}
           </div>
         </div>
+
+        {/* Where the slide leads.
+            Pinned to the foot of the sheet rather than left at the end of the
+            words, so the way on is in the same place whether the paragraph is
+            a line or a page. Each one shuts the sheet on its way: every
+            action here moves the shopper into the catalogue, and a sheet left
+            standing over it would be covering the thing it just sent them
+            to. */}
+        {actions.length > 0 && (
+          <div className="flex shrink-0 flex-wrap items-center gap-2 border-t border-line bg-sunken/50 px-5 py-3.5">
+            {actions.map((a) => (
+              <button
+                key={a.label}
+                type="button"
+                onClick={() => {
+                  onClose();
+                  a.onClick();
+                }}
+                className={
+                  a.primary
+                    ? "h-11 flex-1 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98]"
+                    : "h-11 flex-1 rounded-full border border-line-strong px-5 text-sm font-semibold text-ink transition hover:bg-sunken active:scale-[0.98]"
+                }
+              >
+                <bdi>{a.label}</bdi>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -57,6 +57,12 @@ interface HomeCarouselProps {
   productCategories: ProductCategory[];
   brandCount: number;
   categoryCount: number;
+  /** The whole catalogue, from the opening slide's sheet. */
+  onShopAll: () => void;
+  /** Only what is actually reduced, from the offer slide's sheet. */
+  onShopOffers: () => void;
+  /** The catalogue with the filter panel already down. */
+  onBrowse: () => void;
   onOpenProduct: (product: Product) => void;
   /** Puts one package in the basket, straight off the slide. */
   onAddPackage: (pkg: PackageType) => void;
@@ -86,6 +92,9 @@ export default function HomeCarousel({
   productCategories,
   brandCount,
   categoryCount,
+  onShopAll,
+  onShopOffers,
+  onBrowse,
   onOpenProduct,
   onAddPackage,
   onOpenPackage,
@@ -257,6 +266,8 @@ export default function HomeCarousel({
                     categories={productCategories}
                     onOpenProduct={onOpenProduct}
                     onOpenDetail={setDetail}
+                    onShopOffers={onShopOffers}
+                    onBrowse={onBrowse}
                   />
                 ) : slide.kind === "package" ? (
                   <PackageSlide
@@ -275,6 +286,8 @@ export default function HomeCarousel({
                     brandCount={brandCount}
                     categoryCount={categoryCount}
                     onOpenDetail={setDetail}
+                    onShopAll={onShopAll}
+                    onBrowse={onBrowse}
                   />
                 )}
               </div>
@@ -529,6 +542,8 @@ function PromoSlide({
   categories,
   onOpenProduct,
   onOpenDetail,
+  onShopOffers,
+  onBrowse,
 }: {
   slide: HomeDeck["offer"];
   offers: Product[];
@@ -537,6 +552,8 @@ function PromoSlide({
   onOpenProduct: (product: Product) => void;
   /** Opens the slide's own words, in full. */
   onOpenDetail: (detail: SlideDetail) => void;
+  onShopOffers: () => void;
+  onBrowse: () => void;
 }) {
   const { t, lang } = useI18n();
   const shown = offers.slice(0, OFFER_PHOTOS);
@@ -570,6 +587,12 @@ function PromoSlide({
     body,
     chips: pills.map((c) => localized(c, "name", lang)),
     badge: t("offer.percentOff", { n }),
+    // The slide advertises the discount; the sheet is where somebody who
+    // read it can go and see what carries it.
+    actions: [
+      { label: t("promo.cta"), onClick: onShopOffers, primary: true },
+      { label: t("shop.ctaBrowse"), onClick: onBrowse },
+    ],
   });
 
   const chips = (
@@ -1003,6 +1026,8 @@ function AboutSlide({
   brandCount,
   categoryCount,
   onOpenDetail,
+  onShopAll,
+  onBrowse,
 }: {
   slide: HomeDeck["brief"];
   products: Product[];
@@ -1012,6 +1037,8 @@ function AboutSlide({
   categoryCount: number;
   /** Opens the slide's own words, in full. */
   onOpenDetail: (detail: SlideDetail) => void;
+  onShopAll: () => void;
+  onBrowse: () => void;
 }) {
   const { t, lang } = useI18n();
 
@@ -1050,6 +1077,11 @@ function AboutSlide({
     footnote: showStats
       ? stats.map((st) => `${num(st.n)} ${st.label}`).join("  ·  ")
       : undefined,
+    // The two ways into the shop the slide used to carry itself.
+    actions: [
+      { label: t("shop.ctaShop"), onClick: onShopAll, primary: true },
+      { label: t("shop.ctaBrowse"), onClick: onBrowse },
+    ],
   });
 
   // A photograph the shop uploaded is the slide, the way a package's own
