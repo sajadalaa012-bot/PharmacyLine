@@ -77,16 +77,20 @@ export default function SlideDetailModal({
   }, []);
 
   return (
-    <div className="fade-in fixed inset-0 z-50 flex items-center justify-center bg-ink/50 backdrop-blur-[2px] p-3 sm:p-4">
+    <div
+      className="fade-in fixed inset-0 z-50 flex items-start justify-center bg-ink/50 p-3 backdrop-blur-[2px] sm:items-center sm:p-4"
+      style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}
+    >
       {/* Backdrop click closes */}
       <div className="absolute inset-0" onClick={onClose} />
 
-      {/* Centred, and measured in dvh.
-          It used to sit on the floor of the screen at 92vh, and vh on a phone
-          counts the browser chrome as part of the screen - so the foot of the
-          sheet, and the buttons on it, could be below anything the reader
-          could actually see. Centred it is clear of both edges, and dvh is
-          the height that is really there. */}
+      {/* At the top of the screen on a phone, centred from `sm` up.
+          It began on the floor of the screen at 92vh, and vh on a phone counts
+          the browser chrome as part of the screen - so the foot of the sheet,
+          and the buttons on it, could sit below anything the reader could
+          actually see. A phone reads from the top: opening there puts the
+          picture and the first line where the eye already is, and 88dvh is a
+          height that keeps the foot of the sheet on the screen. */}
       <div className="pop relative flex max-h-[88dvh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-line-strong bg-surface shadow-2xl">
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-line bg-sunken/50 px-5 py-3.5">
