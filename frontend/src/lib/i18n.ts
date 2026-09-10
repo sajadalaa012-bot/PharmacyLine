@@ -410,6 +410,7 @@ const en = {
   "home.next": "Next slide",
   "home.goTo": "Go to slide {n}",
   "home.viewProduct": "View product",
+  "home.slideDetails": "Read more about this",
   "home.seeAll": "See all",
 
   // ── Skincare consultation (the home screen's enquiry form) ──
@@ -1104,6 +1105,7 @@ const ar: Record<MessageKey, string> = {
   "home.next": "الشريحة التالية",
   "home.goTo": "الانتقال إلى الشريحة {n}",
   "home.viewProduct": "عرض المنتج",
+  "home.slideDetails": "اقرأ المزيد عن هذا",
   "home.seeAll": "عرض الكل",
 
   // ── استشارة العناية بالبشرة ──

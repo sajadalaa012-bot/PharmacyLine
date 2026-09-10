@@ -17,6 +17,7 @@ import {
 } from "@/types";
 import useEmblaCarousel from "embla-carousel-react";
 import BannerPhoto from "./BannerPhoto";
+import SlideDetailModal, { SlideDetail } from "./SlideDetailModal";
 import { useI18n } from "@/lib/LanguageProvider";
 import { format, localized } from "@/lib/i18n";
 import { num } from "@/lib/format";
@@ -114,6 +115,10 @@ export default function HomeCarousel({
       : []),
   ];
   const count = slides.length;
+
+  // The slide a shopper has pressed to read. The deck advertises; this is
+  // where the advertisement explains itself. See SlideDetailModal.
+  const [detail, setDetail] = useState<SlideDetail | null>(null);
 
   const [still, setStill] = useState(false);
 
@@ -251,6 +256,7 @@ export default function HomeCarousel({
                     offers={offers}
                     categories={productCategories}
                     onOpenProduct={onOpenProduct}
+                    onOpenDetail={setDetail}
                   />
                 ) : slide.kind === "package" ? (
                   <PackageSlide
@@ -268,6 +274,7 @@ export default function HomeCarousel({
                     categories={productCategories}
                     brandCount={brandCount}
                     categoryCount={categoryCount}
+                    onOpenDetail={setDetail}
                   />
                 )}
               </div>
@@ -281,6 +288,10 @@ export default function HomeCarousel({
       <p className="sr-only" aria-live="polite">
         {t("home.slideOf", { n: index + 1, total: count })}
       </p>
+
+      {detail && (
+        <SlideDetailModal {...detail} onClose={() => setDetail(null)} />
+      )}
 
       {count > 1 && (
         <div className="mt-4 flex items-center justify-center gap-3">
@@ -334,14 +345,31 @@ export default function HomeCarousel({
 function SlideFrame({
   children,
   aside,
+  onPress,
+  pressLabel,
 }: {
   children: React.ReactNode;
   aside: React.ReactNode;
+  /** Pressing the slide anywhere its own controls are not. */
+  onPress?: () => void;
+  pressLabel?: string;
 }) {
   return (
-    <div className="grid gap-5 p-5 sm:grid-cols-2 sm:items-center sm:gap-8 sm:p-8 lg:p-10">
+    <div className="relative grid gap-5 p-5 sm:grid-cols-2 sm:items-center sm:gap-8 sm:p-8 lg:p-10">
+      {/* Under everything, so a button or a plate on the slide still takes
+          its own press - and a swipe that happens to end here is swallowed by
+          the deck rather than counted as a press. See how the copy marks the
+          parts of itself that are only there to be read. */}
+      {onPress && (
+        <button
+          type="button"
+          onClick={onPress}
+          aria-label={pressLabel}
+          className="absolute inset-0 z-10 cursor-pointer"
+        />
+      )}
       <div className="order-2 sm:order-1">{children}</div>
-      <div className="order-1 sm:order-2">{aside}</div>
+      <div className="relative z-20 order-1 sm:order-2">{aside}</div>
     </div>
   );
 }
@@ -500,12 +528,15 @@ function PromoSlide({
   offers,
   categories,
   onOpenProduct,
+  onOpenDetail,
 }: {
   slide: HomeDeck["offer"];
   offers: Product[];
   /** Names the benefit pills - the types the reduced products actually are. */
   categories: ProductCategory[];
   onOpenProduct: (product: Product) => void;
+  /** Opens the slide's own words, in full. */
+  onOpenDetail: (detail: SlideDetail) => void;
 }) {
   const { t, lang } = useI18n();
   const shown = offers.slice(0, OFFER_PHOTOS);
@@ -516,6 +547,9 @@ function PromoSlide({
   const eyebrow = localized(slide, "eyebrow", lang) || t("promo.eyebrow");
   const written = localized(slide, "title", lang);
   const headline = splitOnFigure(written || t("promo.title"), n);
+  // The paragraph the slide no longer carries: it is read on the sheet the
+  // slide opens into, where there is room for it.
+  const body = localized(slide, "body", lang) || t("promo.body");
 
   // What kinds of thing are actually reduced, named from the catalogue rather
   // than written by hand: a pill reading "Sunscreen" when no sunscreen is
@@ -536,10 +570,31 @@ function PromoSlide({
     <div className="relative flex h-full flex-col justify-center overflow-hidden">
       <BlushGround photo={photoPair(slide)} />
 
+      {/* The whole slide is the way in to what it says. Under the copy in the
+          stack, so the plates on the other side still open their own product,
+          and the copy passes its presses down rather than swallowing them. */}
+      <button
+        type="button"
+        onClick={() =>
+          onOpenDetail({
+            photo: photoPair(slide),
+            eyebrow,
+            title: `${headline.before}${headline.figure}${headline.after}`,
+            body,
+            chips: pills.map((c) => localized(c, "name", lang)),
+            badge: t("offer.percentOff", { n }),
+          })
+        }
+        aria-label={t("home.slideDetails")}
+        className="absolute inset-0 z-10 cursor-pointer"
+      />
+
       <div className="relative grid items-center gap-4 p-4 sm:grid-cols-2 sm:gap-8 sm:p-8 lg:gap-10 lg:p-10">
         {/* ── Copy. First in the source, so it takes the start side: the right
-            in Arabic, the left in English, without either being hard-coded. */}
-        <div className="order-2 sm:order-1">
+            in Arabic, the left in English, without either being hard-coded.
+            Nothing here is interactive any more, so it lets a press through
+            to the slide underneath. */}
+        <div className="pointer-events-none order-2 sm:order-1">
           <span className="label-caps text-[#c62a6c]">{eyebrow}</span>
 
           <h2 className="mt-2.5 whitespace-pre-line font-display text-[26px] font-bold leading-[1.08] tracking-tight text-[#1b2733] sm:text-4xl lg:text-[44px]">
@@ -569,7 +624,7 @@ function PromoSlide({
         {/* ── What is actually reduced. Above the copy on a phone, beside it
             from `sm` up - the arrangement is the hook, the words are the
             argument, and on a narrow screen the hook comes first. */}
-        <div className="order-1 flex items-end justify-center gap-3 sm:order-2 sm:gap-4">
+        <div className="relative z-20 order-1 flex items-end justify-center gap-3 sm:order-2 sm:gap-4">
           {shown.map((p, i) => {
             const name = localized(p, "name", lang);
             // Staggered, so three bottles read as an arrangement rather than a
@@ -734,6 +789,8 @@ function PackageSlide({
 
   return (
     <SlideFrame
+      onPress={() => onOpen(pkg)}
+      pressLabel={t("pkg.viewDetails", { name })}
       aside={
         shown.length > 0 ? (
           <div
@@ -773,13 +830,15 @@ function PackageSlide({
         )
       }
     >
-      <span className="label-caps text-brand">{t("pkg.eyebrow")}</span>
-      <h2 className="mt-2 font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-ink sm:text-4xl lg:text-5xl">
-        <bdi>{name}</bdi>
-      </h2>
+      <div className="pointer-events-none">
+        <span className="label-caps text-brand">{t("pkg.eyebrow")}</span>
+        <h2 className="mt-2 font-display text-[26px] font-semibold leading-[1.12] tracking-tight text-ink sm:text-4xl lg:text-5xl">
+          <bdi>{name}</bdi>
+        </h2>
+      </div>
 
       {chips.length > 0 && (
-        <ul className="no-scrollbar mt-3.5 flex items-center gap-2 overflow-x-auto sm:mt-4 sm:flex-wrap sm:overflow-visible">
+        <ul className="no-scrollbar pointer-events-none mt-3.5 flex items-center gap-2 overflow-x-auto sm:mt-4 sm:flex-wrap sm:overflow-visible">
           {chips.map((c) => (
             <li
               key={c}
@@ -792,7 +851,7 @@ function PackageSlide({
       )}
 
       {/* The price, in the "was … now …" the cards use. */}
-      <div className="mt-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+      <div className="pointer-events-none mt-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
         {onOffer && (
           <span className="font-display text-base font-semibold text-ink-3 line-through decoration-rose/70 decoration-[1.5px] tabular-nums">
             {num(pkg.old_price as number)}
@@ -814,7 +873,7 @@ function PackageSlide({
         </p>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2 sm:mt-6 sm:gap-2.5">
+      <div className="relative z-20 mt-4 flex flex-wrap items-center gap-2 sm:mt-6 sm:gap-2.5">
         <button
           onClick={() => onAdd(pkg)}
           className="group flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-on-brand transition hover:bg-brand-deep active:scale-[0.98] sm:h-12 sm:px-7"
@@ -830,7 +889,7 @@ function PackageSlide({
       </div>
 
       {qty > 0 && (
-        <p className="mt-2.5 text-[12px] font-semibold text-brand">
+        <p className="pointer-events-none mt-2.5 text-[12px] font-semibold text-brand">
           {t("pkg.inCart", { n: qty })}
         </p>
       )}
@@ -911,6 +970,7 @@ function AboutSlide({
   categories,
   brandCount,
   categoryCount,
+  onOpenDetail,
 }: {
   slide: HomeDeck["brief"];
   products: Product[];
@@ -918,6 +978,8 @@ function AboutSlide({
   categories: ProductCategory[];
   brandCount: number;
   categoryCount: number;
+  /** Opens the slide's own words, in full. */
+  onOpenDetail: (detail: SlideDetail) => void;
 }) {
   const { t, lang } = useI18n();
 
@@ -927,6 +989,8 @@ function AboutSlide({
   const headline =
     localized(slide, "title", lang) ||
     `${t("shop.headline1")}\n${t("shop.headline2")}`;
+  // The lede the slide no longer carries - read on the sheet it opens into.
+  const lede = localized(slide, "body", lang) || t("shop.lede");
 
   // Real products stand in for the catalogue - ones with a picture only,
   // since an empty plinth says nothing about what is in the shop.
@@ -952,10 +1016,31 @@ function AboutSlide({
     <div className="relative flex h-full flex-col justify-center overflow-hidden">
       <BlushGround photo={photoPair(slide)} />
 
+      {/* The whole slide is the way in to what it says. */}
+      <button
+        type="button"
+        onClick={() =>
+          onOpenDetail({
+            photo: photoPair(slide),
+            eyebrow,
+            title: headline,
+            body: lede,
+            chips: pills.map((c) => localized(c, "name", lang)),
+            footnote: showStats
+              ? stats.map((st) => `${num(st.n)} ${st.label}`).join("  ·  ")
+              : undefined,
+          })
+        }
+        aria-label={t("home.slideDetails")}
+        className="absolute inset-0 z-10 cursor-pointer"
+      />
+
       <div className="relative grid items-center gap-4 p-4 sm:grid-cols-2 sm:gap-8 sm:p-8 lg:gap-10 lg:p-10">
         {/* ── Copy. First in the source, so it takes the start side: the right
-            in Arabic, the left in English, without either being hard-coded. */}
-        <div className="order-2 sm:order-1">
+            in Arabic, the left in English, without either being hard-coded.
+            Nothing here is interactive, so it lets a press through to the
+            slide underneath. */}
+        <div className="pointer-events-none order-2 sm:order-1">
           <span className="label-caps inline-flex flex-col items-start gap-1.5 text-[#c62a6c]">
             {eyebrow}
             {/* The rule under the eyebrow, as in the artwork. */}
