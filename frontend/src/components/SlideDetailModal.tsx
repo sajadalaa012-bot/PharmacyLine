@@ -77,11 +77,17 @@ export default function SlideDetailModal({
   }, []);
 
   return (
-    <div className="fade-in fixed inset-0 z-50 flex items-end justify-center bg-ink/50 backdrop-blur-[2px] sm:items-center sm:p-4">
+    <div className="fade-in fixed inset-0 z-50 flex items-center justify-center bg-ink/50 backdrop-blur-[2px] p-3 sm:p-4">
       {/* Backdrop click closes */}
       <div className="absolute inset-0" onClick={onClose} />
 
-      <div className="pop relative flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-2xl border border-line-strong bg-surface shadow-2xl sm:rounded-2xl">
+      {/* Centred, and measured in dvh.
+          It used to sit on the floor of the screen at 92vh, and vh on a phone
+          counts the browser chrome as part of the screen - so the foot of the
+          sheet, and the buttons on it, could be below anything the reader
+          could actually see. Centred it is clear of both edges, and dvh is
+          the height that is really there. */}
+      <div className="pop relative flex max-h-[88dvh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-line-strong bg-surface shadow-2xl">
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-line bg-sunken/50 px-5 py-3.5">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
@@ -110,7 +116,7 @@ export default function SlideDetailModal({
               for a banner, so it is shown as one rather than shrunk onto a
               square plate. */}
           {photo?.wide && (
-            <div className="relative h-44 w-full overflow-hidden sm:h-56">
+            <div className="relative h-36 w-full overflow-hidden sm:h-56">
               <BannerPhoto
                 photo={photo}
                 alt={title}
