@@ -563,28 +563,69 @@ function PromoSlide({
     ).values(),
   ].slice(0, SLIDE_PILLS);
 
+  const detail = (): SlideDetail => ({
+    photo: photoPair(slide),
+    eyebrow,
+    title: `${headline.before}${headline.figure}${headline.after}`,
+    body,
+    chips: pills.map((c) => localized(c, "name", lang)),
+    badge: t("offer.percentOff", { n }),
+  });
+
+  const chips = (
+    <>
+      {pills.length > 0 && (
+        <ul className="no-scrollbar mt-3.5 flex items-center gap-2 overflow-x-auto sm:mt-4 sm:flex-wrap sm:overflow-visible">
+          {pills.map((c) => (
+            <li
+              key={c.id}
+              className="shrink-0 rounded-full bg-white/15 px-3 py-1.5 text-[12px] font-medium text-white backdrop-blur-sm"
+            >
+              <bdi>{localized(c, "name", lang)}</bdi>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  );
+
+  // A photograph the shop uploaded is the slide, the way a package's own
+  // photograph is: edge to edge, the copy on a scrim over the foot of it.
+  // The pink wash this slide used to put over the picture was there to keep
+  // dark copy readable, and it cost the photograph most of itself.
+  if (hasPhoto(slide)) {
+    return (
+      <PhotoSlide
+        photo={photoPair(slide)}
+        alt={`${headline.before}${headline.figure}${headline.after}`}
+        eyebrow={eyebrow}
+        badge={
+          <span className="label-caps rounded-full bg-rose px-2.5 py-1 text-paper shadow-sm">
+            {t("offer.percentOff", { n })}
+          </span>
+        }
+        title={`${headline.before}${headline.figure}${headline.after}`}
+        onPress={() => onOpenDetail(detail())}
+        pressLabel={t("home.slideDetails")}
+      >
+        {chips}
+      </PhotoSlide>
+    );
+  }
+
   return (
     // h-full so the blush reaches the bottom of the deck: the track sizes
     // every slide to the tallest, and a ground that stopped short of that
     // would show the surface behind it.
     <div className="relative flex h-full flex-col justify-center overflow-hidden">
-      <BlushGround photo={photoPair(slide)} />
+      <BlushGround />
 
       {/* The whole slide is the way in to what it says. Under the copy in the
           stack, so the plates on the other side still open their own product,
           and the copy passes its presses down rather than swallowing them. */}
       <button
         type="button"
-        onClick={() =>
-          onOpenDetail({
-            photo: photoPair(slide),
-            eyebrow,
-            title: `${headline.before}${headline.figure}${headline.after}`,
-            body,
-            chips: pills.map((c) => localized(c, "name", lang)),
-            badge: t("offer.percentOff", { n }),
-          })
-        }
+        onClick={() => onOpenDetail(detail())}
         aria-label={t("home.slideDetails")}
         className="absolute inset-0 z-10 cursor-pointer"
       />
@@ -898,14 +939,15 @@ function PackageSlide({
 }
 
 /**
- * The ground the two banner slides stand on: a blush wash in the shop's
- * pinks, or a photograph the shop uploaded under a wash of the same colour.
+ * The ground the two banner slides stand on: a blush wash in the shop's own
+ * pinks, for a slide with no photograph of its own.
  *
- * The wash is what makes an uploaded photograph safe to put dark copy on.
- * Nobody vets what gets uploaded, and a headline that turns unreadable over
- * somebody's dark photo is worse than one that sits on a plain ground.
+ * It used to take the photograph too, under a sheet of the same pink heavy
+ * enough to keep dark copy readable over anything anyone might upload - which
+ * left the picture as a ghost of itself. A slide with a photograph is drawn
+ * as a photograph now, white copy on a scrim, the way a package is.
  */
-function BlushGround({ photo }: { photo?: ResponsivePhoto }) {
+function BlushGround() {
   return (
     <>
       <div
@@ -915,16 +957,6 @@ function BlushGround({ photo }: { photo?: ResponsivePhoto }) {
             "radial-gradient(120% 100% at 72% 15%, #fdeef1 0%, #f8e2e6 42%, #f1d2d8 72%, #ebc4cc 100%)",
         }}
       />
-      {photo?.wide && (
-        <>
-          <BannerPhoto
-            photo={photo}
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-[#fbe6ea]/75" />
-        </>
-      )}
     </>
   );
 }
@@ -1009,28 +1041,61 @@ function AboutSlide({
   ].filter((s) => s.n > 0);
   const showStats = slide.stats && stats.length > 0;
 
+  const detail = (): SlideDetail => ({
+    photo: photoPair(slide),
+    eyebrow,
+    title: headline,
+    body: lede,
+    chips: pills.map((c) => localized(c, "name", lang)),
+    footnote: showStats
+      ? stats.map((st) => `${num(st.n)} ${st.label}`).join("  ·  ")
+      : undefined,
+  });
+
+  // A photograph the shop uploaded is the slide, the way a package's own
+  // photograph is - see the offer slide above.
+  if (hasPhoto(slide)) {
+    return (
+      <PhotoSlide
+        photo={photoPair(slide)}
+        alt={headline.replace(/\n/g, " ")}
+        eyebrow={eyebrow}
+        title={headline}
+        onPress={() => onOpenDetail(detail())}
+        pressLabel={t("home.slideDetails")}
+      >
+        {pills.length > 0 && (
+          <ul className="no-scrollbar mt-3.5 flex items-center gap-2 overflow-x-auto sm:mt-4 sm:flex-wrap sm:overflow-visible">
+            {pills.map((c) => (
+              <li
+                key={c.id}
+                className="shrink-0 rounded-full bg-white/15 px-3 py-1.5 text-[12px] font-medium text-white backdrop-blur-sm"
+              >
+                <bdi>{localized(c, "name", lang)}</bdi>
+              </li>
+            ))}
+          </ul>
+        )}
+        {showStats && (
+          <p className="mt-4 hidden text-[10px] font-semibold uppercase tracking-[0.16em] text-white/70 sm:block">
+            {stats.map((st) => `${num(st.n)} ${st.label}`).join("  ·  ")}
+          </p>
+        )}
+      </PhotoSlide>
+    );
+  }
+
   return (
     // h-full so the blush reaches the bottom of the deck: the track sizes
     // every slide to the tallest, and a ground that stopped short of that
     // would show the surface behind it.
     <div className="relative flex h-full flex-col justify-center overflow-hidden">
-      <BlushGround photo={photoPair(slide)} />
+      <BlushGround />
 
       {/* The whole slide is the way in to what it says. */}
       <button
         type="button"
-        onClick={() =>
-          onOpenDetail({
-            photo: photoPair(slide),
-            eyebrow,
-            title: headline,
-            body: lede,
-            chips: pills.map((c) => localized(c, "name", lang)),
-            footnote: showStats
-              ? stats.map((st) => `${num(st.n)} ${st.label}`).join("  ·  ")
-              : undefined,
-          })
-        }
+        onClick={() => onOpenDetail(detail())}
         aria-label={t("home.slideDetails")}
         className="absolute inset-0 z-10 cursor-pointer"
       />
