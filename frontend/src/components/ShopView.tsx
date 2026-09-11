@@ -395,6 +395,34 @@ export default function ShopView() {
     })),
   ];
 
+  /* The finder is rendered twice from one set of state: docked at the foot of
+     the phone shell, inline above the grid on desktop. Only one of the two is
+     ever on screen, and because every control here is driven from this
+     component they cannot disagree. */
+  const finderProps = {
+    query,
+    onQuery: setQuery,
+    categories: typeOptions,
+    brands: brandOptions,
+    activeCategory: activeType,
+    activeBrand: activeCategory,
+    onPickCategory: setActiveType,
+    onPickBrand: setActiveCategory,
+    hasOffers,
+    offersOnly,
+    onToggleOffers: () => setOffersOnly((v) => !v),
+    minPrice,
+    maxPrice,
+    onMinPrice: setMinPrice,
+    onMaxPrice: setMaxPrice,
+    priceBounds,
+    resultCount: visibleProducts.length,
+    filtersOn,
+    onClearAll: clearFilters,
+    open: filtersOpen,
+    onOpenChange: setFiltersOpen,
+  };
+
   return (
     <div className="shop app-shell bg-paper">
       {/* ── Top app bar ─────────────────────────────────────────────────
@@ -612,32 +640,11 @@ export default function ShopView() {
             tab === "store" ? "" : "hidden"
           } ${tab === "consult" ? "" : "sm:block"}`}
         >
-          <FinderBar
-            query={query}
-            onQuery={setQuery}
-            searchRef={searchRef}
-            categories={typeOptions}
-            brands={brandOptions}
-            activeCategory={activeType}
-            activeBrand={activeCategory}
-            onPickCategory={setActiveType}
-            onPickBrand={setActiveCategory}
-            hasOffers={hasOffers}
-            offersOnly={offersOnly}
-            onToggleOffers={() => setOffersOnly((v) => !v)}
-            minPrice={minPrice}
-            maxPrice={maxPrice}
-            onMinPrice={setMinPrice}
-            onMaxPrice={setMaxPrice}
-            priceBounds={priceBounds}
-            resultCount={visibleProducts.length}
-            filtersOn={filtersOn}
-            onClearAll={clearFilters}
-            open={filtersOpen}
-            onOpenChange={setFiltersOpen}
-          />
+          {/* Desktop only. The phone's copy of this is docked at the foot of
+              the shell, below the grid it filters. */}
+          <FinderBar {...finderProps} placement="inline" />
 
-          {/* What the finder above currently adds up to, and how much of the
+          {/* What the finder currently adds up to, and how much of the
               catalogue answers to it. */}
           <div className="mb-5 mt-4 flex items-baseline justify-between gap-4 sm:mb-6">
             <h2 className="font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">
@@ -721,6 +728,15 @@ export default function ShopView() {
           worse than no ad. */}
       {tab === "home" && hasOffers && (
         <OfferPopup onShop={showOffers} percent={deck.offer.percent} />
+      )}
+
+      {/* ── Finder - phone only ─────────────────────────────────────────
+          Docked between the grid and the tab bar, outside the scrolling
+          region, so search and the filters are always within a thumb's reach
+          of the products they narrow. Store tab only: there is nothing to
+          filter on the other two. */}
+      {tab === "store" && (
+        <FinderBar {...finderProps} searchRef={searchRef} placement="docked" />
       )}
 
       {/* ── Tab bar - phone only ────────────────────────────────────── */}

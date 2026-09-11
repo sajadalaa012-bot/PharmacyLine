@@ -4,14 +4,22 @@
 //
 // Search and filters used to be three separate things: a field at the top, a
 // row of removable chips, and a Browse page you left the grid to visit. This
-// is all of it in one band that sits directly above the products, so every
-// change shows in the grid underneath as you make it and nothing takes you off
-// the page.
+// is all of it in one band that sits with the products, so every change shows
+// in the grid as you make it and nothing takes you off the page.
 //
 // What is out in the open is what gets used daily: search, offers, and the
 // categories, each carrying its own count. The long list of brands and the
 // price range fold into a panel that opens in place, because a shopper does
 // not want thirty-one brand chips between them and the products.
+//
+// Two placements, one component:
+//
+//   docked  the phone's. Fixed furniture at the foot of the shell, directly
+//           above the tab bar, where the thumb already is. The panel comes
+//           before the rail so it opens upward, over the grid rather than
+//           under the tab bar.
+//   inline  the desktop's. An ordinary band above the grid, and no search
+//           field of its own: the site header already carries one.
 
 import { useId } from "react";
 import { Search, SlidersHorizontal, X, ChevronDown } from "lucide-react";
@@ -107,13 +115,16 @@ interface FinderBarProps {
   onMaxPrice: (value: string) => void;
   priceBounds: { min: number; max: number };
 
-  /** How many products the grid below is showing right now. */
+  /** How many products the grid is showing right now. */
   resultCount: number;
   filtersOn: number;
   onClearAll: () => void;
 
   open: boolean;
   onOpenChange: (open: boolean) => void;
+
+  /** Where the band sits. See the note at the top of the file. */
+  placement?: "docked" | "inline";
 }
 
 export default function FinderBar({
@@ -139,9 +150,12 @@ export default function FinderBar({
   onClearAll,
   open,
   onOpenChange,
+  placement = "inline",
 }: FinderBarProps) {
   const { t } = useI18n();
   const panelId = useId();
+
+  const docked = placement === "docked";
 
   const priceActive = minPrice.trim() !== "" || maxPrice.trim() !== "";
   const clearPrice = () => {
@@ -152,173 +166,200 @@ export default function FinderBar({
   const priceInput =
     "h-9 w-24 rounded-full border border-line bg-surface px-3.5 text-sm text-ink outline-none transition [appearance:textfield] placeholder:text-ink-3 focus:border-brand/50 focus:ring-2 focus:ring-brand/15 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
 
-  return (
-    // Sticky on a phone so the filters stay within reach however far the grid
-    // is scrolled. The desktop header is already sticky and would collide, so
-    // there the band travels with the page.
-    <div className="sticky top-0 z-30 -mx-4 bg-paper/95 px-4 pb-3 pt-3 backdrop-blur-md sm:static sm:mx-0 sm:bg-transparent sm:px-0 sm:pt-0 sm:backdrop-blur-none">
-      {/* Search - phone only; the desktop has the same field in its header. */}
-      <div className="relative sm:hidden">
-        <Search className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
-        <input
-          ref={searchRef}
-          type="search"
-          value={query}
-          onChange={(e) => onQuery(e.target.value)}
-          placeholder={t("shop.searchPlaceholder")}
-          aria-label={t("shop.searchAria")}
-          className="h-11 w-full rounded-full border border-line bg-surface ps-10 pe-9 text-sm text-ink
-                     outline-none transition placeholder:text-ink-3
-                     focus:border-brand/50 focus:ring-2 focus:ring-brand/15
-                     [&::-webkit-search-cancel-button]:appearance-none"
-        />
-        {query && (
-          <button
-            onClick={() => onQuery("")}
-            aria-label={t("common.clearSearch")}
-            className="absolute end-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-ink-3 transition hover:bg-sunken hover:text-ink"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        )}
-      </div>
+  /* Search - the docked band's own field, and the only one a phone has. */
+  const search = (
+    <div className="relative">
+      <Search className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
+      <input
+        ref={searchRef}
+        type="search"
+        value={query}
+        onChange={(e) => onQuery(e.target.value)}
+        placeholder={t("shop.searchPlaceholder")}
+        aria-label={t("shop.searchAria")}
+        className="h-11 w-full rounded-full border border-line bg-surface ps-10 pe-9 text-sm text-ink
+                   outline-none transition placeholder:text-ink-3
+                   focus:border-brand/50 focus:ring-2 focus:ring-brand/15
+                   [&::-webkit-search-cancel-button]:appearance-none"
+      />
+      {query && (
+        <button
+          onClick={() => onQuery("")}
+          aria-label={t("common.clearSearch")}
+          className="absolute end-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-ink-3 transition hover:bg-sunken hover:text-ink"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      )}
+    </div>
+  );
 
-      {/* The rail. Everyday filters out in the open, in one scrolling line. */}
-      <div className="no-scrollbar mt-3 flex items-center gap-2 overflow-x-auto pb-1 sm:mt-0">
+  /* The rail. Everyday filters out in the open, in one scrolling line. */
+  const rail = (
+    <div
+      className={`no-scrollbar flex items-center gap-2 overflow-x-auto pb-1 ${
+        docked ? "mt-2.5" : ""
+      }`}
+    >
+      <button
+        type="button"
+        onClick={() => onOpenChange(!open)}
+        aria-expanded={open}
+        aria-controls={panelId}
+        className={`flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium transition active:scale-95 ${
+          open || filtersOn > 0
+            ? "border-brand text-brand"
+            : "border-line-strong bg-surface text-ink hover:border-brand hover:text-brand"
+        }`}
+      >
+        <SlidersHorizontal className="h-3.5 w-3.5" />
+        {t("finder.filters")}
+        {filtersOn > 0 && (
+          <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold tabular-nums text-on-brand">
+            {filtersOn}
+          </span>
+        )}
+        {/* The chevron points wherever the panel is about to go: down from an
+            inline band, up from the docked one. */}
+        <ChevronDown
+          className={`h-3.5 w-3.5 transition-transform duration-200 ${
+            (docked ? !open : open) ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {/* A hairline between the panel's handle and the filters themselves. */}
+      <span className="h-5 w-px shrink-0 bg-line-strong" aria-hidden />
+
+      {hasOffers && (
         <button
           type="button"
-          onClick={() => onOpenChange(!open)}
-          aria-expanded={open}
-          aria-controls={panelId}
+          onClick={onToggleOffers}
+          aria-pressed={offersOnly}
           className={`flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium transition active:scale-95 ${
-            open || filtersOn > 0
-              ? "border-brand text-brand"
-              : "border-line-strong bg-surface text-ink hover:border-brand hover:text-brand"
+            offersOnly
+              ? "border-rose bg-rose text-paper"
+              : "border-rose/40 bg-surface text-rose hover:border-rose"
           }`}
         >
-          <SlidersHorizontal className="h-3.5 w-3.5" />
-          {t("finder.filters")}
-          {filtersOn > 0 && (
-            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold tabular-nums text-on-brand">
-              {filtersOn}
-            </span>
-          )}
-          <ChevronDown
-            className={`h-3.5 w-3.5 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-          />
+          {t("promo.onOffer")}
         </button>
+      )}
 
-        {/* A hairline between the panel's handle and the filters themselves. */}
-        <span className="h-5 w-px shrink-0 bg-line-strong" aria-hidden />
+      {categories.map((opt) => (
+        <Chip
+          key={String(opt.id)}
+          label={opt.name}
+          count={opt.count}
+          on={activeCategory === opt.id}
+          onClick={() => onPickCategory(opt.id)}
+        />
+      ))}
+    </div>
+  );
 
-        {hasOffers && (
-          <button
-            type="button"
-            onClick={onToggleOffers}
-            aria-pressed={offersOnly}
-            className={`flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium transition active:scale-95 ${
-              offersOnly
-                ? "border-rose bg-rose text-paper"
-                : "border-rose/40 bg-surface text-rose hover:border-rose"
-            }`}
-          >
-            {t("promo.onOffer")}
-          </button>
-        )}
+  /* The panel: the long list and the range, opened in place. */
+  const panel = (
+    <div className="reveal" data-open={open} id={panelId}>
+      {/* inert while shut: a collapsed panel is still in the DOM, and without
+          this you could tab into controls nobody can see. */}
+      <div inert={!open}>
+        <div
+          className={`space-y-4 rounded-2xl border border-line bg-surface/70 p-4 ${
+            docked ? "mb-2.5" : "mt-2"
+          }`}
+        >
+          <div>
+            <p className="label-caps mb-2.5 text-ink-3">{t("browse.brand")}</p>
+            <ChipRow options={brands} active={activeBrand} onPick={onPickBrand} />
+          </div>
 
-        {categories.map((opt) => (
-          <Chip
-            key={String(opt.id)}
-            label={opt.name}
-            count={opt.count}
-            on={activeCategory === opt.id}
-            onClick={() => onPickCategory(opt.id)}
-          />
-        ))}
-      </div>
-
-      {/* The panel: the long list and the range, opened in place. */}
-      <div className="reveal" data-open={open} id={panelId}>
-        {/* inert while shut: a collapsed panel is still in the DOM, and without
-            this you could tab into controls nobody can see. */}
-        <div inert={!open}>
-          <div className="mt-2 space-y-4 rounded-2xl border border-line bg-surface/70 p-4">
-            <div>
-              <p className="label-caps mb-2.5 text-ink-3">{t("browse.brand")}</p>
-              <ChipRow
-                options={brands}
-                active={activeBrand}
-                onPick={onPickBrand}
+          <div>
+            <p className="label-caps mb-2.5 text-ink-3">{t("shop.price")}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                value={minPrice}
+                onChange={(e) => onMinPrice(e.target.value)}
+                placeholder={
+                  Number.isFinite(priceBounds.min)
+                    ? t("shop.minWith", { n: num(priceBounds.min) })
+                    : t("shop.min")
+                }
+                aria-label={t("shop.minAria")}
+                className={priceInput}
               />
+              <span className="text-ink-3">–</span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                value={maxPrice}
+                onChange={(e) => onMaxPrice(e.target.value)}
+                placeholder={
+                  priceBounds.max > 0
+                    ? t("shop.maxWith", { n: num(priceBounds.max) })
+                    : t("shop.max")
+                }
+                aria-label={t("shop.maxAria")}
+                className={priceInput}
+              />
+              <span className="text-xs text-ink-3">{t("common.currency")}</span>
+              {priceActive && (
+                <button
+                  onClick={clearPrice}
+                  className="flex items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs font-medium text-ink-2 transition hover:border-brand/40 hover:text-brand"
+                >
+                  <X className="h-3 w-3" />
+                  {t("common.clear")}
+                </button>
+              )}
             </div>
+          </div>
 
-            <div>
-              <p className="label-caps mb-2.5 text-ink-3">{t("shop.price")}</p>
-              <div className="flex flex-wrap items-center gap-2">
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  value={minPrice}
-                  onChange={(e) => onMinPrice(e.target.value)}
-                  placeholder={
-                    Number.isFinite(priceBounds.min)
-                      ? t("shop.minWith", { n: num(priceBounds.min) })
-                      : t("shop.min")
-                  }
-                  aria-label={t("shop.minAria")}
-                  className={priceInput}
-                />
-                <span className="text-ink-3">–</span>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  value={maxPrice}
-                  onChange={(e) => onMaxPrice(e.target.value)}
-                  placeholder={
-                    priceBounds.max > 0
-                      ? t("shop.maxWith", { n: num(priceBounds.max) })
-                      : t("shop.max")
-                  }
-                  aria-label={t("shop.maxAria")}
-                  className={priceInput}
-                />
-                <span className="text-xs text-ink-3">{t("common.currency")}</span>
-                {priceActive && (
-                  <button
-                    onClick={clearPrice}
-                    className="flex items-center gap-1 rounded-full border border-line px-3 py-1.5 text-xs font-medium text-ink-2 transition hover:border-brand/40 hover:text-brand"
-                  >
-                    <X className="h-3 w-3" />
-                    {t("common.clear")}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* What the panel currently adds up to. It closes rather than
-                navigates: the results are already behind it. */}
-            <div className="flex items-center justify-between gap-4 border-t border-line pt-3">
-              <button
-                onClick={onClearAll}
-                disabled={filtersOn === 0 && !priceActive && !query}
-                className="text-xs font-semibold text-brand transition active:scale-95 disabled:text-ink-3"
-              >
-                {t("browse.clearAll")}
-              </button>
-              <button
-                onClick={() => onOpenChange(false)}
-                className="flex h-9 items-center rounded-full bg-brand px-5 text-[13px] font-semibold text-on-brand transition hover:bg-brand-deep active:scale-95"
-              >
-                {resultCount === 1
-                  ? t("browse.showResultsOne")
-                  : t("browse.showResults", { n: resultCount })}
-              </button>
-            </div>
+          {/* What the panel currently adds up to. It closes rather than
+              navigates: the results are already behind it. */}
+          <div className="flex items-center justify-between gap-4 border-t border-line pt-3">
+            <button
+              onClick={onClearAll}
+              disabled={filtersOn === 0 && !priceActive && !query}
+              className="text-xs font-semibold text-brand transition active:scale-95 disabled:text-ink-3"
+            >
+              {t("browse.clearAll")}
+            </button>
+            <button
+              onClick={() => onOpenChange(false)}
+              className="flex h-9 items-center rounded-full bg-brand px-5 text-[13px] font-semibold text-on-brand transition hover:bg-brand-deep active:scale-95"
+            >
+              {resultCount === 1
+                ? t("browse.showResultsOne")
+                : t("browse.showResults", { n: resultCount })}
+            </button>
           </div>
         </div>
       </div>
+    </div>
+  );
+
+  if (docked) {
+    return (
+      // A shelf at the foot of the phone shell, outside the scrolling region:
+      // the filters stay under the thumb however far the grid has been
+      // scrolled, and opening the panel grows the shelf upward over the grid.
+      <div className="shrink-0 border-t border-line bg-paper/95 px-4 pb-2 pt-2.5 backdrop-blur-md sm:hidden">
+        {panel}
+        {search}
+        {rail}
+      </div>
+    );
+  }
+
+  return (
+    <div className="hidden sm:block">
+      {rail}
+      {panel}
     </div>
   );
 }
