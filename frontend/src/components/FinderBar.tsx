@@ -12,14 +12,14 @@
 // price range fold into a panel that opens in place, because a shopper does
 // not want thirty-one brand chips between them and the products.
 //
-// Two placements, one component:
+// It sits at the top of the grid and scrolls away with it, on every size.
+// The phone had it docked at the foot of the shell for a while - fixed
+// furniture under the thumb - and that is a good place for a thing you reach
+// for constantly and a poor one for a thing you set once: it stood between
+// the shopper and two rows of products the whole way down the catalogue.
 //
-//   docked  the phone's. Fixed furniture at the foot of the shell, directly
-//           above the tab bar, where the thumb already is. The panel comes
-//           before the rail so it opens upward, over the grid rather than
-//           under the tab bar.
-//   inline  the desktop's. An ordinary band above the grid, and no search
-//           field of its own: the site header already carries one.
+// The search field is the phone's only one, so it is drawn here and hidden
+// from `sm` up, where the site header already carries one.
 
 import { useId } from "react";
 import { Search, SlidersHorizontal, X, ChevronDown } from "lucide-react";
@@ -122,9 +122,6 @@ interface FinderBarProps {
 
   open: boolean;
   onOpenChange: (open: boolean) => void;
-
-  /** Where the band sits. See the note at the top of the file. */
-  placement?: "docked" | "inline";
 }
 
 export default function FinderBar({
@@ -150,12 +147,9 @@ export default function FinderBar({
   onClearAll,
   open,
   onOpenChange,
-  placement = "inline",
 }: FinderBarProps) {
   const { t } = useI18n();
   const panelId = useId();
-
-  const docked = placement === "docked";
 
   const priceActive = minPrice.trim() !== "" || maxPrice.trim() !== "";
   const clearPrice = () => {
@@ -166,7 +160,7 @@ export default function FinderBar({
   const priceInput =
     "h-9 w-24 rounded-full border border-line bg-surface px-3.5 text-sm text-ink outline-none transition [appearance:textfield] placeholder:text-ink-3 focus:border-brand/50 focus:ring-2 focus:ring-brand/15 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
 
-  /* Search - the docked band's own field, and the only one a phone has. */
+  /* Search - the phone's only field; the site header carries the desktop's. */
   const search = (
     <div className="relative">
       <Search className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
@@ -197,9 +191,7 @@ export default function FinderBar({
   /* The rail. Everyday filters out in the open, in one scrolling line. */
   const rail = (
     <div
-      className={`no-scrollbar flex items-center gap-2 overflow-x-auto pb-1 ${
-        docked ? "mt-2.5" : ""
-      }`}
+      className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1"
     >
       <button
         type="button"
@@ -219,11 +211,10 @@ export default function FinderBar({
             {filtersOn}
           </span>
         )}
-        {/* The chevron points wherever the panel is about to go: down from an
-            inline band, up from the docked one. */}
+        {/* The chevron points where the panel is about to go: down. */}
         <ChevronDown
           className={`h-3.5 w-3.5 transition-transform duration-200 ${
-            (docked ? !open : open) ? "rotate-180" : ""
+            open ? "rotate-180" : ""
           }`}
         />
       </button>
@@ -265,9 +256,7 @@ export default function FinderBar({
           this you could tab into controls nobody can see. */}
       <div inert={!open}>
         <div
-          className={`space-y-4 rounded-2xl border border-line bg-surface/70 p-4 ${
-            docked ? "mb-2.5" : "mt-2"
-          }`}
+          className="mt-2 space-y-4 rounded-2xl border border-line bg-surface/70 p-4"
         >
           <div>
             <p className="label-caps mb-2.5 text-ink-3">{t("browse.brand")}</p>
@@ -343,21 +332,9 @@ export default function FinderBar({
     </div>
   );
 
-  if (docked) {
-    return (
-      // A shelf at the foot of the phone shell, outside the scrolling region:
-      // the filters stay under the thumb however far the grid has been
-      // scrolled, and opening the panel grows the shelf upward over the grid.
-      <div className="shrink-0 border-t border-line bg-paper/95 px-4 pb-2 pt-2.5 backdrop-blur-md sm:hidden">
-        {panel}
-        {search}
-        {rail}
-      </div>
-    );
-  }
-
   return (
-    <div className="hidden sm:block">
+    <div>
+      <div className="mb-2.5 sm:hidden">{search}</div>
       {rail}
       {panel}
     </div>

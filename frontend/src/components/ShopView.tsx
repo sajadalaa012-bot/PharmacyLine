@@ -345,8 +345,8 @@ export default function ShopView() {
   const packageQty = (pkg: Package) =>
     cart.qtyOf(packageLineId(pkg.id), undefined, false);
 
-  /** The desktop header's search. The phone's lives in the FinderBar, right
-   *  above the products it filters. */
+  /** The desktop header's search. The phone's lives in the FinderBar, at the
+   *  head of the products it filters. */
   const renderSearch = (className = "") => (
     <div className={`relative ${className}`}>
       <Search className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3" />
@@ -395,10 +395,9 @@ export default function ShopView() {
     })),
   ];
 
-  /* The finder is rendered twice from one set of state: docked at the foot of
-     the phone shell, inline above the grid on desktop. Only one of the two is
-     ever on screen, and because every control here is driven from this
-     component they cannot disagree. */
+  /* Everything the finder band above the grid runs on. It is state held
+     here rather than there because the same filters answer to the home
+     screen's doorways - the offers ad, a category tile, the search link. */
   const finderProps = {
     query,
     onQuery: setQuery,
@@ -640,9 +639,11 @@ export default function ShopView() {
             tab === "store" ? "" : "hidden"
           } ${tab === "consult" ? "" : "sm:block"}`}
         >
-          {/* Desktop only. The phone's copy of this is docked at the foot of
-              the shell, below the grid it filters. */}
-          <FinderBar {...finderProps} placement="inline" />
+          {/* Search and the filters, at the head of the grid they narrow and
+              scrolling away with it. One band on every size: the phone's
+              carries the search field, the desktop's leaves it to the header
+              above. */}
+          <FinderBar {...finderProps} searchRef={searchRef} />
 
           {/* What the finder currently adds up to, and how much of the
               catalogue answers to it. */}
@@ -728,15 +729,6 @@ export default function ShopView() {
           worse than no ad. */}
       {tab === "home" && hasOffers && (
         <OfferPopup onShop={showOffers} percent={deck.offer.percent} />
-      )}
-
-      {/* ── Finder - phone only ─────────────────────────────────────────
-          Docked between the grid and the tab bar, outside the scrolling
-          region, so search and the filters are always within a thumb's reach
-          of the products they narrow. Store tab only: there is nothing to
-          filter on the other two. */}
-      {tab === "store" && (
-        <FinderBar {...finderProps} searchRef={searchRef} placement="docked" />
       )}
 
       {/* ── Tab bar - phone only ────────────────────────────────────── */}
