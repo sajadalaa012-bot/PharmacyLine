@@ -257,6 +257,36 @@ html[lang="ar"] body {
   display: block;
 }
 
+/* ── The prize wheel's stage ──────────────────────────────────────────
+   A pink room for the one moment in the shop that is pure theatre: a lit
+   ground, and an arch standing behind the wheel the way a backdrop stands
+   behind a thing being photographed.
+
+   Painted in literal colours rather than theme tokens, and the same in both
+   themes - see the note at the top of components/PrizeWheel.tsx. */
+
+.wheel-stage {
+  background:
+    radial-gradient(88% 52% at 50% 4%, rgba(255, 255, 255, 0.9), transparent 62%),
+    radial-gradient(66% 44% at 10% 28%, rgba(255, 255, 255, 0.5), transparent 66%),
+    linear-gradient(180deg, #fdf1f3 0%, #f8dde3 46%, #f2c6d0 100%);
+}
+
+.wheel-stage::before {
+  content: "";
+  position: absolute;
+  inset: 2% 5% auto;
+  height: 74%;
+  border-radius: 50% 50% 2rem 2rem / 32% 32% 2rem 2rem;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.62),
+    rgba(255, 255, 255, 0.04)
+  );
+  box-shadow: 0 40px 70px -55px rgba(150, 40, 85, 0.6);
+  pointer-events: none;
+}
+
 /* Hide scrollbar on the horizontal category strip */
 .no-scrollbar {
   scrollbar-width: none;

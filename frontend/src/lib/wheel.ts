@@ -6,29 +6,71 @@
 // stops exactly where the server said it would. See components/PrizeWheel.tsx.
 
 /**
- * The wedge colours: deep enough, all of them, to carry white type.
+ * The wedges: a deep rose, then a peach, all the way round, each with the ink
+ * that can actually be read on it - cream on the deep ones, plum on the pale
+ * ones. Alternating is the whole effect, so the list is read in pairs and an
+ * odd number of wedges simply meets itself at the seam.
  *
  * Not theme tokens. A wheel is an object sitting on the page rather than part
  * of its surface, and it should be the same wheel in either theme.
  */
-export const WHEEL_COLORS = [
-  "#c62a6c",
-  "#a51f57",
-  "#d4456b",
-  "#8f1b56",
-  "#e05c7e",
-  "#b3306b",
+export const WHEEL_WEDGES: { fill: string; ink: string }[] = [
+  { fill: "#c01f61", ink: "#fff6f8" },
+  { fill: "#f7ab8d", ink: "#8d1b4b" },
+  { fill: "#e0517a", ink: "#fff6f8" },
+  { fill: "#f9c3a7", ink: "#8d1b4b" },
+  { fill: "#a81a54", ink: "#fff6f8" },
+  { fill: "#f59a86", ink: "#7e1744" },
 ];
 
 /** Always positive, unlike `%` on a negative number. */
 export const mod360 = (deg: number) => ((deg % 360) + 360) % 360;
 
-/** A label has to fit inside a wedge, so a long prize name is trimmed to
- *  something the eye can catch as it goes past. The result card underneath
- *  always shows the name in full. */
-export function shortLabel(name: string): string {
-  const clean = name.trim();
-  return clean.length > 14 ? `${clean.slice(0, 13)}…` : clean;
+/**
+ * A prize name broken into the lines one wedge can hold.
+ *
+ * Wrapped rather than truncated, because the names on this wheel are mostly
+ * products - "COSRX Aloe Soothing Sun Cream" - and the first twelve letters
+ * of one are the brand, which is the half that says least. Three short lines
+ * carry the whole name; anything past them ends in an ellipsis, and the card
+ * that announces the win always shows the name in full anyway.
+ */
+export function wrapLabel(
+  name: string,
+  perLine = 13,
+  maxLines = 3,
+): string[] {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [];
+
+  const lines: string[] = [];
+  for (const word of words) {
+    const last = lines[lines.length - 1];
+    // A word that would not fit starts the next line - unless the line is
+    // empty, in which case it is simply a long word and gets clipped below.
+    if (last && `${last} ${word}`.length <= perLine) {
+      lines[lines.length - 1] = `${last} ${word}`;
+    } else {
+      lines.push(word);
+    }
+  }
+
+  const clip = (line: string) =>
+    line.length > perLine + 1 ? `${line.slice(0, perLine)}…` : line;
+  const kept = lines.slice(0, maxLines).map(clip);
+  if (lines.length > maxLines) {
+    const last = kept[maxLines - 1];
+    kept[maxLines - 1] = last.endsWith("…") ? last : `${last.trim()}…`;
+  }
+  return kept;
+}
+
+/** Where a stud sits on the rim: the boundary between two wedges, out past
+ *  the paint. Decoration, and the only thing that marks the seams from the
+ *  outside. */
+export function rimStud(index: number, segments: number, r = 92) {
+  const rad = ((index * (360 / segments) - 90) * Math.PI) / 180;
+  return { cx: 100 + r * Math.cos(rad), cy: 100 + r * Math.sin(rad) };
 }
 
 /**

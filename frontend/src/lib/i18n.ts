@@ -779,6 +779,7 @@ const en = {
   "wheel.subtitle": "Your order has earned one spin. Good luck.",
   "wheel.spin": "Spin",
   "wheel.spinning": "Spinning…",
+  "wheel.done": "Done",
   "wheel.youWon": "You won",
   "wheel.alreadySpun": "Your prize",
   "wheel.claim":
@@ -1553,6 +1554,7 @@ const ar: Record<MessageKey, string> = {
   "wheel.subtitle": "طلبك يمنحك دورة واحدة. حظاً موفقاً.",
   "wheel.spin": "أدِر العجلة",
   "wheel.spinning": "تدور…",
+  "wheel.done": "تم",
   "wheel.youWon": "لقد ربحت",
   "wheel.alreadySpun": "جائزتك",
   "wheel.claim":
