@@ -740,6 +740,9 @@ const en = {
   "wheel.prizesHint":
     "Everything that can be won. A prize reaches a wheel once a price range below ticks it.",
   "wheel.addPrize": "Add prize",
+  "wheel.pickProduct": "Add from the shop…",
+  "wheel.fromShop": "From the shop",
+  "wheel.allPicked": "Every product is already on the wheel.",
   "wheel.noPrizes": "No prizes yet. Add the first one to start building the wheel.",
   "wheel.name": "Prize",
   "wheel.nameAr": "Prize (Arabic)",
@@ -1512,6 +1515,9 @@ const ar: Record<MessageKey, string> = {
   "wheel.prizesHint":
     "كل ما يمكن ربحه. لا تصل الجائزة إلى العجلة إلا بعد أن يختارها أحد النطاقات في الأسفل.",
   "wheel.addPrize": "إضافة جائزة",
+  "wheel.pickProduct": "إضافة من المتجر…",
+  "wheel.fromShop": "من المتجر",
+  "wheel.allPicked": "كل المنتجات موجودة على العجلة.",
   "wheel.noPrizes": "لا توجد جوائز بعد. أضِف أول واحدة لتبدأ ببناء العجلة.",
   "wheel.name": "الجائزة",
   "wheel.nameAr": "الجائزة (بالعربية)",

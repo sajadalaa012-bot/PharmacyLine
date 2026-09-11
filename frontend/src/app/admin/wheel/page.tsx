@@ -18,6 +18,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   DEFAULT_WHEEL,
+  Product,
   WheelConfig,
   WheelPrize,
   WheelTier,
@@ -25,11 +26,13 @@ import {
   tierFor,
   wheelPrizesFor,
 } from "@/types";
-import { fetchWheel, updateWheel } from "@/lib/api";
+import { fetchProducts, fetchWheel, updateWheel } from "@/lib/api";
 import { money } from "@/lib/format";
-import { Check, Eye, EyeOff, Gift, Plus, Trash2 } from "lucide-react";
+import { Check, Eye, EyeOff, Gift, Plus, Store, Trash2 } from "lucide-react";
+import Dropdown from "@/components/Dropdown";
 import PhotoPicker from "@/components/admin/PhotoPicker";
 import { useI18n } from "@/lib/LanguageProvider";
+import { localized } from "@/lib/i18n";
 
 const inputCls =
   "w-full rounded-md border border-line bg-sunken px-3 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-3 focus:border-brand/50 focus:ring-1 focus:ring-brand/25";
@@ -57,6 +60,7 @@ const parseBound = (v: string): number | null => {
 export default function AdminWheelPage() {
   const { t, lang } = useI18n();
   const [wheel, setWheel] = useState<WheelConfig>(DEFAULT_WHEEL);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -72,6 +76,21 @@ export default function AdminWheelPage() {
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  // The catalogue, to pick prizes off. Loaded on its own and allowed to fail
+  // quietly: it is a shortcut for filling a prize in, and the wheel is still
+  // entirely editable by hand without it.
+  useEffect(() => {
+    let alive = true;
+    fetchProducts()
+      .then((cats) => {
+        if (alive) setProducts(cats.flatMap((cat) => cat.products));
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -95,6 +114,34 @@ export default function AdminWheelPage() {
         { id: newId("p"), name: "", name_ar: "", weight: 1 },
       ],
     });
+
+  /**
+   * A prize taken off the shelf: its name, both languages of it, and its
+   * photograph, copied onto the wheel.
+   *
+   * Copied rather than looked up later, like every other snapshot here. A
+   * prize that has been won is a promise about a particular bottle with a
+   * particular picture, and re-pricing or re-photographing that bottle - or
+   * deleting it - must not quietly change what is on the wheel. The id is
+   * kept only so the editor knows this one is already on it.
+   */
+  const addProductPrize = (value: string) => {
+    const product = products.find((p) => String(p.id) === value);
+    if (!product) return;
+    edit({
+      prizes: [
+        ...wheel.prizes,
+        {
+          id: newId("p"),
+          name: product.name,
+          name_ar: product.name_ar ?? "",
+          image_url: product.image_url || undefined,
+          product_id: product.id,
+          weight: 1,
+        },
+      ],
+    });
+  };
 
   /** Removing a prize takes it off every range too: a range pointing at a
    *  prize that no longer exists would be a wedge nobody can win. */
@@ -162,6 +209,23 @@ export default function AdminWheelPage() {
       prizes: wheelPrizesFor({ ...wheel, enabled: true }, total),
     };
   }, [tryTotal, wheel]);
+
+  /** What is left to pick: a product already on the wheel is not offered
+   *  again, because two wedges for the same bottle cannot be told apart. */
+  const productOptions = useMemo(() => {
+    const taken = new Set(
+      wheel.prizes.map((p) => p.product_id).filter((id) => id != null),
+    );
+    return products
+      .filter((p) => !taken.has(p.id))
+      .map((p) => ({
+        value: String(p.id),
+        label: localized(p, "name", lang),
+        meta: p.code,
+        keywords: `${p.name} ${p.name_ar ?? ""} ${p.code}`,
+        image: p.image_url || undefined,
+      }));
+  }, [products, wheel.prizes, lang]);
 
   const nameOf = (prize: WheelPrize) =>
     (lang === "ar" ? prize.name_ar?.trim() || prize.name : prize.name) ||
@@ -231,14 +295,30 @@ export default function AdminWheelPage() {
               {t("wheel.prizesHint")}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={addPrize}
-            className="label-caps flex h-9 shrink-0 items-center gap-1.5 rounded-md border border-brand/40 bg-brand/10 px-3.5 text-brand transition hover:bg-brand/20"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            {t("wheel.addPrize")}
-          </button>
+          {/* Two ways to put a prize on the wheel: off the shelf, which
+              fills in the name and brings the photograph with it, or empty,
+              for the prizes that are not things - free delivery, a discount. */}
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+            {products.length > 0 && (
+              <Dropdown
+                value=""
+                options={productOptions}
+                onChange={addProductPrize}
+                ariaLabel={t("wheel.pickProduct")}
+                placeholder={t("wheel.pickProduct")}
+                className="min-w-0 flex-1 sm:w-64 sm:flex-none"
+                searchable
+              />
+            )}
+            <button
+              type="button"
+              onClick={addPrize}
+              className="label-caps flex h-10 shrink-0 items-center gap-1.5 rounded-md border border-brand/40 bg-brand/10 px-3.5 text-brand transition hover:bg-brand/20"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {t("wheel.addPrize")}
+            </button>
+          </div>
         </div>
 
         <div className="space-y-3 p-4">
@@ -246,6 +326,10 @@ export default function AdminWheelPage() {
             <p className="rounded-md border border-dashed border-line px-3.5 py-6 text-center text-xs text-ink-3">
               {t("wheel.noPrizes")}
             </p>
+          )}
+
+          {products.length > 0 && productOptions.length === 0 && (
+            <p className="text-[11px] text-ink-3">{t("wheel.allPicked")}</p>
           )}
 
           {wheel.prizes.map((prize) => (
@@ -267,7 +351,15 @@ export default function AdminWheelPage() {
                 <div className="min-w-0 flex-1 space-y-3">
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div>
-                      <label className={labelCls}>{t("wheel.name")}</label>
+                      <label className={labelCls}>
+                        {t("wheel.name")}
+                        {prize.product_id != null && (
+                          <span className="ms-2 inline-flex items-center gap-1 rounded-full bg-brand/10 px-1.5 py-0.5 text-[10px] font-semibold normal-case tracking-normal text-brand">
+                            <Store className="h-3 w-3" />
+                            {t("wheel.fromShop")}
+                          </span>
+                        )}
+                      </label>
                       <input
                         type="text"
                         value={prize.name}
@@ -435,6 +527,14 @@ export default function AdminWheelPage() {
                             : "border-line-strong bg-surface text-ink hover:border-brand hover:text-brand"
                         }`}
                       >
+                        {prize.image_url && (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={prize.image_url}
+                            alt=""
+                            className="-ms-2 h-6 w-6 rounded-full border border-paper/40 bg-surface object-cover"
+                          />
+                        )}
                         <bdi>{nameOf(prize)}</bdi>
                         {on && (
                           <span className="text-[11px] tabular-nums opacity-75">
@@ -509,7 +609,16 @@ export default function AdminWheelPage() {
                           className="flex items-center justify-between gap-3 text-xs"
                         >
                           <span className="flex min-w-0 items-center gap-1.5 text-ink-2">
-                            <Gift className="h-3.5 w-3.5 shrink-0 text-brand" />
+                            {prize.image_url ? (
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img
+                                src={prize.image_url}
+                                alt=""
+                                className="h-6 w-6 shrink-0 rounded border border-line bg-surface object-cover"
+                              />
+                            ) : (
+                              <Gift className="h-3.5 w-3.5 shrink-0 text-brand" />
+                            )}
                             <bdi className="truncate">{nameOf(prize)}</bdi>
                           </span>
                           <span className="shrink-0 font-semibold text-ink tabular-nums">

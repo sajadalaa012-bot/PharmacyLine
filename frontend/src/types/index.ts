@@ -746,6 +746,14 @@ export interface WheelPrize {
   /** Optional photo, shown on the result card. A data URL, as everywhere. */
   image_url?: string;
   /**
+   * The catalogue product this prize was taken from, when it was taken from
+   * one. A note of where the name and the photo came from - what the editor
+   * greys out so the same bottle is not put on the wheel twice - and not a
+   * link: the name and the photo above are copies, and they stay what they
+   * were if the product is renamed, re-photographed or deleted.
+   */
+  product_id?: number;
+  /**
    * How likely this prize is, relative to the others on the same wheel. Equal
    * weights make an even wheel; 1 against 9 makes it a one-in-ten. A weight of
    * 0 keeps a prize on the wheel as scenery that never comes up.

@@ -11,6 +11,10 @@ export interface DropdownOption {
   meta?: string;
   /** Extra text the search box matches on but never displays. */
   keywords?: string;
+  /** A thumbnail for the row - a product's photograph, say. Optional
+   *  everywhere: a list where only some rows have one still reads straight,
+   *  because the slot is the same width whether or not it is filled. */
+  image?: string;
 }
 
 interface DropdownProps {
@@ -97,6 +101,14 @@ export default function Dropdown({
                    text-sm font-medium text-ink transition hover:border-line-strong
                    focus-visible:border-brand/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand/25"
       >
+        {active?.image && (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={active.image}
+            alt=""
+            className="h-6 w-6 shrink-0 rounded border border-line bg-sunken object-cover"
+          />
+        )}
         <span className="min-w-0 flex-1 truncate text-start">
           {active ? <bdi>{active.label}</bdi> : (placeholder ?? "…")}
         </span>
@@ -159,6 +171,14 @@ export default function Dropdown({
                           : "text-ink-2 hover:bg-sunken hover:text-ink"
                       }`}
                     >
+                      {option.image && (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={option.image}
+                          alt=""
+                          className="h-7 w-7 shrink-0 rounded border border-line bg-sunken object-cover"
+                        />
+                      )}
                       <span className="min-w-0 flex-1 truncate">
                         <bdi>{option.label}</bdi>
                       </span>

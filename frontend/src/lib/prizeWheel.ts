@@ -71,6 +71,14 @@ function weight(v: unknown): number {
   return Math.min(MAX_WEIGHT, Math.max(0, Math.round(n)));
 }
 
+/** The catalogue product a prize was picked from, if any. Anything that is
+ *  not a real row id is simply forgotten: the name and the photo were copied
+ *  when it was picked, so the prize stands on its own without it. */
+function productId(v: unknown): number | undefined {
+  const n = typeof v === "string" ? parseInt(v, 10) : (v as number);
+  return Number.isInteger(n) && n > 0 ? n : undefined;
+}
+
 /** An id the shop's own editor generates; anything unusable gets a new one. */
 function id(v: unknown, fallback: string): string {
   const s = text(v, 64).replace(/[^\w-]/g, "");
@@ -91,6 +99,7 @@ function prize(v: unknown, index: number): WheelPrize | null {
     name: name || name_ar,
     name_ar: name_ar || undefined,
     image_url: image(r.image_url) || undefined,
+    product_id: productId(r.product_id),
     weight: weight(r.weight),
   };
 }
