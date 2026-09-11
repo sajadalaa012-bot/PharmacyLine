@@ -13,7 +13,7 @@
 //                      order enforceable and a reload harmless.
 
 import { getSetting, setSetting } from "./settings";
-import { query } from "./db";
+import { ensureSchema, query } from "./db";
 import { mapPrize } from "./orders";
 import {
   DEFAULT_WHEEL,
@@ -192,12 +192,20 @@ export interface WheelOffer {
   prize: OrderPrize | null;
 }
 
-/** The order behind an id + its secret token, or null if they do not match.
- *  Same secret the tracking page uses - see trackOrder in lib/orders.ts. */
+/**
+ * The order behind an id + its secret token, or null if they do not match.
+ * Same secret the tracking page uses - see trackOrder in lib/orders.ts.
+ *
+ * ensureSchema first, and not as ceremony: the prize columns are newer than
+ * the orders table, so on an instance that has not bootstrapped yet this
+ * select is for columns that do not exist. Every other entry point into the
+ * database does the same.
+ */
 async function orderFor(
   id: number,
   token: string,
 ): Promise<Record<string, unknown> | null> {
+  await ensureSchema();
   const res = await query<Record<string, unknown>>(
     `SELECT grand_total, prize_id, prize_name, prize_name_ar, prize_won_at
        FROM orders WHERE id = $1 AND track_token = $2`,
