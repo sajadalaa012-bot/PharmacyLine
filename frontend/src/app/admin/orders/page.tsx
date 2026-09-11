@@ -24,12 +24,14 @@ import {
   ReceiptText,
   Phone,
   MapPin,
+  Gift,
 } from "lucide-react";
 import Receipt from "@/components/Receipt";
 import { useI18n } from "@/lib/LanguageProvider";
+import { localized } from "@/lib/i18n";
 
 export default function AdminOrdersPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [openId, setOpenId] = useState<number | null>(null);
@@ -215,6 +217,17 @@ export default function AdminOrdersPage() {
                       >
                         {pending ? t("common.pending") : t("common.approved")}
                       </span>
+                      {/* A prize is something extra to put in the box, so it
+                          is worth seeing without opening the order. */}
+                      {order.prize && (
+                        <span
+                          className="label-caps flex items-center gap-1 rounded-sm border border-brand/30 bg-brand/10 px-1.5 py-px text-brand"
+                          title={localized(order.prize, "name", lang)}
+                        >
+                          <Gift className="h-3 w-3" />
+                          {t("wheel.wonLabel")}
+                        </span>
+                      )}
                     </p>
                     <p className="mt-0.5 text-[11px] text-ink-3">
                       {shortDate(order.created_at)} · {shortTime(order.created_at)} ·{" "}
@@ -347,6 +360,24 @@ export default function AdminOrdersPage() {
                         </li>
                       ))}
                     </ul>
+
+                    {/* What the wheel gave them. It goes in the box with the
+                        order, so whoever packs it needs to see it here. */}
+                    {order.prize && (
+                      <div className="mt-3 flex items-center gap-2.5 rounded-md border border-brand/30 bg-brand/[0.07] p-3">
+                        <Gift className="h-4 w-4 shrink-0 text-brand" />
+                        <div className="min-w-0">
+                          <p className="label-caps text-brand">
+                            {t("wheel.wonLabel")}
+                          </p>
+                          <p className="mt-0.5 text-[13px] font-semibold text-ink">
+                            <bdi>
+                              {localized(order.prize, "name", lang)}
+                            </bdi>
+                          </p>
+                        </div>
+                      </div>
+                    )}
 
                     {order.notes && (
                       <div className="mt-3 rounded-md border border-line bg-surface p-3">

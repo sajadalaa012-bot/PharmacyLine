@@ -432,3 +432,35 @@ export async function notifyNewConsultation(c: Consultation): Promise<void> {
     console.error("Telegram consultation notify failed:", err);
   }
 }
+
+// ── Prize wheel ─────────────────────────────────────────────────────
+
+/**
+ * Announce what an order won on the wheel. Separate from the order message
+ * because it happens afterwards: the customer spins on the confirmation
+ * screen, by which time the order itself has already been sent. Whoever packs
+ * the order needs this, so it goes to the same chats, in Arabic, and - like
+ * everything else here - never throws.
+ */
+export async function notifyPrizeWon(
+  orderId: number,
+  prize: { name: string; name_ar?: string },
+): Promise<void> {
+  try {
+    const name = prize.name_ar?.trim() || prize.name;
+    const html = [
+      "🎡 <b>عجلة الجوائز</b>",
+      `رقم الطلب: <code>${String(orderId).padStart(5, "0")}</code>`,
+      `🎁 الجائزة: <b>${esc(name)}</b>`,
+      "",
+      "أضِف الجائزة إلى الطلب قبل التسليم.",
+    ].join("\n");
+    const outcomes = await sendToAll(html);
+    for (const o of outcomes) {
+      if (!o.ok)
+        console.error(`Telegram: prize ${orderId} → chat ${o.chatId}: ${o.error}`);
+    }
+  } catch (err) {
+    console.error("Telegram prize notify failed:", err);
+  }
+}

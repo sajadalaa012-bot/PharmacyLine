@@ -1,13 +1,14 @@
 "use client";
 
-import { Order } from "@/types";
+import { PlacedOrder } from "@/types";
 import { money, orderNo } from "@/lib/format";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
 import { useI18n } from "@/lib/LanguageProvider";
 import OrderNotify from "./OrderNotify";
+import PrizeWheel from "./PrizeWheel";
 
 interface OrderConfirmationProps {
-  order: Order;
+  order: PlacedOrder;
   onBack: () => void;
 }
 
@@ -57,6 +58,14 @@ export default function OrderConfirmation({ order, onBack }: OrderConfirmationPr
         {/* The one thing left to arrange while waiting: being told when the
             order is approved, rather than coming back to check. */}
         <OrderNotify orderId={order.id} />
+
+        {/* The spin this order has earned, if the shop is running a wheel and
+            this total is playing for something. It shows nothing at all
+            otherwise - see PrizeWheel. The token is what authorises the spin,
+            so an order restored without one (an admin edit) gets no wheel. */}
+        {order.track_token && (
+          <PrizeWheel orderId={order.id} token={order.track_token} />
+        )}
 
         <button
           onClick={onBack}

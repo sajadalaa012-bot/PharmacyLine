@@ -342,7 +342,18 @@ export interface Order extends CustomerDetails {
   grand_total: number;
   status: OrderStatus;
   items: OrderItem[];
+  /** What the prize wheel gave them, once they have spun it. Absent on an
+   *  order that was never offered a spin, or has not taken it yet. */
+  prize?: OrderPrize;
 }
+
+/**
+ * An order as it comes back from placing one: the same record, plus the
+ * secret token that lets this customer - and only this customer - act on it
+ * without an admin session. It is what the confirmation screen spins the
+ * wheel with, and what "My orders" stores to check on it later.
+ */
+export type PlacedOrder = Order & { track_token?: string };
 
 // ── Skincare consultation ───────────────────────────────────────────
 //
@@ -709,4 +720,155 @@ export function hasPhoto(source: {
   image_url_mobile?: string;
 }): boolean {
   return photoPair(source).wide !== "";
+}
+
+// ── The prize wheel ─────────────────────────────────────────────────
+//
+// A wheel the customer spins once, after placing an order. What is on the
+// wheel depends on what they spent: the shop writes the prizes, then says
+// which price range wins which of them, so a 10,000 order and a 100,000 one
+// are playing for different things.
+//
+// The spin itself is decided on the server and written onto the order (see
+// lib/prizeWheel.ts). The wheel in the browser only plays the animation that
+// lands on the answer it was given - which is why nothing here needs to be a
+// secret, and why a reload cannot re-roll a prize.
+
+/** One thing that can be won. Free text rather than a catalog product: a
+ *  prize is as often "free delivery" as it is a bottle off the shelf. */
+export interface WheelPrize {
+  /** Stable for the life of the prize. Orders record the id they won, so
+   *  renumbering these would rewrite what past customers were told. */
+  id: string;
+  name: string;
+  /** Arabic name; falls back to `name`, like every other content field. */
+  name_ar?: string;
+  /** Optional photo, shown on the result card. A data URL, as everywhere. */
+  image_url?: string;
+  /**
+   * How likely this prize is, relative to the others on the same wheel. Equal
+   * weights make an even wheel; 1 against 9 makes it a one-in-ten. A weight of
+   * 0 keeps a prize on the wheel as scenery that never comes up.
+   */
+  weight: number;
+}
+
+/** One price range, and what an order inside it is playing for. */
+export interface WheelTier {
+  id: string;
+  /** Inclusive floor, in IQD. */
+  min_total: number;
+  /** Inclusive ceiling. null means "and up". */
+  max_total: number | null;
+  /** Which prizes this range can win. Ids into WheelConfig.prizes; an id
+   *  whose prize has been deleted is simply skipped. */
+  prize_ids: string[];
+}
+
+export interface WheelConfig {
+  /** Off entirely while false: no wheel is offered, whatever is configured. */
+  enabled: boolean;
+  prizes: WheelPrize[];
+  tiers: WheelTier[];
+}
+
+export const DEFAULT_WHEEL: WheelConfig = {
+  enabled: false,
+  prizes: [],
+  tiers: [],
+};
+
+/** What an order won, snapshotted onto the order the moment it was spun. */
+export interface OrderPrize {
+  /** The prize as it was then. The name travels with it rather than being
+   *  looked up later: renaming or deleting a prize must not change what a
+   *  customer was already shown. */
+  id: string;
+  name: string;
+  name_ar?: string;
+  won_at: string;
+}
+
+/**
+ * The range an order total falls in.
+ *
+ * Ranges are not required to tile the whole number line, and nothing stops
+ * two of them overlapping. Where they do, the one that starts highest wins:
+ * a range written later and narrower is the more specific rule, and that is
+ * what somebody adding "and from 100,000 up, these instead" means.
+ *
+ * An order that matches nothing simply gets no wheel.
+ */
+export function tierFor(
+  config: Pick<WheelConfig, "tiers">,
+  total: number,
+): WheelTier | null {
+  let best: WheelTier | null = null;
+  for (const tier of config.tiers) {
+    if (total < tier.min_total) continue;
+    if (tier.max_total != null && total > tier.max_total) continue;
+    if (!best || tier.min_total > best.min_total) best = tier;
+  }
+  return best;
+}
+
+/**
+ * The prizes an order of this size is actually playing for: its range's list,
+ * resolved against the prizes that still exist and in the order the shop put
+ * them in. Empty when the wheel is off, when no range matches, or when the
+ * range that does match has been left without prizes.
+ */
+export function wheelPrizesFor(
+  config: WheelConfig,
+  total: number,
+): WheelPrize[] {
+  if (!config.enabled) return [];
+  const tier = tierFor(config, total);
+  if (!tier) return [];
+  const byId = new Map(config.prizes.map((p) => [p.id, p]));
+  return tier.prize_ids
+    .map((id) => byId.get(id))
+    .filter((p): p is WheelPrize => p !== undefined);
+}
+
+/**
+ * Pick a winner, by weight.
+ *
+ * Prizes all weighted 0 - which is what a shop gets if it zeroes every chance
+ * in a range - would otherwise never return anything, so they fall back to an
+ * even draw: a wheel that is offered has to be able to land somewhere.
+ */
+export function drawPrize(
+  prizes: WheelPrize[],
+  random: () => number = Math.random,
+): WheelPrize | null {
+  if (prizes.length === 0) return null;
+  const total = prizes.reduce((sum, p) => sum + Math.max(0, p.weight), 0);
+  if (total <= 0) return prizes[Math.floor(random() * prizes.length)] ?? prizes[0];
+  let roll = random() * total;
+  for (const prize of prizes) {
+    roll -= Math.max(0, prize.weight);
+    if (roll < 0) return prize;
+  }
+  return prizes[prizes.length - 1];
+}
+
+/** One prize's share of a wheel, as a whole percentage. */
+export function prizeOdds(prizes: WheelPrize[], prize: WheelPrize): number {
+  const total = prizes.reduce((sum, p) => sum + Math.max(0, p.weight), 0);
+  if (total <= 0) return prizes.length ? Math.round(100 / prizes.length) : 0;
+  return Math.round((Math.max(0, prize.weight) / total) * 100);
+}
+
+/**
+ * The wheel one particular order is offered.
+ *
+ * The segments arrive without their weights: the odds are the shop's
+ * business, and the browser never draws on them - it is told what was won and
+ * animates to it. See lib/prizeWheel.ts.
+ */
+export interface OrderWheel {
+  prizes: Pick<WheelPrize, "id" | "name" | "name_ar" | "image_url">[];
+  /** Set once this order has spun. A reload shows the prize, not a new wheel. */
+  prize: OrderPrize | null;
 }

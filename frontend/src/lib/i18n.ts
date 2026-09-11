@@ -727,6 +727,64 @@ const en = {
   "err.saveCategory": "Failed to save category.",
   "err.deleteCategory": "Failed to delete category.",
 
+  // ── The prize wheel ──
+  "nav.wheel": "Prize wheel",
+  "wheel.lede":
+    "A wheel the customer spins once, right after they place an order. Write the prizes, then say which price range wins which of them: what they spent decides what they are playing for.",
+  "wheel.enabled": "Run the wheel",
+  "wheel.enabledHint":
+    "While this is off nobody is offered a spin, and nothing below is lost.",
+  "wheel.on": "Running",
+  "wheel.off": "Off",
+  "wheel.prizes": "Prizes",
+  "wheel.prizesHint":
+    "Everything that can be won. A prize reaches a wheel once a price range below ticks it.",
+  "wheel.addPrize": "Add prize",
+  "wheel.noPrizes": "No prizes yet. Add the first one to start building the wheel.",
+  "wheel.name": "Prize",
+  "wheel.nameAr": "Prize (Arabic)",
+  "wheel.namePlaceholder": "Free delivery",
+  "wheel.photo": "Photo",
+  "wheel.untitled": "Untitled prize",
+  "wheel.chance": "Chance",
+  "wheel.chanceHint":
+    "How likely this is next to the others on the same wheel. Equal numbers make an even wheel; 1 against 9 makes it one in ten. 0 keeps it on the wheel without ever letting it come up.",
+  "wheel.ranges": "Price ranges",
+  "wheel.rangesHint":
+    "What an order of a given size is playing for. Where two ranges overlap, the one starting higher wins.",
+  "wheel.addRange": "Add range",
+  "wheel.noRanges": "No ranges yet. Add one to say what an order wins.",
+  "wheel.prizesFirst": "Add a prize first: a range needs something to win.",
+  "wheel.from": "From",
+  "wheel.to": "To",
+  "wheel.noCeiling": "and up",
+  "wheel.badRange":
+    "The upper bound is below the lower one, so nothing can land in this range.",
+  "wheel.rangeWins": "Wins one of",
+  "wheel.rangeEmpty": "Nothing ticked, so an order in this range gets no wheel.",
+  "wheel.try": "Try a total",
+  "wheel.tryHint":
+    "Check what an order of any size would meet, without placing one.",
+  "wheel.tryTotal": "Order total",
+  "wheel.tryRange": "Range {from} to {to}",
+  "wheel.tryRangeOpen": "Range {from} and up",
+  "wheel.tryNoRange": "No range covers this total, so no wheel is offered.",
+  "wheel.tryWhileOff":
+    "Shown as if the wheel were running. It is switched off at the moment.",
+  "wheel.wonLabel": "Prize",
+  "wheel.title": "Spin the wheel",
+  "wheel.subtitle": "Your order has earned one spin. Good luck.",
+  "wheel.spin": "Spin",
+  "wheel.spinning": "Spinning…",
+  "wheel.youWon": "You won",
+  "wheel.alreadySpun": "Your prize",
+  "wheel.claim":
+    "We will add it to your delivery. Nothing to do: the shop can already see it.",
+  "wheel.failed": "The wheel could not be spun. Try again.",
+  "err.loadWheel": "Failed to load the prize wheel.",
+  "err.saveWheel": "Failed to save the prize wheel.",
+  "err.spinWheel": "The wheel could not be spun.",
+
   // ── Recovering catalog edits stranded in this browser ──
   "nav.recover": "Publish device edits",
   "recover.title": "Publish edits made on this device",
@@ -1440,6 +1498,63 @@ const ar: Record<MessageKey, string> = {
   "err.saveProduct": "تعذّر حفظ المنتج.",
   "err.saveCategory": "تعذّر حفظ القسم.",
   "err.deleteCategory": "تعذّر حذف القسم.",
+
+  // ── عجلة الجوائز ──
+  "nav.wheel": "عجلة الجوائز",
+  "wheel.lede":
+    "عجلة يُديرها الزبون مرة واحدة بعد إتمام طلبه. اكتب الجوائز، ثم حدِّد أي نطاق سعري يربح أياً منها: قيمة الطلب هي التي تُقرّر ما يلعب عليه.",
+  "wheel.enabled": "تشغيل العجلة",
+  "wheel.enabledHint":
+    "عند الإيقاف لا تُعرض العجلة على أحد، ولا يضيع شيء مما في الأسفل.",
+  "wheel.on": "تعمل",
+  "wheel.off": "متوقفة",
+  "wheel.prizes": "الجوائز",
+  "wheel.prizesHint":
+    "كل ما يمكن ربحه. لا تصل الجائزة إلى العجلة إلا بعد أن يختارها أحد النطاقات في الأسفل.",
+  "wheel.addPrize": "إضافة جائزة",
+  "wheel.noPrizes": "لا توجد جوائز بعد. أضِف أول واحدة لتبدأ ببناء العجلة.",
+  "wheel.name": "الجائزة",
+  "wheel.nameAr": "الجائزة (بالعربية)",
+  "wheel.namePlaceholder": "توصيل مجاني",
+  "wheel.photo": "الصورة",
+  "wheel.untitled": "جائزة بلا اسم",
+  "wheel.chance": "فرصة الربح",
+  "wheel.chanceHint":
+    "مدى احتمال هذه الجائزة مقارنةً ببقية جوائز العجلة نفسها. الأرقام المتساوية تعني عجلة متكافئة، و1 مقابل 9 تعني واحداً من عشرة. والصفر يُبقيها على العجلة دون أن تخرج أبداً.",
+  "wheel.ranges": "النطاقات السعرية",
+  "wheel.rangesHint":
+    "ما يلعب عليه طلبٌ بحجم معيّن. وعند تداخل نطاقين، يفوز النطاق الذي يبدأ من رقم أعلى.",
+  "wheel.addRange": "إضافة نطاق",
+  "wheel.noRanges": "لا توجد نطاقات بعد. أضِف واحداً لتحديد ما يربحه الطلب.",
+  "wheel.prizesFirst": "أضِف جائزة أولاً: النطاق يحتاج إلى ما يُربح.",
+  "wheel.from": "من",
+  "wheel.to": "إلى",
+  "wheel.noCeiling": "فما فوق",
+  "wheel.badRange":
+    "الحد الأعلى أقل من الحد الأدنى، فلا يمكن لأي طلب أن يقع في هذا النطاق.",
+  "wheel.rangeWins": "يربح إحدى هذه",
+  "wheel.rangeEmpty":
+    "لم تُختَر أي جائزة، لذلك لا تُعرض عجلة على طلب في هذا النطاق.",
+  "wheel.try": "جرّب مبلغاً",
+  "wheel.tryHint": "اطّلع على ما يقابله طلبٌ بأي قيمة، دون الحاجة إلى إنشاء طلب.",
+  "wheel.tryTotal": "مجموع الطلب",
+  "wheel.tryRange": "النطاق من {from} إلى {to}",
+  "wheel.tryRangeOpen": "النطاق من {from} فما فوق",
+  "wheel.tryNoRange": "لا يغطي أي نطاق هذا المبلغ، لذلك لا تُعرض عجلة.",
+  "wheel.tryWhileOff": "معروض كما لو كانت العجلة تعمل. هي متوقفة حالياً.",
+  "wheel.wonLabel": "الجائزة",
+  "wheel.title": "أدِر العجلة",
+  "wheel.subtitle": "طلبك يمنحك دورة واحدة. حظاً موفقاً.",
+  "wheel.spin": "أدِر العجلة",
+  "wheel.spinning": "تدور…",
+  "wheel.youWon": "لقد ربحت",
+  "wheel.alreadySpun": "جائزتك",
+  "wheel.claim":
+    "سنضيفها إلى طلبك عند التوصيل. لا حاجة لأي إجراء: المتجر يراها الآن.",
+  "wheel.failed": "تعذّر تدوير العجلة. حاول مرة أخرى.",
+  "err.loadWheel": "تعذّر تحميل عجلة الجوائز.",
+  "err.saveWheel": "تعذّر حفظ عجلة الجوائز.",
+  "err.spinWheel": "تعذّر تدوير العجلة.",
 
   // ── Recovering catalog edits stranded in this browser ──
   "nav.recover": "نشر تعديلات الجهاز",

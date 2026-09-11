@@ -15,6 +15,10 @@ import {
   Package,
   PackageInput,
   HomeDeck,
+  PlacedOrder,
+  OrderPrize,
+  OrderWheel,
+  WheelConfig,
 } from "@/types";
 import { tt } from "./i18n";
 import { saveMyOrder } from "./myOrders";
@@ -222,7 +226,7 @@ export async function downscaleImage(dataUrl: string): Promise<string> {
 // ── Orders (shared database via /api) ───────────────────────────────
 
 /** Place an order (public). Also remembers it on this device for "My Orders". */
-export async function createOrder(order: OrderCreate): Promise<Order> {
+export async function createOrder(order: OrderCreate): Promise<PlacedOrder> {
   const res = await fetch("/api/orders", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -398,4 +402,52 @@ export function updateHomeDeck(deck: HomeDeck): Promise<HomeDeck> {
     tt("err.saveDeck"),
     deck,
   );
+}
+
+// ── The prize wheel (shared database via /api) ──────────────────────
+
+/** Admin: the whole wheel - prizes, price ranges and odds. */
+export async function fetchWheel(): Promise<WheelConfig> {
+  const res = await fetch("/api/wheel", { cache: "no-store" });
+  bounceIfUnauthorized(res);
+  if (!res.ok) throw new Error(await readError(res, tt("err.loadWheel")));
+  return res.json();
+}
+
+/** Admin: replace it. */
+export function updateWheel(wheel: WheelConfig): Promise<WheelConfig> {
+  return adminWrite<WheelConfig>("/api/wheel", "PUT", tt("err.saveWheel"), wheel);
+}
+
+/** One customer's own wheel: the segments their order is playing for, and
+ *  the prize if they have already spun. Authorised by the order's secret
+ *  token, exactly like tracking it. */
+export async function fetchOrderWheel(
+  orderId: number,
+  token: string,
+): Promise<OrderWheel> {
+  const params = new URLSearchParams({ id: String(orderId), token });
+  const res = await fetch(`/api/orders/prize?${params.toString()}`, {
+    cache: "no-store",
+  });
+  // A wheel that cannot be read is a wheel that is not offered: the order is
+  // placed either way, and the confirmation screen must not stall on this.
+  if (!res.ok) return { prizes: [], prize: null };
+  return res.json();
+}
+
+/** Spin it. The server picks and records the prize; calling twice returns the
+ *  same one. Null means there was nothing to win. */
+export async function spinOrderWheel(
+  orderId: number,
+  token: string,
+): Promise<OrderPrize | null> {
+  const res = await fetch("/api/orders/prize", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: orderId, token }),
+  });
+  if (!res.ok) throw new Error(await readError(res, tt("err.spinWheel")));
+  const data = (await res.json()) as { prize: OrderPrize | null };
+  return data.prize;
 }

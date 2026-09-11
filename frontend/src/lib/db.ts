@@ -325,6 +325,16 @@ const SCHEMA_SQL = `
     CREATE INDEX IF NOT EXISTS idx_push_topic ON push_subscriptions (topic);
     CREATE INDEX IF NOT EXISTS idx_push_order ON push_subscriptions (order_id);
 
+    -- What the prize wheel gave this order, written the moment it was spun.
+    -- The name is snapshotted beside the id for the same reason an order line
+    -- keeps product_name: renaming or retiring a prize later must not rewrite
+    -- what a customer was told they had won. prize_won_at doubles as the
+    -- record that this order has had its one spin - see lib/prizeWheel.ts.
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS prize_id TEXT;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS prize_name TEXT;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS prize_name_ar TEXT;
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS prize_won_at TIMESTAMPTZ;
+
     -- The pharmacy directory and its visit map were removed from the admin.
     -- Their tables are deliberately left alone rather than dropped here: a
     -- schema bootstrap is the wrong place to destroy data someone typed in.

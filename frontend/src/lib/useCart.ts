@@ -10,6 +10,7 @@ import {
   Order,
   OrderCreate,
   OrderStatus,
+  PlacedOrder,
   isStockTracked,
   lineKey,
   variantPricing,
@@ -31,7 +32,10 @@ export function useCart(
   const [notes, setNotes] = useState("");
   const [customer, setCustomer] = useState<CustomerDetails>(EMPTY_CUSTOMER);
   const [discount, setDiscount] = useState<number>(0);
-  const [order, setOrder] = useState<Order | null>(null);
+  // Typed with the secret token the server hands back when an order is
+  // placed: it is what the confirmation screen spins the prize wheel with.
+  // An order loaded for editing in the admin has no token, and no wheel.
+  const [order, setOrder] = useState<PlacedOrder | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [editingOrderId, setEditingOrderId] = useState<number | null>(null);

@@ -4,7 +4,7 @@
 
 import { randomUUID } from "crypto";
 import { connect, query, ensureSchema } from "./db";
-import { Order, OrderItem, OrderStatus } from "@/types";
+import { Order, OrderItem, OrderPrize, OrderStatus } from "@/types";
 
 export class OrderValidationError extends Error {}
 
@@ -121,6 +121,20 @@ function mapItem(r: Row): OrderItem {
   };
 }
 
+/** The wheel's answer, when this order has spun. See lib/prizeWheel.ts. */
+export function mapPrize(r: Row): OrderPrize | undefined {
+  if (r.prize_id == null || r.prize_won_at == null) return undefined;
+  return {
+    id: String(r.prize_id),
+    name: String(r.prize_name ?? ""),
+    name_ar: r.prize_name_ar == null ? undefined : String(r.prize_name_ar),
+    won_at:
+      r.prize_won_at instanceof Date
+        ? r.prize_won_at.toISOString()
+        : String(r.prize_won_at),
+  };
+}
+
 function mapOrder(r: Row, items: OrderItem[]): Order {
   return {
     id: Number(r.id),
@@ -136,6 +150,7 @@ function mapOrder(r: Row, items: OrderItem[]): Order {
     customer_phone: String(r.customer_phone ?? ""),
     customer_location: String(r.customer_location ?? ""),
     items,
+    prize: mapPrize(r),
   };
 }
 
