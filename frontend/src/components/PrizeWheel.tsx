@@ -41,8 +41,19 @@ import {
 const SPIN_MS = 4600;
 const TURNS = 5;
 
+/** Degrees a millisecond: under this the hand was resting on the wheel, not
+ *  throwing it. About a fifth of a turn a second. */
+const FLICK = 0.2;
+
 /** Where the paint stops and the rim begins, in the 200×200 box. */
 const WEDGE_R = 85;
+
+/* The lipstick standing on its disc, cut from the poster the shop asked for.
+   The sprite is 452×700 and the disc inside it is 436 across with its middle
+   at 50.3% of the height; the disc is meant to cover 32% of the wheel, and
+   these three numbers are what that works out to. They are what keeps the
+   disc concentric with the wheel turning under it. */
+const HUB = { width: 0.332, left: 0.334, top: 0.2415 };
 
 interface PrizeWheelProps {
   orderId: number;
@@ -62,6 +73,7 @@ export default function PrizeWheel({ orderId, token }: PrizeWheelProps) {
   // that is the moment it is for; shut for good by the customer, or by Done.
   const [onStage, setOnStage] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wheelRef = useRef<HTMLDivElement>(null);
   const gradientId = useId();
 
   useEffect(() => {
@@ -110,54 +122,139 @@ export default function PrizeWheel({ orderId, token }: PrizeWheelProps) {
   const segments = segmentsFor(offer?.prizes ?? []);
   const step = segments.length ? 360 / segments.length : 0;
 
-  const spin = useCallback(async () => {
-    if (spinning || prize) return;
-    setSpinning(true);
-    setError(null);
-    try {
-      const won = await spinOrderWheel(orderId, token);
-      if (!won) {
-        // Nothing to win: the shop turned the wheel off between placing the
-        // order and spinning it. Leave the screen as it was.
-        setOffer({ prizes: [], prize: null });
-        setSpinning(false);
-        return;
-      }
-
-      // Land on one of the wedges showing what was won - any of them, since
-      // they are the same prize - and stop a little off centre, because a
-      // wheel that always stops dead centre looks like what it is.
-      const landing = segments
-        .map((seg, i) => (seg.id === won.id ? i : -1))
-        .filter((i) => i >= 0);
-      const index = landing[Math.floor(Math.random() * landing.length)] ?? 0;
-      const reduced =
-        typeof window !== "undefined" &&
-        window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
-      // A reader who has asked for less motion still gets the answer, just
-      // without five revolutions of it.
-      setAngle((current) =>
-        landingAngle(
-          current,
-          index,
-          segments.length,
-          reduced ? 0 : TURNS,
-          Math.random() - 0.5,
-        ),
-      );
-      timer.current = setTimeout(
-        () => {
-          setPrize(won);
+  /**
+   * Spin, and land on whatever the server says.
+   *
+   * `turns` and `direction` are the only things the customer's hand decides:
+   * a hard flick sends it round more times, and the wheel carries on the way
+   * it was pushed. Where it stops was settled before it moved.
+   */
+  const spin = useCallback(
+    async (turns = TURNS, direction: 1 | -1 = 1) => {
+      if (spinning || prize) return;
+      setSpinning(true);
+      setError(null);
+      try {
+        const won = await spinOrderWheel(orderId, token);
+        if (!won) {
+          // Nothing to win: the shop turned the wheel off between placing the
+          // order and spinning it. Leave the screen as it was.
+          setOffer({ prizes: [], prize: null });
           setSpinning(false);
-        },
-        reduced ? 200 : SPIN_MS,
-      );
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("wheel.failed"));
-      setSpinning(false);
-    }
-  }, [orderId, token, segments, spinning, prize, t]);
+          return;
+        }
+
+        // Land on one of the wedges showing what was won - any of them, since
+        // they are the same prize - and stop a little off centre, because a
+        // wheel that always stops dead centre looks like what it is.
+        const landing = segments
+          .map((seg, i) => (seg.id === won.id ? i : -1))
+          .filter((i) => i >= 0);
+        const index = landing[Math.floor(Math.random() * landing.length)] ?? 0;
+        const reduced =
+          typeof window !== "undefined" &&
+          window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+        // A reader who has asked for less motion still gets the answer, just
+        // without five revolutions of it.
+        setAngle((current) =>
+          landingAngle(
+            current,
+            index,
+            segments.length,
+            reduced ? 0 : turns,
+            Math.random() - 0.5,
+            direction,
+          ),
+        );
+        timer.current = setTimeout(
+          () => {
+            setPrize(won);
+            setSpinning(false);
+          },
+          reduced ? 200 : SPIN_MS,
+        );
+      } catch (err) {
+        setError(err instanceof Error ? err.message : t("wheel.failed"));
+        setSpinning(false);
+      }
+    },
+    [orderId, token, segments, spinning, prize, t],
+  );
+
+  /* ── Turning it by hand ────────────────────────────────────────────
+     The wheel follows the finger, and a flick lets go of it: how hard
+     decides how many times it goes round, and which way decides which way it
+     carries on. A nudge is not a flick - the wheel stays where it was pushed
+     and the spin is still there to take. */
+  const drag = useRef<{
+    id: number;
+    /** Where the wheel stood when the finger landed. */
+    from: number;
+    /** The last raw pointer bearing, for unwrapping across the ±180 seam. */
+    raw: number;
+    /** Turned so far, and when: the tail of it is the flick's speed. */
+    path: { turned: number; at: number }[];
+  } | null>(null);
+  const [dragging, setDragging] = useState(false);
+
+  /** The finger's bearing from the middle of the wheel, in degrees. */
+  const bearing = (e: React.PointerEvent) => {
+    const box = wheelRef.current?.getBoundingClientRect();
+    if (!box) return 0;
+    return (
+      (Math.atan2(
+        e.clientY - (box.top + box.height / 2),
+        e.clientX - (box.left + box.width / 2),
+      ) *
+        180) /
+      Math.PI
+    );
+  };
+
+  const takeHold = (e: React.PointerEvent) => {
+    if (spinning || prize) return;
+    drag.current = {
+      id: e.pointerId,
+      from: angle,
+      raw: bearing(e),
+      path: [{ turned: 0, at: e.timeStamp }],
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDragging(true);
+  };
+
+  const turnWithFinger = (e: React.PointerEvent) => {
+    const d = drag.current;
+    if (!d || e.pointerId !== d.id) return;
+    const raw = bearing(e);
+    // The bearing jumps 360 as the finger crosses due west, so each step is
+    // taken as the short way round and added up.
+    let stepped = raw - d.raw;
+    if (stepped > 180) stepped -= 360;
+    else if (stepped < -180) stepped += 360;
+    d.raw = raw;
+    const turned = (d.path[d.path.length - 1]?.turned ?? 0) + stepped;
+    d.path.push({ turned, at: e.timeStamp });
+    if (d.path.length > 8) d.path.shift();
+    setAngle(d.from + turned);
+  };
+
+  const letGo = (e: React.PointerEvent) => {
+    const d = drag.current;
+    if (!d || e.pointerId !== d.id) return;
+    drag.current = null;
+    setDragging(false);
+
+    // Speed over the tail of the gesture, in degrees a millisecond.
+    const last = d.path[d.path.length - 1];
+    const first = d.path.find((p) => last.at - p.at < 180) ?? d.path[0] ?? last;
+    const ms = last.at - first.at;
+    const speed = ms > 0 ? (last.turned - first.turned) / ms : 0;
+
+    if (Math.abs(speed) < FLICK) return;
+    spin(Math.min(9, 3 + Math.round(Math.abs(speed) * 6)), speed > 0 ? 1 : -1);
+  };
 
   // No wheel for this order: the shop has it switched off, or this total
   // matches no price range. Nothing is said about it - an order that was never
@@ -180,7 +277,18 @@ export default function PrizeWheel({ orderId, token }: PrizeWheelProps) {
      and a mark that ends up on its side every time the wheel stops is not a
      mark. */
   const wheel = (
-    <div className="relative mx-auto aspect-square w-full max-w-[20rem] sm:max-w-[22rem]">
+    <div
+      ref={wheelRef}
+      onPointerDown={takeHold}
+      onPointerMove={turnWithFinger}
+      onPointerUp={letGo}
+      onPointerCancel={letGo}
+      className={`relative mx-auto aspect-square w-full max-w-[20rem] select-none sm:max-w-[22rem] ${
+        spinning || prize ? "" : dragging ? "cursor-grabbing" : "cursor-grab"
+      }`}
+      // The finger turns the wheel here, so it must not also scroll the page.
+      style={{ touchAction: spinning || prize ? "auto" : "none" }}
+    >
       <svg
         className="absolute inset-x-0 -top-1 z-10 mx-auto h-9 w-8 drop-shadow-[0_3px_5px_rgba(140,50,80,0.35)]"
         viewBox="0 0 28 34"
@@ -230,7 +338,7 @@ export default function PrizeWheel({ orderId, token }: PrizeWheelProps) {
           const from = i * step;
           const mid = from + step / 2;
           const { fill, ink } = WHEEL_WEDGES[i % WHEEL_WEDGES.length];
-          const lines = wrapLabel(localized(seg, "name", lang), 12);
+          const lines = wrapLabel(localized(seg, "name", lang), 11);
           const size = segments.length > 10 ? 6.6 : 7.4;
           const leading = size * 1.25;
           return (
@@ -261,7 +369,7 @@ export default function PrizeWheel({ orderId, token }: PrizeWheelProps) {
                 return (
                   <text
                     key={l}
-                    transform={`rotate(${mid} 100 100) translate(100 100) rotate(-90) translate(57 ${
+                    transform={`rotate(${mid} 100 100) translate(100 100) rotate(-90) translate(59 ${
                       upended ? -off : off
                     })${upended ? " rotate(180)" : ""}`}
                     textAnchor="middle"
@@ -294,19 +402,22 @@ export default function PrizeWheel({ orderId, token }: PrizeWheelProps) {
         })}
       </svg>
 
-      <div
-        className="pointer-events-none absolute left-1/2 top-1/2 flex h-[27%] w-[27%] -translate-x-1/2 -translate-y-1/2
-                   items-center justify-center rounded-full border-[3px] border-white bg-[#fdf1f3]
-                   shadow-[0_4px_14px_rgba(150,50,90,0.22)]"
+      {/* The hub: the lipstick on its disc, standing still while the paint
+          turns under it. Sized and placed so the disc is concentric with the
+          wheel, and left transparent to pointers so it can be dragged too. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/icons/wheel-hub.png"
+        alt=""
         aria-hidden
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/icons/velina-logo.png"
-          alt=""
-          className="w-[78%] max-w-none"
-        />
-      </div>
+        draggable={false}
+        className="pointer-events-none absolute max-w-none drop-shadow-[0_10px_18px_rgba(150,50,90,0.28)]"
+        style={{
+          width: `${HUB.width * 100}%`,
+          left: `${HUB.left * 100}%`,
+          top: `${HUB.top * 100}%`,
+        }}
+      />
     </div>
   );
 
@@ -413,6 +524,13 @@ export default function PrizeWheel({ orderId, token }: PrizeWheelProps) {
           </>
         ) : (
           <>
+            {/* The wheel can be thrown by hand, which nothing about a wheel
+                on a screen says out loud. */}
+            {!spinning && !error && (
+              <p className="-mt-1 text-center text-xs text-[#8d1b4b]/70">
+                {t("wheel.flick")}
+              </p>
+            )}
             {error && (
               <p className="text-center text-xs font-semibold text-[#b01b57]">
                 {error}
@@ -420,7 +538,7 @@ export default function PrizeWheel({ orderId, token }: PrizeWheelProps) {
             )}
             <button
               type="button"
-              onClick={spin}
+              onClick={() => spin()}
               disabled={spinning}
               className="flex h-14 w-full max-w-sm items-center justify-center gap-3 rounded-full
                              bg-gradient-to-b from-[#d92e72] to-[#a8134f] text-lg font-semibold text-white

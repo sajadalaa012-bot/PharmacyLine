@@ -108,10 +108,11 @@ export function wedgePath(from: number, to: number, r = 96): string {
 /**
  * Where to turn the wheel to so that `index` ends up under the pointer.
  *
- * Always forwards from where it is now - a wheel that jumps backwards to get
- * to its answer gives the game away - and never a whole number of turns, so
- * it settles a little off centre like a real one. `turns` full revolutions are
- * added for the show.
+ * It carries on the way it was already going - `direction` is which way the
+ * flick sent it, and a wheel that doubles back to reach its answer gives the
+ * game away - and never stops on a whole number of turns, so it settles a
+ * little off centre like a real one. `turns` full revolutions are added for
+ * the show.
  */
 export function landingAngle(
   current: number,
@@ -119,8 +120,11 @@ export function landingAngle(
   segments: number,
   turns: number,
   jitter = 0,
+  direction: 1 | -1 = 1,
 ): number {
   const step = 360 / segments;
   const target = -(index * step + step / 2) + jitter * step * 0.6;
-  return current + turns * 360 + mod360(target - current);
+  return direction === 1
+    ? current + turns * 360 + mod360(target - current)
+    : current - turns * 360 - mod360(current - target);
 }

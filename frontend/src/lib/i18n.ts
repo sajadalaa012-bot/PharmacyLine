@@ -780,6 +780,7 @@ const en = {
   "wheel.spin": "Spin",
   "wheel.spinning": "Spinning…",
   "wheel.done": "Done",
+  "wheel.flick": "Give the wheel a flick, or tap Spin.",
   "wheel.youWon": "You won",
   "wheel.alreadySpun": "Your prize",
   "wheel.claim":
@@ -1555,6 +1556,7 @@ const ar: Record<MessageKey, string> = {
   "wheel.spin": "أدِر العجلة",
   "wheel.spinning": "تدور…",
   "wheel.done": "تم",
+  "wheel.flick": "حرّك العجلة بإصبعك، أو اضغط أدِر.",
   "wheel.youWon": "لقد ربحت",
   "wheel.alreadySpun": "جائزتك",
   "wheel.claim":
